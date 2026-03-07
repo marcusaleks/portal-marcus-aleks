@@ -5,11 +5,26 @@ export default function DashboardIntel() {
   const [news, setNews] = useState({ finance: [], intel: [] });
 
   useEffect(() => {
-    // Busca o arquivo de notícias gerado pelo robô Python
-    fetch('/data/news.json')
-      .then(res => res.json())
-      .then(data => setNews(data))
-      .catch(() => console.log("Aguardando primeira execução do robô..."));
+    const carregarNoticias = async () => {
+      try {
+        // O timestamp (?t=...) no final impede que o navegador use o cache antigo
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/data/news.json?t=${timestamp}`);
+        
+        if (!response.ok) throw new Error('Falha ao carregar arquivo');
+        
+        const data = await response.json();
+        console.log("Dados recebidos:", data);
+        setNews(data);
+      } catch (err) {
+        console.error("Erro na sincronização:", err);
+      }
+    };
+
+    carregarNoticias();
+    // Tenta atualizar novamente a cada 5 minutos enquanto a aba estiver aberta
+    const interval = setInterval(carregarNoticias, 300000);
+    return () => clearInterval(interval);
   }, []);
 
   const NewsCard = ({ item, color }) => (
