@@ -10,6 +10,7 @@ export default function DashboardIntel() {
         // O timestamp (?t=...) no final impede que o navegador use o cache antigo
         const timestamp = new Date().getTime();
         const response = await fetch(`/data/news.json?t=${timestamp}`);
+        const response = await fetch(`/data/news.json?nocache=${new Date().getTime()}`);
         
         if (!response.ok) throw new Error('Falha ao carregar arquivo');
         
