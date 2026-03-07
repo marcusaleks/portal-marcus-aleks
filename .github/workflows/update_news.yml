@@ -1,0 +1,32 @@
+name: Atualizar Radar de Notícias
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Roda a cada 6 horas
+  workflow_dispatch: # Permite que você rode manualmente se quiser
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependências
+        run: pip install feedparser deep-translator
+
+      - name: Rodar Script de Notícias
+        run: python scripts/fetch_news.py
+
+      - name: Salvar mudanças no GitHub
+        run: |
+          git config --global user.name 'News Robot'
+          git config --global user.email 'robot@marcus.aleks'
+          git add public/data/news.json
+          git commit -m "Radar atualizado: $(date)" || echo "Sem mudanças"
+          git push
