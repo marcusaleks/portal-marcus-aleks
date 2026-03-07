@@ -1,24 +1,74 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Shield, TrendingUp, Globe, ExternalLink, Clock } from 'lucide-react';
 
 export default function DashboardIntel() {
+  const [news, setNews] = useState({ finance: [], intel: [] });
+
+  useEffect(() => {
+    // Busca o arquivo de notícias gerado pelo robô Python
+    fetch('/data/news.json')
+      .then(res => res.json())
+      .then(data => setNews(data))
+      .catch(() => console.log("Aguardando primeira execução do robô..."));
+  }, []);
+
+  const NewsCard = ({ item, color }) => (
+    <div className={`p-5 bg-slate-900 border-l-4 ${color} border-slate-800 rounded-r-xl mb-4 hover:bg-slate-800/50 transition-all`}>
+      <div className="flex justify-between items-start mb-2">
+        <span className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
+          <Clock size={10} /> {item.date}
+        </span>
+        <a href={item.link} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white">
+          <ExternalLink size={14} />
+        </a>
+      </div>
+      <h3 className="font-bold text-slate-200 text-sm leading-tight mb-2">{item.title}</h3>
+      <p className="text-xs text-slate-400 leading-relaxed">{item.summary}</p>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-10 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-200 p-6 md:p-12 font-sans">
       <div className="max-w-7xl mx-auto">
-        <header className="border-b border-red-900/30 pb-6 mb-10">
-          <h1 className="text-3xl font-black text-red-500 tracking-tighter">CENTRO DE OPERAÇÕES DE INTELIGÊNCIA</h1>
-          <p className="text-slate-500 font-mono text-sm mt-1 uppercase">Acesso Autorizado // Nível de Segurança: Alpha</p>
-        </header>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-xl">
-            <h3 className="font-bold mb-4 text-slate-300 uppercase text-xs">Radar OSINT</h3>
-            <div className="animate-pulse flex space-x-4">
-              <div className="flex-1 space-y-4 py-1">
-                <div className="h-4 bg-slate-800 rounded w-3/4"></div>
-                <div className="h-4 bg-slate-800 rounded"></div>
-              </div>
-            </div>
+        <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-red-900/30 pb-8 mb-12 gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-red-600 tracking-tighter uppercase italic">Operações de Inteligência</h1>
+            <p className="text-slate-500 font-mono text-xs mt-1 uppercase tracking-widest">Acesso Autorizado // marcus.aleks.nom.br</p>
           </div>
+          <div className="flex gap-4">
+             <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded text-center">
+                <p className="text-[10px] text-slate-500 uppercase">Nível de Risco</p>
+                <p className="text-sm font-bold text-emerald-500 uppercase italic">Baixo</p>
+             </div>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Coluna de Inteligência / OSINT */}
+          <section>
+            <div className="flex items-center gap-2 mb-6 text-red-500">
+              <Shield size={20} />
+              <h2 className="text-xl font-bold uppercase tracking-wider">Radar Intel & Compliance</h2>
+            </div>
+            {news.intel.length > 0 ? (
+              news.intel.map((item, i) => <NewsCard key={i} item={item} color="border-red-600" />)
+            ) : (
+              <p className="text-slate-600 italic text-sm">Sincronizando com bases internacionais...</p>
+            )}
+          </section>
+
+          {/* Coluna Financeira Estratégica */}
+          <section>
+            <div className="flex items-center gap-2 mb-6 text-blue-500">
+              <TrendingUp size={20} />
+              <h2 className="text-xl font-bold uppercase tracking-wider">Inteligência Financeira</h2>
+            </div>
+            {news.finance.length > 0 ? (
+              news.finance.map((item, i) => <NewsCard key={i} item={item} color="border-blue-600" />)
+            ) : (
+              <p className="text-slate-600 italic text-sm">Aguardando dados da B3/Reuters...</p>
+            )}
+          </section>
         </div>
       </div>
     </div>
