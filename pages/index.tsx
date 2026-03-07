@@ -5,12 +5,11 @@ import { TrendingUp, Calculator, PieChart, Lock, ExternalLink, BarChart3, Downlo
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30">
-      {/* Navbar com Marca Marcus Aleks em Azul */}
+      {/* Navbar com Marcus Aleks em Azul */}
       <nav className="border-b border-slate-800/50 bg-[#05070a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded shadow-lg shadow-blue-900/40 flex items-center justify-center font-bold text-white text-xs">MA</div>
-            {/* Ajuste 1: Nome Marcus Aleks em Azul no topo */}
             <span className="text-xl font-bold tracking-tighter text-blue-500 uppercase">MARCUS ALEKS</span>
           </div>
           <Link href="/login" className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded text-xs font-bold hover:bg-slate-800 transition-all text-slate-400 hover:text-white">
@@ -36,28 +35,28 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Ajuste 2: Quadro de Mercado com Valores Atuais (Março 2026) */}
+          {/* Quadro de Mercado Atualizado (Março 2026) */}
           <div className="border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl">
             <div className="space-y-6">
               <div className="flex justify-between items-end border-b border-slate-800 pb-4">
-                <span className="text-xs font-mono text-slate-500 uppercase">IBOVESPA</span>
+                <span className="text-xs font-mono text-slate-500 uppercase">USD/BRL</span>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-white tracking-tighter">132.840</span>
-                  <span className="text-xs text-emerald-500 ml-2 font-mono">+0.85%</span>
+                  <span className="text-2xl font-bold text-white tracking-tighter">5,24</span>
+                  <span className="text-xs text-slate-500 ml-2 font-mono">GOOGLE DATA</span>
                 </div>
               </div>
               <div className="flex justify-between items-end border-b border-slate-800 pb-4">
-                <span className="text-xs font-mono text-slate-500 uppercase">USD/BRL</span>
+                <span className="text-xs font-mono text-slate-500 uppercase">EUR/BRL</span>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-white tracking-tighter">5,05</span>
-                  <span className="text-xs text-red-500 ml-2 font-mono">-0.12%</span>
+                  <span className="text-2xl font-bold text-white tracking-tighter">6,10</span>
+                  <span className="text-xs text-slate-500 ml-2 font-mono">GOOGLE DATA</span>
                 </div>
               </div>
               <div className="flex justify-between items-end border-b border-slate-800 pb-4">
                 <span className="text-xs font-mono text-slate-500 uppercase">SELIC (META)</span>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-blue-500 tracking-tighter">10,50%</span>
-                  <span className="text-[10px] text-slate-500 ml-2 font-mono uppercase">VIGENTE</span>
+                  <span className="text-2xl font-bold text-blue-500 tracking-tighter">15,00%</span>
+                  <span className="text-[10px] text-slate-500 ml-2 font-mono uppercase italic">ATUALIZADO</span>
                 </div>
               </div>
             </div>
@@ -68,7 +67,6 @@ export default function Home() {
       {/* Grid de Ferramentas */}
       <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
         
-        {/* Tesouro Direto */}
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all group">
           <BarChart3 className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3">Tesouro Direto</h3>
@@ -78,7 +76,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Ajuste 3: Link Específico para Cálculo Financeiro */}
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all">
           <Calculator className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3">Cálculo Financeiro</h3>
@@ -88,7 +85,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Ajuste 4: Download de Projeto em Gestão de Portfólio */}
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3">Gestão de Portfólio</h3>
@@ -102,7 +98,6 @@ export default function Home() {
 
       {/* Footer Ajustado */}
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center">
-        {/* Ajuste 5: Novo Texto do Rodapé */}
         <p className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
           2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE
         </p>
