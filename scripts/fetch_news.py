@@ -20,18 +20,15 @@ def fetch_and_translate():
     for category, url in FEEDS.items():
         print(f"--- Iniciando categoria: {category} ---")
         try:
-            # Download manual para evitar bloqueios
             response = requests.get(url, headers=HEADERS, timeout=20)
             print(f"Status da resposta: {response.status_code}")
             
             feed = feedparser.parse(response.content)
             print(f"Notícias encontradas: {len(feed.entries)}")
             
-            # Pega as 5 mais recentes
             for entry in feed.entries[:5]:
                 try:
                     title_pt = translator.translate(entry.title)
-                    # Busca resumo em diferentes campos comuns
                     raw_summary = entry.get('summary', entry.get('description', 'Clique no link para ler a matéria completa.'))
                     summary_pt = translator.translate(raw_summary[:200])
                     
@@ -47,8 +44,9 @@ def fetch_and_translate():
         except Exception as e:
             print(f"Erro de conexão em {category}: {e}")
 
-    # Salva o arquivo final
-    os.makedirs('public/data', ensure_ok=True)
+    # AQUI ESTAVA O ERRO: Corrigido para exist_ok
+    os.makedirs('public/data', exist_ok=True) 
+    
     with open('public/data/news.json', 'w', encoding='utf-8') as f:
         json.dump(all_news, f, ensure_ascii=False, indent=4)
     print("Arquivo news.json atualizado com sucesso.")
