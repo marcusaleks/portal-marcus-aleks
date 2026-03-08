@@ -5,18 +5,21 @@ import {
   Download, ArrowUpRight, Activity, Newspaper, Cpu, Globe 
 } from 'lucide-react';
 
-// Componente de Mini Gráfico (Sparkline) para estética de terminal
-const Sparkline = ({ color = "stroke-emerald-500" }) => (
-  <svg className="w-12 h-6" viewBox="0 0 48 24" fill="none">
-    <path 
-      d="M0 18L8 14L16 20L24 10L32 14L40 4L48 12" 
-      className={color} 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-    />
-  </svg>
-);
+// Componente de Sparkline aprimorado com lógica de tendência
+const Sparkline = ({ trend = "up" }) => {
+  const color = trend === "up" ? "stroke-emerald-500" : "stroke-red-500";
+  return (
+    <svg className="w-12 h-6" viewBox="0 0 48 24" fill="none">
+      <path 
+        d={trend === "up" ? "M0 20L10 16L20 18L30 8L40 10L48 2" : "M0 2L10 8L20 6L30 18L40 16L48 22"} 
+        className={color} 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+      />
+    </svg>
+  );
+};
 
 export default function Home() {
   const [marketData, setMarketData] = useState({ 
@@ -28,9 +31,11 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Sincronização de Mercado
+        // Sincronização de Mercado (Google Finance / AwesomeAPI)
         const resCoins = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL');
         const dataCoins = await resCoins.json();
+        
+        // SELIC Efetiva (SGS Banco Central)
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
 
@@ -43,13 +48,13 @@ export default function Home() {
 
         setLastSync(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 
-        // Busca de Notícias (Painel de Inteligência)
+        // News Feed
         const resNews = await fetch(`/data/news.json?t=${new Date().getTime()}`);
         if (resNews.ok) {
           const dataNews = await resNews.json();
           setNews(dataNews.finance.slice(0, 4));
         }
-      } catch (e) { console.log("Erro na atualização de rede."); }
+      } catch (e) { console.log("Re-sincronizando bases..."); }
     };
 
     fetchData();
@@ -60,14 +65,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 relative overflow-hidden">
       
-      {/* Efeito de Scanline/Ruído sutil no fundo */}
+      {/* Background Effect: Scanlines de Terminal Industrial */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
 
-      {/* Navbar: Ajuste 1 e 2 - MAD MARCUS ALEKS */}
+      {/* Navbar: MAD MARCUS ALEKS */}
       <nav className="border-b border-slate-800/50 bg-[#05070a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 px-2 py-0.5 rounded font-black text-white text-[11px] tracking-tighter">MAD</div>
+            <div className="bg-blue-600 px-2 py-0.5 rounded font-black text-white text-[11px] tracking-tighter shadow-lg shadow-blue-900/40">MAD</div>
             <span className="text-sm font-black tracking-[0.2em] text-blue-500 uppercase">MARCUS ALEKS</span>
           </div>
           <Link href="/login" className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded text-[10px] font-bold hover:bg-slate-800 transition-all text-slate-400 uppercase tracking-widest">
@@ -79,59 +84,79 @@ export default function Home() {
       <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/50">
         <div className="grid lg:grid-cols-12 gap-12 items-start">
           
-          {/* Texto Profissional Focado no Mercado */}
+          {/* Posicionamento Estratégico e Texto Profissional */}
           <div className="lg:col-span-7 space-y-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/5 border border-blue-500/20 text-blue-500 text-[9px] font-bold uppercase tracking-[0.3em]">
-              Sistemas de Alta Disponibilidade
+              Arquitetura Financeira e Engenharia de Software
             </div>
             <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter">
-              Infraestrutura <br/><span className="text-blue-500 italic">Quantitativa</span>
+              Mercado de <br/><span className="text-blue-500 italic uppercase">Capitais</span>
             </h1>
             <p className="text-slate-400 text-xl max-w-2xl leading-relaxed font-light">
-              Desenvolvimento de arquiteturas robustas para gestão de ativos, monitoramento de fluxos em tempo real e ferramentas avançadas de análise e cálculo financeiro para o mercado de capitais brasileiro.
+              Desenvolvimento de ecossistemas de alta performance para monitoramento de ativos, gestão de risco e ferramentas de cálculo financeiro aplicadas a portfólios institucionais e custódia privada.
             </p>
             <div className="flex gap-6 pt-4">
               <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase"><Globe size={14}/> B3 Connection Active</div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase"><Cpu size={14}/> Python Core Engine</div>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase"><Cpu size={14}/> Python Core V0.0.1</div>
             </div>
           </div>
 
-          {/* Quadro de Mercado com IBOV, Sparklines e Selic Efetiva */}
-          <div className="lg:col-span-5 border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl relative group">
-            <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase animate-pulse">Live Data</div>
-            <div className="space-y-8">
-              <div className="flex justify-between items-center border-b border-slate-800/50 pb-6">
+          {/* Terminal de Mercado: IBOV, USD, EUR e SELIC EFETIVA */}
+          <div className="lg:col-span-5 border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl relative">
+            <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase shadow-lg shadow-blue-900/60">Live Analytics</div>
+            
+            <div className="space-y-6">
+              {/* IBOVESPA com fonte de variação aumentada */}
+              <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">IBOVESPA</span>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">IBOVESPA</span>
                   <span className="text-3xl font-bold text-white tracking-tighter">{marketData.ibov}</span>
-                  <span className="text-[10px] text-emerald-500 ml-2 font-mono font-bold">{marketData.ibovChange}</span>
+                  <span className="text-sm text-emerald-500 ml-3 font-mono font-black">{marketData.ibovChange}</span>
                 </div>
-                <Sparkline />
+                <Sparkline trend="up" />
               </div>
-              <div className="flex justify-between items-center border-b border-slate-800/50 pb-6">
+
+              {/* USD com Sparkline corrigida para verde (up) */}
+              <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">USD / BRL</span>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">USD / BRL</span>
                   <span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.usd}</span>
                 </div>
-                <Sparkline color="stroke-red-500" />
+                <Sparkline trend="up" /> 
               </div>
+
+              {/* EUR / BRL Adicionado */}
+              <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
+                <div>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">EUR / BRL</span>
+                  <span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.eur}</span>
+                </div>
+                <Sparkline trend="down" />
+              </div>
+
+              {/* SELIC EFETIVA + Reunião COPOM */}
               <div className="flex justify-between items-center">
                 <div>
                   <span className="text-[10px] font-mono text-blue-500 font-bold uppercase block mb-1 italic">SELIC EFETIVA</span>
                   <span className="text-3xl font-bold text-blue-500 tracking-tighter">{marketData.selic}%</span>
                 </div>
-                <Activity className="text-blue-900/50" size={32} />
+                <div className="text-right">
+                   <span className="text-[9px] font-mono text-slate-500 uppercase block mb-1">Próxima Reunião COPOM</span>
+                   <span className="text-xs font-black text-slate-400 font-mono tracking-tighter italic">17/03/2026</span>
+                </div>
               </div>
             </div>
+
+            {/* Sincronização em Negrito */}
             <div className="mt-8 pt-4 border-t border-slate-900 text-[9px] font-mono text-slate-600 flex justify-between uppercase tracking-widest">
-              <span>Sync: BCB/Google APIs</span>
-              <span>Last: {lastSync}</span>
+              <span className="font-bold">Sync: BCB / Google Analytics Engine</span>
+              <span className="font-bold">Last Update: {lastSync}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* NOVO: Painel de Notícias Relevantes */}
+      {/* Painel de Market Intelligence */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-b border-slate-900/50">
         <div className="flex items-center gap-4 mb-10">
           <Newspaper className="text-blue-500" size={24} />
@@ -146,7 +171,7 @@ export default function Home() {
             </a>
           )) : (
             <div className="col-span-4 py-10 border border-dashed border-slate-800 rounded-xl text-center">
-              <p className="text-xs font-mono text-slate-700 uppercase animate-pulse tracking-[0.4em]">Sincronizando feeds de notícias...</p>
+              <p className="text-xs font-mono text-slate-700 uppercase animate-pulse tracking-[0.4em]">Iniciando sincronização de fluxos de dados...</p>
             </div>
           )}
         </div>
@@ -168,23 +193,22 @@ export default function Home() {
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl border-blue-500/20 bg-blue-500/5 transition-all">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Gestão de Portfólio</h3>
-          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase shadow-lg shadow-blue-900/40"><Download size={14} /> Download Projeto</a>
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase shadow-lg shadow-blue-900/40"><Download size={14} /> Download Engine</a>
         </div>
       </section>
 
-      {/* Footer com Tech Stack (Sugestão de Melhoria) */}
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="space-y-2 text-center md:text-left">
           <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">
             2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE
           </p>
           <div className="flex gap-4 justify-center md:justify-start">
-            {['Next.js', 'Tailwind', 'Python', 'Vercel Edge'].map(tech => (
+            {['Next.js', 'Tailwind', 'Python Core', 'Vercel Edge'].map(tech => (
               <span key={tech} className="text-[8px] font-bold text-slate-800 border border-slate-900 px-2 py-0.5 rounded uppercase">{tech}</span>
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
+        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10 shadow-sm shadow-emerald-900/20">
           <Activity size={12} className="animate-pulse" /> SYSTEM STATUS: OPTIMAL
         </div>
       </footer>
