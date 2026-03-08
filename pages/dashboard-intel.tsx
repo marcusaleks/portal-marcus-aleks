@@ -3,26 +3,47 @@ import { useRouter } from 'next/router';
 import { 
   Shield, Activity, TrendingUp, AlertTriangle, 
   Search, ExternalLink, Globe, Database, Fingerprint, Terminal,
-  LogOut, Zap
+  LogOut, Zap, Lock
 } from 'lucide-react';
 
 export default function DashboardIntel() {
   const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
   const [intelStream, setIntelStream] = useState({ finance: [], intel: [] });
   const [osintQuery, setOsintQuery] = useState('');
 
   useEffect(() => {
-    const fetchIntel = async () => {
-      try {
-        const response = await fetch(`/data/news.json?t=${new Date().getTime()}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIntelStream(data);
-        }
-      } catch (err) { console.error("Link de dados offline."); }
+    // 1. PROTOCOLO DE ACESSO: Verificação de Token
+    const checkAuth = () => {
+      const token = localStorage.getItem('mad_access_token');
+      
+      if (!token) {
+        // Redirecionamento imediato para a Main Page se não houver token
+        router.push('/');
+        return;
+      }
+      
+      // Se houver token, liberamos a visualização
+      setAuthorized(true);
     };
-    fetchIntel();
-  }, []);
+
+    checkAuth();
+
+    // 2. UPLINK DE DADOS (Só executa se houver autorização prévia)
+    const uplinkData = async () => {
+      try {
+        const netRes = await fetch(`/data/news.json?t=${new Date().getTime()}`);
+        if (netRes.ok) {
+          const payload = await netRes.json();
+          setIntelStream(payload);
+        }
+      } catch (err) { console.error("Falha na sincronização de fluxos."); }
+    };
+
+    if (localStorage.getItem('mad_access_token')) {
+      uplinkData();
+    }
+  }, [router]);
 
   const handleOSINT = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +51,14 @@ export default function DashboardIntel() {
     window.open(`https://www.google.com/search?q=${encodeURIComponent(osintQuery)}`, '_blank');
   };
 
-  // 1. Lógica de Logout Convencional
   const handleLogout = () => {
-    // Aqui você pode limpar o cookie específico de auth se houver
+    localStorage.removeItem('mad_access_token');
     router.push('/');
   };
 
-  // 2. Lógica de Kill Switch (Botão de Pânico)
   const handleKillSwitch = () => {
     localStorage.clear();
     sessionStorage.clear();
-    // Força o redirecionamento imediato para a main page
     window.location.href = '/';
   };
 
@@ -53,11 +71,21 @@ export default function DashboardIntel() {
     { name: "SINTEGRA", url: "http://www.sintegra.gov.br/", desc: "Informações Fiscais" }
   ];
 
+  // Enquanto verifica a autorização, exibe tela de carregamento neutra
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-[#020408] flex flex-col items-center justify-center text-slate-600 font-mono text-[10px] uppercase tracking-[0.5em]">
+        <Lock size={20} className="mb-4 animate-pulse text-red-900" />
+        Authenticating Session...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#020408] text-slate-400 p-8 font-sans selection:bg-red-500/30">
        <div className="max-w-7xl mx-auto">
           
-          {/* Header Operacional com Logout e Kill Switch */}
+          {/* Header Operacional */}
           <div className="flex justify-between items-center border-b border-red-900/30 pb-6 mb-12">
              <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-red-600 rounded flex items-center justify-center text-white shadow-lg shadow-red-900/40 border border-red-500/20">
@@ -75,19 +103,11 @@ export default function DashboardIntel() {
                    <p className="text-white font-bold text-sm font-mono tracking-widest">{new Date().toLocaleTimeString()}</p>
                 </div>
                 
-                {/* Botões de Controle */}
                 <div className="flex gap-2">
-                   <button 
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded text-[10px] font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all uppercase tracking-widest"
-                   >
+                   <button onClick={handleLogout} className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-4 py-2 rounded text-[10px] font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all uppercase tracking-widest font-bold">
                       <LogOut size={14} /> Sair
                    </button>
-                   <button 
-                      onClick={handleKillSwitch}
-                      className="flex items-center gap-2 bg-red-900/20 border border-red-900/50 px-4 py-2 rounded text-[10px] font-black text-red-500 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest shadow-lg shadow-red-900/20"
-                      title="KILL SWITCH: Limpar cache e sair"
-                   >
+                   <button onClick={handleKillSwitch} className="flex items-center gap-2 bg-red-900/20 border border-red-900/50 px-4 py-2 rounded text-[10px] font-black text-red-500 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest shadow-lg shadow-red-900/20 font-bold">
                       <Zap size={14} /> Pânico
                    </button>
                 </div>
@@ -98,13 +118,13 @@ export default function DashboardIntel() {
              {/* COLUNA ESQUERDA: OSINT & SERVIÇOS */}
              <div className="lg:col-span-1 space-y-8">
                 <section className="bg-slate-900/20 border border-slate-800 p-6 rounded-xl">
-                   <h2 className="text-blue-500 font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-[10px]">
+                   <h2 className="text-blue-500 font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold">
                       <Search size={14}/> OSINT SEARCH MODULE
                    </h2>
                    <form onSubmit={handleOSINT} className="space-y-3">
                       <input 
                          type="text" 
-                         className="w-full bg-black border border-slate-800 rounded px-3 py-2 text-xs text-white font-mono focus:border-blue-500 outline-none transition-all"
+                         className="w-full bg-black border border-slate-800 rounded px-3 py-2 text-xs text-white font-mono focus:border-blue-500 outline-none transition-all font-bold"
                          placeholder="Target name, IP or Dork..."
                          value={osintQuery}
                          onChange={(e) => setOsintQuery(e.target.value)}
@@ -121,10 +141,10 @@ export default function DashboardIntel() {
                    </h2>
                    <div className="grid grid-cols-1 gap-2">
                       {services.map((s, i) => (
-                         <a key={i} href={s.url} target="_blank" className="flex items-center justify-between p-3 border border-slate-800/50 bg-black/40 rounded hover:border-red-600/30 group transition-all">
+                         <a key={i} href={s.url} target="_blank" className="flex items-center justify-between p-3 border border-slate-800/50 bg-black/40 rounded hover:border-red-600/30 group transition-all font-bold">
                             <div>
-                               <p className="text-[10px] font-black text-white group-hover:text-red-500">{s.name}</p>
-                               <p className="text-[8px] text-slate-600 uppercase font-bold">{s.desc}</p>
+                               <p className="text-[10px] font-black text-white group-hover:text-red-500 uppercase">{s.name}</p>
+                               <p className="text-[8px] text-slate-600 uppercase font-bold tracking-tighter">{s.desc}</p>
                             </div>
                             <ExternalLink size={12} className="text-slate-700 group-hover:text-red-500" />
                          </a>
@@ -141,8 +161,8 @@ export default function DashboardIntel() {
                    </h2>
                    <div className="grid md:grid-cols-2 gap-4">
                       {intelStream.finance.slice(0, 6).map((item, i) => (
-                         <div key={i} className="p-4 border border-slate-800 bg-slate-900/10 rounded-lg hover:border-blue-500/40 transition-all">
-                            <h3 className="text-white font-bold text-[11px] leading-tight mb-2">{item.title}</h3>
+                         <div key={i} className="p-4 border border-slate-800 bg-slate-900/10 rounded-lg hover:border-blue-500/40 transition-all group font-bold">
+                            <h3 className="text-white font-bold text-[11px] leading-tight mb-2 group-hover:text-blue-400">{item.title}</h3>
                             <a href={item.link} target="_blank" className="text-blue-500 text-[9px] font-black uppercase hover:underline">Open Source Analysis</a>
                          </div>
                       ))}
@@ -155,8 +175,8 @@ export default function DashboardIntel() {
                    </h2>
                    <div className="grid md:grid-cols-2 gap-4">
                       {intelStream.intel.slice(0, 6).map((item, i) => (
-                         <div key={i} className="p-4 border border-slate-800 bg-red-900/5 rounded-lg hover:border-red-600/40 transition-all">
-                            <h3 className="text-white font-bold text-[11px] leading-tight mb-2">{item.title}</h3>
+                         <div key={i} className="p-4 border border-slate-800 bg-red-900/5 rounded-lg hover:border-red-600/40 transition-all group font-bold">
+                            <h3 className="text-white font-bold text-[11px] leading-tight mb-2 group-hover:text-red-400">{item.title}</h3>
                             <a href={item.link} target="_blank" className="text-red-600 text-[9px] font-black uppercase hover:underline">Analyze Threat</a>
                          </div>
                       ))}
