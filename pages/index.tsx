@@ -5,7 +5,7 @@ import {
   Download, ArrowUpRight, Activity, Newspaper, Cpu, Globe 
 } from 'lucide-react';
 
-// Componente de Sparkline aprimorado com lógica de tendência
+// Componente de Sparkline (Mini Gráfico) com lógica de cores
 const Sparkline = ({ trend = "up" }) => {
   const color = trend === "up" ? "stroke-emerald-500" : "stroke-red-500";
   return (
@@ -31,11 +31,8 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Sincronização de Mercado (Google Finance / AwesomeAPI)
         const resCoins = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL');
         const dataCoins = await resCoins.json();
-        
-        // SELIC Efetiva (SGS Banco Central)
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
 
@@ -48,13 +45,12 @@ export default function Home() {
 
         setLastSync(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 
-        // News Feed
         const resNews = await fetch(`/data/news.json?t=${new Date().getTime()}`);
         if (resNews.ok) {
           const dataNews = await resNews.json();
           setNews(dataNews.finance.slice(0, 4));
         }
-      } catch (e) { console.log("Re-sincronizando bases..."); }
+      } catch (e) { console.log("Erro na sincronização."); }
     };
 
     fetchData();
@@ -65,10 +61,33 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 relative overflow-hidden">
       
-      {/* Background Effect: Scanlines de Terminal Industrial */}
+      {/* 1. Ticker Tape (Banner Deslizante) */}
+      <div className="w-full bg-slate-950 border-b border-slate-800 py-1.5 overflow-hidden whitespace-nowrap z-[60] relative group">
+        <div className="flex animate-marquee hover:[animation-play-state:paused] gap-12 items-center cursor-default">
+          {[
+            { t: 'PETR4', v: '36,42', c: '+0,85%' }, { t: 'VALE3', v: '68,10', c: '-1,20%' },
+            { t: 'ITUB4', v: '32,15', c: '+0,45%' }, { t: 'BBDC4', v: '14,92', c: '-0,10%' },
+            { t: 'BTC/BRL', v: '345.210', c: '+2,40%' }, { t: 'ETH/BRL', v: '18.450', c: '+1,10%' },
+          ].map((asset, i) => (
+            <div key={i} className="flex items-center gap-2 font-mono text-[10px] font-bold">
+              <span className="text-slate-500">{asset.t}</span>
+              <span className="text-white">{asset.v}</span>
+              <span className={asset.c.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}>{asset.c}</span>
+            </div>
+          ))}
+          {/* Loop infinito */}
+          {[ { t: 'PETR4', v: '36,42', c: '+0,85%' }, { t: 'VALE3', v: '68,10', c: '-1,20%' } ].map((asset, i) => (
+            <div key={`dup-${i}`} className="flex items-center gap-2 font-mono text-[10px] font-bold">
+              <span className="text-slate-500">{asset.t}</span> <span className="text-white">{asset.v}</span>
+              <span className={asset.c.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}>{asset.c}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
 
-      {/* Navbar: MAD MARCUS ALEKS */}
+      {/* 2. Navbar: MAD MARCUS ALEKS à esquerda */}
       <nav className="border-b border-slate-800/50 bg-[#05070a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -83,58 +102,32 @@ export default function Home() {
 
       <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/50">
         <div className="grid lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Posicionamento Estratégico e Texto Profissional */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/5 border border-blue-500/20 text-blue-500 text-[9px] font-bold uppercase tracking-[0.3em]">
-              Arquitetura Financeira e Engenharia de Software
-            </div>
-            <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter">
-              Mercado de <br/><span className="text-blue-500 italic uppercase">Capitais</span>
-            </h1>
-            <p className="text-slate-400 text-xl max-w-2xl leading-relaxed font-light">
-              Desenvolvimento de ecossistemas de alta performance para monitoramento de ativos, gestão de risco e ferramentas de cálculo financeiro aplicadas a portfólios institucionais e custódia privada.
-            </p>
-            <div className="flex gap-6 pt-4">
-              <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase"><Globe size={14}/> B3 Connection Active</div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 uppercase"><Cpu size={14}/> Python Core V0.0.1</div>
-            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/5 border border-blue-500/20 text-blue-500 text-[9px] font-bold uppercase tracking-[0.3em]">Arquitetura de Alta Disponibilidade</div>
+            <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter">Infraestrutura <br/><span className="text-blue-500 italic uppercase">Financeira</span></h1>
+            <p className="text-slate-400 text-xl max-w-2xl leading-relaxed font-light">Desenvolvimento de ecossistemas robustos para gestão de ativos, análise de fluxos e ferramentas de cálculo financeiro aplicadas a portfólios institucionais.</p>
           </div>
 
-          {/* Terminal de Mercado: IBOV, USD, EUR e SELIC EFETIVA */}
+          {/* Terminal de Mercado V3.0 */}
           <div className="lg:col-span-5 border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl relative">
             <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase shadow-lg shadow-blue-900/60">Live Analytics</div>
-            
             <div className="space-y-6">
-              {/* IBOVESPA com fonte de variação aumentada */}
               <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">IBOVESPA</span>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">IBOVESPA</span>
                   <span className="text-3xl font-bold text-white tracking-tighter">{marketData.ibov}</span>
                   <span className="text-sm text-emerald-500 ml-3 font-mono font-black">{marketData.ibovChange}</span>
                 </div>
                 <Sparkline trend="up" />
               </div>
-
-              {/* USD com Sparkline corrigida para verde (up) */}
               <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
-                <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">USD / BRL</span>
-                  <span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.usd}</span>
-                </div>
-                <Sparkline trend="up" /> 
+                <div><span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">USD / BRL</span><span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.usd}</span></div>
+                <Sparkline trend="up" />
               </div>
-
-              {/* EUR / BRL Adicionado */}
               <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
-                <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 tracking-widest">EUR / BRL</span>
-                  <span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.eur}</span>
-                </div>
+                <div><span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">EUR / BRL</span><span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.eur}</span></div>
                 <Sparkline trend="down" />
               </div>
-
-              {/* SELIC EFETIVA + Reunião COPOM */}
               <div className="flex justify-between items-center">
                 <div>
                   <span className="text-[10px] font-mono text-blue-500 font-bold uppercase block mb-1 italic">SELIC EFETIVA</span>
@@ -146,17 +139,15 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            {/* Sincronização em Negrito */}
             <div className="mt-8 pt-4 border-t border-slate-900 text-[9px] font-mono text-slate-600 flex justify-between uppercase tracking-widest">
-              <span className="font-bold">Sync: BCB / Google Analytics Engine</span>
-              <span className="font-bold">Last Update: {lastSync}</span>
+              <span className="font-bold text-slate-400">Sync: BCB / Google Analytics</span>
+              <span className="font-bold text-slate-400">Last: {lastSync}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Painel de Market Intelligence */}
+      {/* 3. Market Intelligence (News Panel) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-b border-slate-900/50">
         <div className="flex items-center gap-4 mb-10">
           <Newspaper className="text-blue-500" size={24} />
@@ -171,25 +162,24 @@ export default function Home() {
             </a>
           )) : (
             <div className="col-span-4 py-10 border border-dashed border-slate-800 rounded-xl text-center">
-              <p className="text-xs font-mono text-slate-700 uppercase animate-pulse tracking-[0.4em]">Iniciando sincronização de fluxos de dados...</p>
+              <p className="text-xs font-mono text-slate-700 uppercase animate-pulse tracking-[0.4em]">Aguardando conexão com as agências...</p>
             </div>
           )}
         </div>
       </section>
 
+      {/* Grid de Ferramentas */}
       <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all group">
           <BarChart3 className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Tesouro Direto</h3>
           <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="text-[10px] font-bold text-blue-500 flex items-center gap-2 uppercase tracking-widest hover:underline">Consultar Taxas <ArrowUpRight size={14} /></a>
         </div>
-
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all">
           <Calculator className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Cálculo Financeiro</h3>
           <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="text-[10px] font-bold text-blue-500 flex items-center gap-2 uppercase tracking-widest hover:underline">Correção Monetária <ExternalLink size={14} /></a>
         </div>
-
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl border-blue-500/20 bg-blue-500/5 transition-all">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Gestão de Portfólio</h3>
@@ -198,10 +188,7 @@ export default function Home() {
       </section>
 
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="space-y-2 text-center md:text-left">
-          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">
-            2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE
-          </p>
+        <div className="space-y-2 text-center md:text-left"><p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE</p>
           <div className="flex gap-4 justify-center md:justify-start">
             {['Next.js', 'Tailwind', 'Python Core', 'Vercel Edge'].map(tech => (
               <span key={tech} className="text-[8px] font-bold text-slate-800 border border-slate-900 px-2 py-0.5 rounded uppercase">{tech}</span>
