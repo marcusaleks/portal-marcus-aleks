@@ -22,67 +22,63 @@ export default function Home() {
   const [news, setNews] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTerminalData = async () => {
       try {
-        // 1. Moedas e Cripto
-        const resCoins = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,ETH-BRL');
-        const dCoins = await resCoins.json();
+        // Nomes de variáveis únicos para evitar "Cannot redeclare block-scoped variable"
+        const rMoedas = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,ETH-BRL');
+        const dMoedas = await rMoedas.json();
         
-        // 2. Selic (BCB)
-        const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
-        const dSelic = await resSelic.json();
+        const rSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
+        const dSelic = await rSelic.json();
 
-        // 3. Ações B3 (Top 10)
         const stocks = 'PETR4,VALE3,ITUB4,BBDC4,ABEV3,BBAS3,ITSA4,SANB11,RENT3,LREN3';
-        const resB3 = await fetch(`https://brapi.dev/api/quote/${stocks}`);
-        const dB3 = resB3.ok ? await resB3.json() : { results: [] };
+        const rB3 = await fetch(`https://brapi.dev/api/quote/${stocks}`);
+        const dB3 = rB3.ok ? await rB3.json() : { results: [] };
 
-        const stockAssets = dB3.results.map((stk: any) => ({
-          t: stk.symbol, v: stk.regularMarketPrice.toFixed(2), 
-          c: (stk.regularMarketChangePercent > 0 ? '+' : '') + stk.regularMarketChangePercent.toFixed(2) + '%'
+        const b3Assets = dB3.results.map((s: any) => ({
+          t: s.symbol, v: s.regularMarketPrice.toFixed(2).replace('.', ','), 
+          c: (s.regularMarketChangePercent > 0 ? '+' : '') + s.regularMarketChangePercent.toFixed(2) + '%'
         }));
 
         setTicker([
-          ...stockAssets,
-          { t: 'USD/BRL', v: dCoins.USDBRL.bid, c: (parseFloat(dCoins.USDBRL.pctChange) > 0 ? '+' : '') + dCoins.USDBRL.pctChange + '%' },
-          { t: 'EUR/BRL', v: dCoins.EURBRL.bid, c: (parseFloat(dCoins.EURBRL.pctChange) > 0 ? '+' : '') + dCoins.EURBRL.pctChange + '%' },
-          { t: 'BTC/BRL', v: parseFloat(dCoins.BTCBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(dCoins.BTCBRL.pctChange) > 0 ? '+' : '') + dCoins.BTCBRL.pctChange + '%' },
-          { t: 'ETH/BRL', v: parseFloat(dCoins.ETHBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(dCoins.ETHBRL.pctChange) > 0 ? '+' : '') + dCoins.ETHBRL.pctChange + '%' }
+          ...b3Assets,
+          { t: 'USD/BRL', v: dMoedas.USDBRL.bid.replace('.', ','), c: (parseFloat(dMoedas.USDBRL.pctChange) > 0 ? '+' : '') + dMoedas.USDBRL.pctChange + '%' },
+          { t: 'BTC/BRL', v: parseFloat(dMoedas.BTCBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(dMoedas.BTCBRL.pctChange) > 0 ? '+' : '') + dMoedas.BTCBRL.pctChange + '%' }
         ]);
 
         setMarketData(prev => ({ 
           ...prev, 
-          usd: dCoins.USDBRL.bid.replace('.', ','), 
-          eur: dCoins.EURBRL.bid.replace('.', ','), 
+          usd: dMoedas.USDBRL.bid.replace('.', ','), 
+          eur: dMoedas.EURBRL.bid.replace('.', ','), 
           selic: dSelic[0].valor.replace('.', ',') 
         }));
         setLastSync(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 
-        const resNews = await fetch(`/data/news.json?t=${new Date().getTime()}`);
-        if (resNews.ok) { 
-          const dNews = await resNews.json(); 
+        const rNews = await fetch(`/data/news.json?t=${new Date().getTime()}`);
+        if (rNews.ok) { 
+          const dNews = await rNews.json(); 
           setNews(dNews.finance.slice(0, 4)); 
         }
-      } catch (e) { console.log("Erro na sincronização de dados."); }
+      } catch (e) { console.log("Uplink Engine: Erro na sincronização."); }
     };
-    fetchData();
-    const interval = setInterval(fetchData, 300000);
+    fetchTerminalData();
+    const interval = setInterval(fetchTerminalData, 300000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 relative overflow-hidden">
       
-      {/* ANIMAÇÃO MARQUEE VIA CSS INLINE (GARANTE O MOVIMENTO) */}
+      {/* CSS INLINE PARA GARANTIR MOVIMENTO DO BANNER */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .animate-ticker-flow { display: flex; animation: marquee 40s linear infinite; }
-        .animate-ticker-flow:hover { animation-play-state: paused; }
+        .animate-ticker-v3 { display: flex; animation: marquee 35s linear infinite; }
+        .animate-ticker-v3:hover { animation-play-state: paused; }
       `}} />
 
-      {/* 1. Banner Superior Ampliado (py-6) */}
-      <div className="w-full bg-slate-950 border-b border-slate-800 py-6 overflow-hidden whitespace-nowrap z-[60] relative">
-        <div className="animate-ticker-flow gap-20 items-center cursor-default">
+      {/* 1. Banner Superior Ultra Largo (py-8) */}
+      <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden whitespace-nowrap z-[60] relative group">
+        <div className="animate-ticker-v3 gap-24 items-center cursor-default">
           {(ticker.length > 0 ? [...ticker, ...ticker] : []).map((asset, i) => (
             <div key={i} className="flex items-center gap-4 font-mono text-xs font-black tracking-tighter">
               <span className="text-slate-500 uppercase">{asset.t}</span>
@@ -94,7 +90,7 @@ export default function Home() {
       </div>
 
       <nav className="border-b border-slate-800/50 bg-[#05070a]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-bold">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 px-2 py-0.5 rounded font-black text-white text-[11px] tracking-tighter shadow-lg shadow-blue-900/40">MAD</div>
             <span className="text-sm font-black tracking-[0.2em] text-blue-500 uppercase">MARCUS ALEKS</span>
@@ -105,7 +101,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/50">
+      <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/50 font-bold">
         <div className="grid lg:grid-cols-12 gap-12 items-start">
           <div className="lg:col-span-7 space-y-8">
             <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">Mercado <br/><span className="text-blue-500 not-italic">Capitais</span></h1>
@@ -139,23 +135,23 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. RESTAURAÇÃO: MARKET INTELLIGENCE (Notícias) */}
+      {/* RESTAURAÇÃO: MARKET INTELLIGENCE (NOTÍCIAS) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-b border-slate-900/50">
         <div className="flex items-center gap-4 mb-10">
           <Newspaper className="text-blue-500" size={24} />
-          <h2 className="text-white text-2xl font-black uppercase tracking-tighter">Market Intelligence</h2>
+          <h2 className="text-white text-2xl font-black uppercase tracking-tighter font-bold">Market Intelligence</h2>
           <div className="h-[1px] flex-1 bg-slate-900"></div>
         </div>
         <div className="grid md:grid-cols-4 gap-6">
           {news.length > 0 ? news.map((item: any, i: number) => (
             <a key={i} href={item.link} target="_blank" className="p-5 border border-slate-800 bg-slate-950/20 rounded-xl hover:border-blue-500/30 transition-all group">
               <span className="text-[9px] text-blue-600 font-bold uppercase block mb-3 font-mono">{item.date}</span>
-              <h3 className="text-sm text-slate-200 font-bold leading-tight line-clamp-3 group-hover:text-blue-400 transition-colors">{item.title}</h3>
+              <h3 className="text-sm text-slate-200 font-bold leading-tight line-clamp-3 group-hover:text-blue-400">{item.title}</h3>
             </a>
-          )) : <div className="col-span-4 text-center py-10 font-mono text-[10px] uppercase animate-pulse text-slate-700">Sincronizando feeds de notícias...</div>}
+          )) : <div className="col-span-4 text-center py-10 font-mono text-[10px] uppercase animate-pulse text-slate-700 tracking-[0.4em]">Sincronizando feeds de notícias...</div>}
       </section>
 
-      {/* 3. RESTAURAÇÃO: FERRAMENTAS E LINKS EXTERNOS */}
+      {/* RESTAURAÇÃO: BOTÕES DE FERRAMENTAS */}
       <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-blue-500/40 transition-all">
           <BarChart3 className="text-blue-500 mb-6" size={32} />
@@ -170,20 +166,15 @@ export default function Home() {
         <div className="p-8 border border-slate-800 bg-blue-500/5 rounded-2xl border-blue-500/20 shadow-lg shadow-blue-900/10">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Gestão de Portfólio</h3>
-          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase"><Download size={14} /> Download Engine</a>
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase shadow-md shadow-blue-900/40"><Download size={14} /> Download Engine</a>
         </div>
       </section>
 
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="space-y-3">
-          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE</p>
-          <div className="flex gap-4">
-            {['Next.js', 'Tailwind CSS', 'Python Core', 'Vercel Edge'].map(tech => (
-              <span key={tech} className="text-[8px] font-bold text-slate-800 border border-slate-900 px-2 py-0.5 rounded uppercase">{tech}</span>
-            ))}
-          </div>
+        <div className="space-y-3"><p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE</p>
+          <div className="flex gap-4">{['Next.js', 'Tailwind CSS', 'Python Core', 'Vercel Edge'].map(t => (<span key={t} className="text-[8px] font-bold text-slate-800 border border-slate-900 px-2 py-0.5 rounded uppercase">{t}</span>))}</div>
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
+        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10 shadow-sm shadow-emerald-900/20">
           <Activity size={12} className="animate-pulse" /> SYSTEM STATUS: OPTIMAL
         </div>
       </footer>
