@@ -24,52 +24,65 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 1. Moedas e Cripto
         const resCoins = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,ETH-BRL');
-        const d = await resCoins.json();
+        const dCoins = await resCoins.json();
+        
+        // 2. Selic (BCB)
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
-        const s = await resSelic.json();
+        const dSelic = await resSelic.json();
 
-        // 10 Principais Ações B3 + Câmbio/Cripto
+        // 3. Ações B3 (Top 10)
         const stocks = 'PETR4,VALE3,ITUB4,BBDC4,ABEV3,BBAS3,ITSA4,SANB11,RENT3,LREN3';
         const resB3 = await fetch(`https://brapi.dev/api/quote/${stocks}`);
         const dB3 = resB3.ok ? await resB3.json() : { results: [] };
 
-        const stockAssets = dB3.results.map(stk => ({
+        const stockAssets = dB3.results.map((stk: any) => ({
           t: stk.symbol, v: stk.regularMarketPrice.toFixed(2), 
           c: (stk.regularMarketChangePercent > 0 ? '+' : '') + stk.regularMarketChangePercent.toFixed(2) + '%'
         }));
 
         setTicker([
           ...stockAssets,
-          { t: 'USD/BRL', v: d.USDBRL.bid, c: (parseFloat(d.USDBRL.pctChange) > 0 ? '+' : '') + d.USDBRL.pctChange + '%' },
-          { t: 'EUR/BRL', v: d.EURBRL.bid, c: (parseFloat(d.EURBRL.pctChange) > 0 ? '+' : '') + d.EURBRL.pctChange + '%' },
-          { t: 'BTC/BRL', v: parseFloat(d.BTCBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(d.BTCBRL.pctChange) > 0 ? '+' : '') + d.BTCBRL.pctChange + '%' },
-          { t: 'ETH/BRL', v: parseFloat(d.ETHBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(d.ETHBRL.pctChange) > 0 ? '+' : '') + d.ETHBRL.pctChange + '%' }
+          { t: 'USD/BRL', v: dCoins.USDBRL.bid, c: (parseFloat(dCoins.USDBRL.pctChange) > 0 ? '+' : '') + dCoins.USDBRL.pctChange + '%' },
+          { t: 'EUR/BRL', v: dCoins.EURBRL.bid, c: (parseFloat(dCoins.EURBRL.pctChange) > 0 ? '+' : '') + dCoins.EURBRL.pctChange + '%' },
+          { t: 'BTC/BRL', v: parseFloat(dCoins.BTCBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(dCoins.BTCBRL.pctChange) > 0 ? '+' : '') + dCoins.BTCBRL.pctChange + '%' },
+          { t: 'ETH/BRL', v: parseFloat(dCoins.ETHBRL.bid).toLocaleString('pt-BR'), c: (parseFloat(dCoins.ETHBRL.pctChange) > 0 ? '+' : '') + dCoins.ETHBRL.pctChange + '%' }
         ]);
 
-        setMarketData(prev => ({ ...prev, usd: d.USDBRL.bid.replace('.', ','), eur: d.EURBRL.bid.replace('.', ','), selic: s[0].valor.replace('.', ',') }));
+        setMarketData(prev => ({ 
+          ...prev, 
+          usd: dCoins.USDBRL.bid.replace('.', ','), 
+          eur: dCoins.EURBRL.bid.replace('.', ','), 
+          selic: dSelic[0].valor.replace('.', ',') 
+        }));
         setLastSync(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 
         const resNews = await fetch(`/data/news.json?t=${new Date().getTime()}`);
-        if (resNews.ok) { const n = await resNews.json(); setNews(n.finance.slice(0, 4)); }
-      } catch (e) { console.log("Uplink falhou. Usando redundância."); }
+        if (resNews.ok) { 
+          const dNews = await resNews.json(); 
+          setNews(dNews.finance.slice(0, 4)); 
+        }
+      } catch (e) { console.log("Erro na sincronização de dados."); }
     };
     fetchData();
-    setInterval(fetchData, 300000);
+    const interval = setInterval(fetchData, 300000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 relative overflow-hidden">
       
-      {/* RESTAURAÇÃO: BANNER DINÂMICO AMPLIADO COM ANIMAÇÃO INLINE */}
+      {/* ANIMAÇÃO MARQUEE VIA CSS INLINE (GARANTE O MOVIMENTO) */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .animate-ticker { display: flex; animation: marquee 35s linear infinite; }
-        .animate-ticker:hover { animation-play-state: paused; }
+        .animate-ticker-flow { display: flex; animation: marquee 40s linear infinite; }
+        .animate-ticker-flow:hover { animation-play-state: paused; }
       `}} />
 
+      {/* 1. Banner Superior Ampliado (py-6) */}
       <div className="w-full bg-slate-950 border-b border-slate-800 py-6 overflow-hidden whitespace-nowrap z-[60] relative">
-        <div className="animate-ticker gap-20 items-center cursor-default">
+        <div className="animate-ticker-flow gap-20 items-center cursor-default">
           {(ticker.length > 0 ? [...ticker, ...ticker] : []).map((asset, i) => (
             <div key={i} className="flex items-center gap-4 font-mono text-xs font-black tracking-tighter">
               <span className="text-slate-500 uppercase">{asset.t}</span>
@@ -96,7 +109,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-12 gap-12 items-start">
           <div className="lg:col-span-7 space-y-8">
             <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">Mercado <br/><span className="text-blue-500 not-italic">Capitais</span></h1>
-            <p className="text-slate-400 text-xl max-w-2xl leading-relaxed font-light">Arquitetura quantitativa para monitoramento de ativos e ferramentas de cálculo financeiro.</p>
+            <p className="text-slate-400 text-xl max-w-2xl leading-relaxed font-light">Arquitetura quantitativa para monitoramento de ativos e ferramentas de cálculo financeiro aplicadas a portfólios institucionais.</p>
           </div>
 
           <div className="lg:col-span-5 border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl relative">
@@ -113,24 +126,20 @@ export default function Home() {
                 <div><span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 font-bold tracking-widest">USD / BRL</span><span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.usd}</span></div>
                 <Sparkline trend="up" />
               </div>
-              <div className="flex justify-between items-center border-b border-slate-800/50 pb-5">
-                <div><span className="text-[10px] font-mono text-slate-500 uppercase block mb-1 font-bold tracking-widest">EUR / BRL</span><span className="text-3xl font-bold text-white tracking-tighter">R$ {marketData.eur}</span></div>
-                <Sparkline trend="down" />
-              </div>
               <div className="flex justify-between items-center">
-                <div><span className="text-[10px] font-mono text-blue-500 font-bold uppercase block mb-1 italic">SELIC EFETIVA</span><span className="text-3xl font-bold text-blue-500 tracking-tighter">{marketData.selic}%</span></div>
+                <div><span className="text-[10px] font-mono text-blue-500 font-bold uppercase block mb-1 italic font-bold">SELIC EFETIVA</span><span className="text-3xl font-bold text-blue-500 tracking-tighter">{marketData.selic}%</span></div>
                 <div className="text-right"><span className="text-[9px] font-mono text-slate-500 uppercase block mb-1 font-bold">Reunião COPOM</span><span className="text-xs font-black text-slate-400 font-mono tracking-tighter italic">17/03/2026</span></div>
               </div>
             </div>
             <div className="mt-8 pt-4 border-t border-slate-900 text-[9px] font-mono flex justify-between uppercase font-black text-slate-600 tracking-widest">
-              <span className="font-bold">Sync: BCB / Google Analytics</span>
-              <span className="font-bold">Last: {lastSync}</span>
+              <span>Sync: BCB / Google Analytics</span>
+              <span>Last: {lastSync}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* RESTAURAÇÃO: MARKET INTELLIGENCE (NOTÍCIAS) */}
+      {/* 2. RESTAURAÇÃO: MARKET INTELLIGENCE (Notícias) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-b border-slate-900/50">
         <div className="flex items-center gap-4 mb-10">
           <Newspaper className="text-blue-500" size={24} />
@@ -138,16 +147,16 @@ export default function Home() {
           <div className="h-[1px] flex-1 bg-slate-900"></div>
         </div>
         <div className="grid md:grid-cols-4 gap-6">
-          {news.length > 0 ? news.map((item, i) => (
+          {news.length > 0 ? news.map((item: any, i: number) => (
             <a key={i} href={item.link} target="_blank" className="p-5 border border-slate-800 bg-slate-950/20 rounded-xl hover:border-blue-500/30 transition-all group">
               <span className="text-[9px] text-blue-600 font-bold uppercase block mb-3 font-mono">{item.date}</span>
-              <h3 className="text-sm text-slate-200 font-bold leading-tight line-clamp-3 group-hover:text-blue-400">{item.title}</h3>
+              <h3 className="text-sm text-slate-200 font-bold leading-tight line-clamp-3 group-hover:text-blue-400 transition-colors">{item.title}</h3>
             </a>
-          )) : <div className="col-span-4 text-center py-10 font-mono text-[10px] uppercase animate-pulse text-slate-700 tracking-[0.4em]">Sincronizando feeds de notícias...</div>}
+          )) : <div className="col-span-4 text-center py-10 font-mono text-[10px] uppercase animate-pulse text-slate-700">Sincronizando feeds de notícias...</div>}
       </section>
 
-      {/* RESTAURAÇÃO: GRID DE FERRAMENTAS E LINKS */}
-      <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8 border-b border-slate-900/50">
+      {/* 3. RESTAURAÇÃO: FERRAMENTAS E LINKS EXTERNOS */}
+      <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-blue-500/40 transition-all">
           <BarChart3 className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Tesouro Direto</h3>
@@ -161,11 +170,11 @@ export default function Home() {
         <div className="p-8 border border-slate-800 bg-blue-500/5 rounded-2xl border-blue-500/20 shadow-lg shadow-blue-900/10">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Gestão de Portfólio</h3>
-          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase shadow-md shadow-blue-900/40"><Download size={14} /> Download Engine</a>
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase"><Download size={14} /> Download Engine</a>
         </div>
       </section>
 
-      <footer className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
+      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="space-y-3">
           <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.3em]">2026 MAD MARCUS ALEKS DEVELOPERS - SYSTEM ARCHITECTURE</p>
           <div className="flex gap-4">
@@ -174,7 +183,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10 shadow-sm shadow-emerald-900/20">
+        <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-mono bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
           <Activity size={12} className="animate-pulse" /> SYSTEM STATUS: OPTIMAL
         </div>
       </footer>
