@@ -76,11 +76,11 @@ export default function Home() {
           <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="text-[10px] font-bold text-blue-500 flex items-center gap-2 uppercase tracking-widest hover:underline">Correção Monetária <ExternalLink size={14} /></a>
         </div>
 
-        {/* Card Atualizado com o novo nome de arquivo */}
         <div className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl hover:border-blue-500/40 transition-all">
           <PieChart className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-3 uppercase tracking-tighter">Gestão de Portfólio</h3>
-          <a href="/downloads/PortfolioManager_v0.0.1.zip" download className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase"><Download size={14} /> Download Projeto</a>
+          {/* Link atualizado para o GitHub Releases */}
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white px-4 py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase"><Download size={14} /> Download Projeto</a>
         </div>
       </section>
 
