@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link'; // CORREÇÃO: Import necessário para o build passar
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Shield, Lock, ArrowRight, Activity, AlertCircle, Fingerprint, Eye, EyeOff, X } from 'lucide-react';
 
@@ -10,6 +10,8 @@ export default function Login() {
   const [showKey, setShowKey] = useState(false);
   const router = useRouter();
 
+  // Verificação de Integridade de Sessão: Se não há token, permanece no login.
+  // Se houver tentativa de retorno via botão 'Voltar', exige senha se o token foi limpo.
   useEffect(() => {
     const token = localStorage.getItem('mad_access_token');
     if (token) { router.push('/dashboard-intel'); }
@@ -23,6 +25,7 @@ export default function Login() {
     const keysArray = allowedKeys.split(',').map(k => k.trim());
 
     if (keysArray.includes(key)) {
+      // Criação de sessão única
       localStorage.setItem('mad_access_token', 'session_' + Date.now());
       router.push('/dashboard-intel');
     } else {
@@ -35,7 +38,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#020408] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
-      {/* Grid Pattern de Fundo */}
       <div className="absolute inset-0 z-0 opacity-10" 
            style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-900/10 blur-[150px] rounded-full"></div>
@@ -90,7 +92,7 @@ export default function Login() {
             <button 
               type="submit"
               disabled={loading}
-              className={`w-full h-20 ${loading ? 'bg-slate-800' : 'bg-blue-600 hover:bg-blue-700'} text-white font-black rounded-2xl flex items-center justify-center gap-4 transition-all duration-500 active:scale-[0.96] uppercase text-sm tracking-[0.3em] shadow-2xl`}
+              className={`w-full h-20 ${loading ? 'bg-slate-800' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/30'} text-white font-black rounded-2xl flex items-center justify-center gap-4 transition-all duration-500 active:scale-[0.96] uppercase text-sm tracking-[0.3em] shadow-2xl`}
             >
               {loading ? <Activity size={24} className="animate-spin" /> : <>Validar Acesso <ArrowRight size={22} /></>}
             </button>
