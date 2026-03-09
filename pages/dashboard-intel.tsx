@@ -4,7 +4,7 @@ import {
   Shield, Activity, AlertTriangle, Search, ExternalLink, Globe, 
   Database, Fingerprint, LogOut, Zap, Lock, BookOpen, 
   Gavel, FileText, LayoutDashboard, Copy, Check, Eye, UserSearch, 
-  Newspaper, ShieldAlert, ArrowUpRight, Camera, Network, X
+  Newspaper, ShieldAlert, ArrowUpRight, Camera, Network, X 
 } from 'lucide-react';
 
 export default function SifazDashboard() {
@@ -43,47 +43,21 @@ export default function SifazDashboard() {
 
   if (!authorized) return <div className="min-h-screen bg-[#020408]" />;
 
-  // DICIONÁRIO INTEGRAL DE DORKS
   const dorkLibrary = [
     { id: 'dc1', cat: 'Empresa', title: 'CNPJ em Portais Oficiais', code: 'site:receita.fazenda.gov.br OR site:cnpj.biz "CNPJ"' },
     { id: 'dc2', cat: 'Societário', title: 'Sócios e Quadro Diretivo', code: '"NOME" intext:"sócio" OR "administrador" site:redesim.gov.br' },
-    { id: 'dc3', cat: 'Diário Oficial', title: 'Atos em DOU/DOE/DOM', code: '"RAZÃO SOCIAL" site:in.gov.br filetype:pdf' },
-    { id: 'dc4', cat: 'Empresa', title: 'Endereços Não Declarados', code: '"NOME" intext:"localizado em" -site:gov.br' },
     { id: 'dc5', cat: 'Docs', title: 'NF-e / DANFE Expostas', code: 'filetype:xml "nfeProc" intext:"CNPJ"', risk: true },
-    { id: 'dc6', cat: 'Docs', title: 'Planilhas Fiscais Públicas', code: 'filetype:xlsx intext:"CNPJ" "faturamento" OR "ICMS"', risk: true },
-    { id: 'dc7', cat: 'Docs', title: 'SPED / EFD Expostos', code: 'filetype:txt "|0000|" "SPED" intext:"CNPJ"', risk: true },
-    { id: 'dc8', cat: 'Docs', title: 'Contratos e Procurações', code: '"RAZÃO SOCIAL" filetype:pdf intext:"procuração"' },
-    { id: 'dc9', cat: 'Financeiro', title: 'Declarações de Bens', code: 'site:divulgacandcontas.tse.jus.br "ALVO" "bens"', risk: true },
-    { id: 'dc10', cat: 'Imóveis', title: 'Anúncios de Patrimônio', code: '"NOME" site:zapimoveis.com.br OR "matrícula imóvel"' },
-    { id: 'dc11', cat: 'Licitação', title: 'Participação em Compras', code: '"CNPJ" site:comprasgovernamentais.gov.br OR site:pncp.gov.br' },
-    { id: 'dc12', cat: 'Processo', title: 'Execuções Fiscais', code: '"NOME/CNPJ" site:jus.br "execução fiscal"' },
-    { id: 'dc13', cat: 'Shodan', title: 'Servidor SEFAZ Exposto', code: 'http.title:"SEFAZ" country:BR port:443', risk: true },
-    { id: 'dc14', cat: 'Shodan', title: 'MySQL Público', code: 'product:"MySQL" country:BR org:"NOME"', risk: true },
-    { id: 'dc15', cat: 'Leaks', title: 'Domínios em Breaches', code: 'site:haveibeenpwned.com "@empresa.com.br"', risk: true },
-    { id: 'dc16', cat: 'Leaks', title: 'Pastes de Credenciais', code: 'site:pastebin.com "CNPJ" "@empresa.com.br"', risk: true },
-    { id: 'dc17', cat: 'Sanções', title: 'Empresas Inidôneas (CEIS)', code: '"CNPJ" site:portaldatransparencia.gov.br "CEIS"' },
-    { id: 'dc18', cat: 'Pessoal', title: 'CPF em Bases Públicas', code: '"CPF" filetype:pdf -site:gov.br', risk: true }
+    { id: 'dc13', cat: 'Shodan', title: 'Servidor SEFAZ Exposto', code: 'http.title:"SEFAZ" country:BR port:443', risk: true }
   ];
 
-  // REPOSITÓRIO INTEGRAL DE LEGISLAÇÃO
   const legislationList = [
-    { title: 'CF/88 Art. 145–162', desc: 'Sistema Tributário Nacional e Competências', url: 'https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm#art145' },
     { title: 'Lei 5.172/66 (CTN)', desc: 'Código Tributário Nacional: Normas Gerais', url: 'https://www.planalto.gov.br/ccivil_03/leis/l5172compilado.htm' },
-    { title: 'LC 87/1996 (Kandir)', desc: 'Regulamentação do ICMS e ST', url: 'https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp87.htm' },
-    { title: 'Lei 9.613/98 (Lavagem)', desc: 'Lavagem de Capitais e COAF', url: 'https://www.planalto.gov.br/ccivil_03/leis/l9613.htm' },
-    { title: 'Prot. CONFAZ 66/2009', desc: 'Uso do SIIAP para Inteligência', url: 'https://www.confaz.fazenda.gov.br/legislacao/protocolos/2009/pt066_09' },
-    { title: 'LC 105/2001', desc: 'Sigilo Bancário e Acesso do Fisco', url: 'https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp105.htm' },
-    { title: 'Lei 12.527/11 (LAI)', desc: 'Lei de Acesso à Informação e Sigilo', url: 'https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm' },
-    { title: 'LGPD Lei 13.709/18', desc: 'Proteção de Dados em Auditorias', url: 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm' },
-    { title: 'LC 116/2003 (ISS)', desc: 'Normas Gerais do ISSQN Municipal', url: 'https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp116.htm' },
-    { title: 'Lei 9.296/96', desc: 'Interceptação de Comunicações', url: 'https://www.planalto.gov.br/ccivil_03/leis/l9296.htm' },
-    { title: 'Conv. ICMS 142/18', desc: 'Regras de ST Interestadual', url: 'https://www.confaz.fazenda.gov.br/legislacao/convenios/2018/cv142_18' }
+    { title: 'Prot. CONFAZ 66/2009', desc: 'Uso do SIIAP para Inteligência', url: 'https://www.confaz.fazenda.gov.br/legislacao/protocolos/2009/pt066_09' }
   ];
 
   return (
     <div className="min-h-screen bg-[#020408] text-slate-400 font-sans">
       
-      {/* POPUP ATIF */}
       {showAtifBanner && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-slate-950 border-2 border-red-600 p-12 rounded-3xl shadow-[0_0_50px_rgba(220,38,38,0.3)] relative max-w-lg w-full text-center">
@@ -95,7 +69,6 @@ export default function SifazDashboard() {
         </div>
       )}
 
-      {/* HEADER REBRANDED */}
       <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -121,7 +94,6 @@ export default function SifazDashboard() {
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-10">
-        
         {activeTab === 'briefing' && (
           <div className="space-y-10 animate-in fade-in duration-500">
             <div className="grid lg:grid-cols-3 gap-8">
@@ -141,7 +113,7 @@ export default function SifazDashboard() {
                <aside className="space-y-6">
                   <div className="bg-slate-950/40 border border-slate-800 p-6 rounded-2xl shadow-xl">
                      <h3 className="text-blue-500 font-black text-[10px] uppercase mb-4 flex items-center gap-2"><Network size={14}/> Infrastructure Recon</h3>
-                     <input className="w-full bg-black border border-slate-800 rounded px-3 py-2 text-[10px] text-white font-mono mb-3" placeholder="domínio.com.br" id="dns-input" />
+                     <input className="w-full bg-black border border-slate-800 rounded px-3 py-2 text-[10px] text-white font-mono mb-3 outline-none focus:border-blue-500" placeholder="domínio.com.br" id="dns-input" />
                      <div className="grid grid-cols-2 gap-2">
                         <button onClick={() => { const v = (document.getElementById('dns-input') as HTMLInputElement).value; if(v) window.open(`https://viewdns.info/dnsrecord/?domain=${v}`, '_blank')}} className="bg-slate-900 border border-slate-700 text-[8px] font-black uppercase py-2 hover:bg-slate-800">DNS Record</button>
                         <button onClick={() => { const v = (document.getElementById('dns-input') as HTMLInputElement).value; if(v) window.open(`https://who.is/whois/${v}`, '_blank')}} className="bg-slate-900 border border-slate-700 text-[8px] font-black uppercase py-2 hover:bg-slate-800">WHOIS</button>
@@ -195,7 +167,7 @@ export default function SifazDashboard() {
                               <p className="text-[10px] text-slate-500 italic mt-1">{l.desc}</p>
                            </td>
                            <td className="px-6 py-4 text-right">
-                              <a href={l.url} target="_blank" className="inline-flex items-center gap-2 text-slate-500 hover:text-white font-black text-[10px] uppercase border border-slate-800 px-3 py-1 rounded transition-all shadow-sm">Fonte Planalto/CONFAZ <ExternalLink size={12}/></a>
+                              <a href={l.url} target="_blank" className="inline-flex items-center gap-2 text-slate-500 hover:text-white font-black text-[10px] uppercase border border-slate-800 px-3 py-1 rounded transition-all shadow-sm">Fonte Planalto <ExternalLink size={12}/></a>
                            </td>
                         </tr>
                      ))}
