@@ -10,8 +10,6 @@ export default function Login() {
   const [showKey, setShowKey] = useState(false);
   const router = useRouter();
 
-  // Verificação de Integridade de Sessão: Se não há token, permanece no login.
-  // Se houver tentativa de retorno via botão 'Voltar', exige senha se o token foi limpo.
   useEffect(() => {
     const token = localStorage.getItem('mad_access_token');
     if (token) { router.push('/dashboard-intel'); }
@@ -21,11 +19,11 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     
+    // Lógica Original de Validação Restaurada
     const allowedKeys = process.env.NEXT_PUBLIC_ALLOWED_KEYS || "";
     const keysArray = allowedKeys.split(',').map(k => k.trim());
 
     if (keysArray.includes(key)) {
-      // Criação de sessão única
       localStorage.setItem('mad_access_token', 'session_' + Date.now());
       router.push('/dashboard-intel');
     } else {
