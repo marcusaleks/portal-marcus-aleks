@@ -18,17 +18,14 @@ export default function Home() {
   useEffect(() => {
     const fetchMarket = async () => {
       try {
-        // 1. Dólar com Variação (AwesomeAPI)
         const resCur = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
         const dataCur = await resCur.json();
         const usdVal = parseFloat(dataCur.USDBRL.bid).toFixed(4).replace('.', ',');
         const usdPct = (parseFloat(dataCur.USDBRL.pctChange) > 0 ? '+' : '') + dataCur.USDBRL.pctChange + '%';
 
-        // 2. Selic (BCB)
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
 
-        // 3. IBOVESPA e Ações (Brapi - Ordenação Alfabética)
         const token = process.env.NEXT_PUBLIC_BRAPI_TOKEN;
         const symbols = ['^BVSP', 'PETR4', 'VALE3', 'ITUB4', 'BBAS3', 'BBDC4', 'ABEV3', 'MGLU3'];
         const results: any[] = [];
@@ -40,7 +37,7 @@ export default function Home() {
         }
 
         const ibov = results.find(r => r.symbol === '^BVSP');
-        // Ordenação Alfabética dos Tickers para o Banner
+        // Ordenação Alfabética dos Tickers
         const sortedStocks = results
           .filter(r => r.symbol !== '^BVSP')
           .sort((a, b) => a.symbol.localeCompare(b.symbol));
@@ -53,7 +50,7 @@ export default function Home() {
           ibovChange: (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%',
           stocks: sortedStocks
         });
-      } catch (e) { console.error("Uplink operacional instável."); }
+      } catch (e) { console.error("Erro Uplink."); }
     };
     fetchMarket();
     const interval = setInterval(fetchMarket, 60000);
@@ -67,7 +64,6 @@ export default function Home() {
         .ticker-wrap { display: flex; animation: marquee 60s linear infinite; width: max-content; }
       `}} />
 
-      {/* BANNER ALFABÉTICO INFINITO */}
       <div className="w-full bg-slate-950 border-b border-slate-800 py-3 overflow-hidden z-[60] relative">
          <div className="ticker-wrap gap-12 items-center flex whitespace-nowrap">
             {[...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks].map((stock: any, i) => (
@@ -94,12 +90,10 @@ export default function Home() {
 
       <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/50">
         <div className="grid lg:grid-cols-12 gap-16 items-center">
-          {/* NOVO BRANDING CENTRAL */}
           <div className="lg:col-span-7 space-y-8">
             <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">
-              Mercado <br/>
-              Financeiro <br/>
-              <span className="text-blue-500 not-italic uppercase">Brasileiro</span>
+              MERCADO<br/>FINANCEIRO<br/>
+              <span className="text-blue-500 not-italic uppercase">BRASILEIRO</span>
             </h1>
             <p className="text-slate-500 text-lg max-w-xl leading-relaxed font-bold">
               Ferramentas de análise, cálculo e gestão desenvolvidas para investidores que tomam decisões com dados — não com achismos. Ações, FIIs, renda fixa e derivativos em um só lugar.
@@ -117,8 +111,6 @@ export default function Home() {
               </div>
               <Sparkline trend={market.ibovChange.startsWith('+') ? "up" : "down"} />
             </div>
-
-            {/* USD/BRL COM VARIAÇÃO PERCENTUAL */}
             <div className="flex justify-between items-center border-b border-slate-900 pb-8">
               <div>
                  <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">USD / BRL</span>
@@ -129,16 +121,9 @@ export default function Home() {
               </div>
               <Sparkline trend={market.usdChange.startsWith('+') ? "up" : "down"} />
             </div>
-
             <div className="flex justify-between items-center">
-              <div>
-                 <span className="text-[10px] font-mono text-blue-500 uppercase block mb-1 tracking-widest">SELIC EFETIVA</span>
-                 <span className="text-4xl font-black text-blue-500 tracking-tighter">{market.selic}%</span>
-              </div>
-              <div className="text-right">
-                 <span className="text-[9px] font-mono text-slate-600 uppercase block font-bold mb-1">REUNIÃO COPOM</span>
-                 <span className="text-xs font-bold text-slate-400">17/03/2026</span>
-              </div>
+              <div><span className="text-[10px] font-mono text-blue-500 uppercase block mb-1 tracking-widest">SELIC EFETIVA</span><span className="text-4xl font-black text-blue-500 tracking-tighter">{market.selic}%</span></div>
+              <div className="text-right"><span className="text-[9px] font-mono text-slate-600 uppercase block font-bold mb-1">REUNIÃO COPOM</span><span className="text-xs font-bold text-slate-400">17/03/2026</span></div>
             </div>
           </div>
         </div>
@@ -149,25 +134,24 @@ export default function Home() {
           <TrendingUp className="text-emerald-500 mb-8" size={40} />
           <h3 className="text-white text-2xl font-black mb-3 uppercase tracking-tighter italic">Tesouro Direto</h3>
           <p className="text-sm text-slate-500 mb-8 leading-relaxed font-bold">Preços e taxas de títulos federais em tempo real.</p>
-          <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">Ver Taxas <ArrowUpRight size={14} /></div>
+          <div className="text-[10px] font-black text-emerald-500 uppercase flex items-center gap-2">Ver Taxas Atuais <ArrowUpRight size={14} /></div>
         </a>
         <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="p-10 border border-slate-800 bg-slate-950/20 rounded-[2.5rem] group hover:border-blue-500/40 transition-all shadow-xl">
           <Calculator className="text-blue-500 mb-8" size={40} />
           <h3 className="text-white text-2xl font-black mb-3 uppercase tracking-tighter italic">Calculadora Bacen</h3>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-bold">Correção de valores por índices e Taxa Selic.</p>
-          <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">Simular Agora <ArrowUpRight size={14} /></div>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-bold">Simulador oficial de correção de valores.</p>
+          <div className="text-[10px] font-black text-blue-500 uppercase flex items-center gap-2">Simular Agora <ArrowUpRight size={14} /></div>
         </a>
         <div className="p-10 border border-slate-800 bg-blue-600/5 border-blue-500/10 rounded-[2.5rem] shadow-2xl">
           <Download className="text-blue-500 mb-8" size={40} />
           <h3 className="text-white text-2xl font-black mb-3 uppercase tracking-tighter italic">Portfolio Manager</h3>
           <p className="text-sm text-slate-400 mb-8 leading-relaxed font-bold">Engine quantitativa em Python para uso local.</p>
-          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white py-4 rounded-xl text-[11px] font-black flex items-center justify-center gap-3 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg">
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white py-4 rounded-xl text-[11px] font-black flex items-center justify-center gap-3 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg shadow-blue-900/20">
             <Activity size={16} /> Download v.0.0.1
           </a>
         </div>
       </section>
 
-      {/* RODAPÉ ATUALIZADO */}
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center text-[10px] font-mono text-slate-600 font-bold uppercase tracking-[0.3em]">
         <p>© 2026 MARCUS ALEKS DEVELOPERS</p>
         <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
