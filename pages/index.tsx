@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Lock, Activity, TrendingUp, ArrowUpRight, BarChart3, PieChart } from 'lucide-react';
+import { Lock, Activity, TrendingUp, ArrowUpRight, BarChart3, Calculator, Download, ExternalLink } from 'lucide-react';
 
 const Sparkline = ({ trend = "up" }) => (
   <svg className="w-16 h-8" viewBox="0 0 48 24" fill="none">
@@ -12,45 +12,37 @@ const Sparkline = ({ trend = "up" }) => (
 
 export default function Home() {
   const [market, setMarket] = useState({ 
-    usd: '...', 
-    selic: '...', 
-    ibov: '128.450', 
-    ibovChange: '+1,12%',
-    stocks: [] 
+    usd: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] 
   });
 
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        // 1. Câmbio (AwesomeAPI) - Precisão de 4 casas decimais
+        // 1. Câmbio (AwesomeAPI) - Precisão de 4 casas
         const resCur = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
         const dataCur = await resCur.json();
         const usdVal = parseFloat(dataCur.USDBRL.bid).toFixed(4).replace('.', ',');
 
-        // 2. Selic (Banco Central do Brasil)
+        // 2. Selic (BCB)
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
-        const selicVal = dataSelic[0].valor.replace('.', ',');
 
-        // 3. IBOVESPA e Ativos B3 (Brapi - Simulador de Ticker)
+        // 3. IBOVESPA e Ativos B3 (Brapi)
         const resB3 = await fetch('https://brapi.dev/api/quote/^BVSP,PETR4,VALE3,ITUB4,BBDC4,ABEV3,BBAS3,SANB11,MGLU3,B3SA3');
         const dataB3 = await resB3.json();
         const ibov = dataB3.results.find((r: any) => r.symbol === '^BVSP');
 
         setMarket({
           usd: usdVal,
-          selic: selicVal,
+          selic: dataSelic[0].valor.replace('.', ','),
           ibov: ibov.regularMarketPrice.toLocaleString('pt-BR'),
           ibovChange: (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%',
           stocks: dataB3.results.filter((r: any) => r.symbol !== '^BVSP')
         });
-      } catch (err) {
-        console.error("Falha na sincronização de ativos.");
-      }
+      } catch (err) { console.error("Erro na sincronização de mercado."); }
     };
-
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 60000); // Refresh a cada minuto
+    const interval = setInterval(fetchMarketData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,30 +50,30 @@ export default function Home() {
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .ticker-wrap { display: flex; animation: marquee 40s linear infinite; }
+        .ticker-wrap { display: flex; animation: marquee 35s linear infinite; }
         .ticker-wrap:hover { animation-play-state: paused; }
       `}} />
 
-      {/* BANNER ANIMADO DINÂMICO - 10 PRINCIPAIS AÇÕES */}
+      {/* BANNER ANIMADO B3 */}
       <div className="w-full bg-slate-950 border-b border-slate-800 py-3 overflow-hidden z-[60] relative">
          <div className="ticker-wrap gap-12 items-center flex whitespace-nowrap">
             {market.stocks.length > 0 ? [...market.stocks, ...market.stocks].map((stock: any, i) => (
               <div key={i} className="flex items-center gap-3 px-4 border-r border-slate-800/50">
-                <span className="text-[10px] font-black text-white uppercase">{stock.symbol}</span>
+                <span className="text-[10px] font-black text-white">{stock.symbol}</span>
                 <span className="text-[10px] font-mono text-slate-400">R$ {stock.regularMarketPrice.toFixed(2)}</span>
                 <span className={`text-[9px] font-bold ${stock.regularMarketChangePercent >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                   {stock.regularMarketChangePercent >= 0 ? '▲' : '▼'} {Math.abs(stock.regularMarketChangePercent).toFixed(2)}%
                 </span>
               </div>
-            )) : <div className="text-[9px] font-mono uppercase animate-pulse px-6">Sincronizando pregão B3...</div>}
+            )) : <div className="text-[9px] font-mono uppercase animate-pulse px-6">Conectando ao pregão B3...</div>}
          </div>
       </div>
 
       <nav className="border-b border-slate-800/50 bg-[#05070a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 px-2 py-0.5 rounded font-black text-white text-[11px] tracking-tighter">MAD</div>
-            <span className="text-sm font-black tracking-[0.2em] text-blue-500 uppercase">MARCUS ALEKS</span>
+            <div className="bg-blue-600 px-2 py-0.5 rounded font-black text-white text-[11px]">MAD</div>
+            <span className="text-sm font-black tracking-widest text-blue-500 uppercase">MARCUS ALEKS</span>
           </div>
           <Link href="/login" className="bg-slate-900 border border-slate-700 px-4 py-2 rounded text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-white transition-all shadow-md">
             <Lock size={12} className="inline mr-2"/> ACESSO RESTRITO
@@ -89,17 +81,14 @@ export default function Home() {
         </div>
       </nav>
 
-      <header className="max-w-7xl mx-auto px-6 py-20">
+      <header className="max-w-7xl mx-auto px-6 py-20 border-b border-slate-900/30">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7">
             <h1 className="text-7xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">Mercado <br/><span className="text-blue-500 not-italic uppercase">Capitais</span></h1>
-            <p className="text-slate-500 text-xl max-w-lg leading-relaxed font-bold">Arquitetura quantitativa para monitoramento de ativos e ferramentas de cálculo financeiro aplicadas a portfólios institucionais.</p>
+            <p className="mt-8 text-slate-500 text-xl max-w-lg leading-relaxed font-bold">Arquitetura quantitativa e ferramentas de cálculo aplicadas a portfólios institucionais.</p>
           </div>
 
-          {/* CAIXA DE INDICADORES FINANCEIROS */}
-          <div className="lg:col-span-5 border border-slate-800 bg-slate-950/40 p-8 rounded-2xl backdrop-blur-sm shadow-2xl space-y-8">
-            
-            {/* IBOVESPA */}
+          <div className="lg:col-span-5 bg-slate-950/40 border border-slate-800 p-8 rounded-2xl backdrop-blur-sm shadow-2xl space-y-8">
             <div className="flex justify-between items-center border-b border-slate-900 pb-6">
               <div>
                  <span className="text-[9px] font-mono text-slate-500 uppercase block mb-1 font-bold">IBOVESPA</span>
@@ -110,8 +99,6 @@ export default function Home() {
               </div>
               <Sparkline trend={market.ibovChange.startsWith('+') ? "up" : "down"} />
             </div>
-
-            {/* USD / BRL */}
             <div className="flex justify-between items-center border-b border-slate-900 pb-6">
               <div>
                  <span className="text-[9px] font-mono text-slate-500 uppercase block mb-1 font-bold">USD / BRL</span>
@@ -119,8 +106,6 @@ export default function Home() {
               </div>
               <Sparkline trend={market.usd < "5,2500" ? "down" : "up"} />
             </div>
-
-            {/* SELIC */}
             <div className="flex justify-between items-center">
               <div>
                  <span className="text-[9px] font-mono text-blue-500 uppercase block mb-1 font-bold tracking-[0.2em]">SELIC EFETIVA</span>
@@ -135,8 +120,38 @@ export default function Home() {
         </div>
       </header>
 
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center text-[9px] font-mono text-slate-600 font-bold">
-        <p className="uppercase tracking-[0.3em]">© 2026 MAD MARCUS ALEKS - QUANTITATIVE SYSTEMS</p>
+      {/* AS CAIXAS RESTAURADAS */}
+      <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
+        {/* Caixa 1: Tesouro Direto */}
+        <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-emerald-500/40 transition-all shadow-lg">
+          <TrendingUp className="text-emerald-500 mb-6" size={32} />
+          <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Tesouro Direto</h3>
+          <p className="text-xs text-slate-500 mb-6 leading-relaxed">Consulta em tempo real de preços e taxas de títulos públicos federais (Pre, Selic e IPCA+).</p>
+          <span className="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-2">Ver Taxas Atuais <ExternalLink size={14} /></span>
+        </a>
+
+        {/* Caixa 2: Calculadora do Bacen */}
+        <a href="https://www3.bcb.gov.br/CALCID/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-blue-500/40 transition-all shadow-lg">
+          <Calculator className="text-blue-500 mb-6" size={32} />
+          <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Calculadora Bacen</h3>
+          <p className="text-xs text-slate-500 mb-6 leading-relaxed">Calculadora do Cidadão: correção de valores por índices de preços e taxa Selic.</p>
+          <span className="text-[10px] font-bold text-blue-500 uppercase flex items-center gap-2">Acessar Simulador <ExternalLink size={14} /></span>
+        </a>
+
+        {/* Caixa 3: Download Portfolio Manager */}
+        <div className="p-8 border border-slate-800 bg-blue-600/5 border-blue-500/20 rounded-2xl shadow-xl shadow-blue-900/10">
+          <Download className="text-blue-500 mb-6" size={32} />
+          <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Engine v.0.0.1</h3>
+          <p className="text-xs text-slate-400 mb-6 leading-relaxed">Gestão de portfólios e análise quantitativa em Python. Ferramenta para uso local em terminais financeiros.</p>
+          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" 
+             className="w-full bg-blue-600 text-white py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg">
+            <Activity size={14} /> Download App
+          </a>
+        </div>
+      </section>
+
+      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center text-[9px] font-mono text-slate-600 font-bold uppercase tracking-widest">
+        <p>© 2026 MAD MARCUS ALEKS - QUANTITATIVE SYSTEMS</p>
         <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
           <Activity size={12} className="animate-pulse" /> ENGINE STATUS: OPTIMAL
         </div>
