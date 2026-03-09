@@ -27,9 +27,9 @@ export default function Home() {
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
 
-        // 3. IBOVESPA e Ativos B3 (Utilizando Variável de Ambiente via API interna ou Proxy)
-        // Nota: Para segurança máxima em Next.js, chamadas com Token devem ser feitas via API Route
-        const resB3 = await fetch(`https://brapi.dev/api/quote/^BVSP,PETR4,VALE3,ITUB4,BBDC4,ABEV3,BBAS3,SANB11,MGLU3,B3SA3?token=${process.env.NEXT_PUBLIC_BRAPI_TOKEN}`);
+        // 3. IBOVESPA e Ativos B3 (Brapi)
+        const token = process.env.NEXT_PUBLIC_BRAPI_TOKEN;
+        const resB3 = await fetch(`https://brapi.dev/api/quote/^BVSP,PETR4,VALE3,ITUB4,BBDC4,ABEV3,BBAS3,SANB11,MGLU3,B3SA3?token=${token}`);
         const dataB3 = await resB3.json();
         const ibovData = dataB3.results.find((r: any) => r.symbol === '^BVSP');
 
@@ -41,7 +41,7 @@ export default function Home() {
           stocks: dataB3.results.filter((r: any) => r.symbol !== '^BVSP')
         });
       } catch (err) {
-        console.error("Sincronização pendente: Verifique o Token BRAPI na Vercel.");
+        console.error("Uplink operacional offline.");
       }
     };
     fetchMarketData();
@@ -53,11 +53,11 @@ export default function Home() {
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .ticker-wrap { display: flex; animation: marquee 35s linear infinite; }
+        .ticker-wrap { display: flex; animation: marquee 40s linear infinite; }
         .ticker-wrap:hover { animation-play-state: paused; }
       `}} />
 
-      {/* BANNER ANIMADO B3 */}
+      {/* BANNER ANIMADO: 10 AÇÕES B3 */}
       <div className="w-full bg-slate-950 border-b border-slate-800 py-3 overflow-hidden z-[60] relative">
          <div className="ticker-wrap gap-12 items-center flex whitespace-nowrap">
             {market.stocks.length > 0 ? [...market.stocks, ...market.stocks].map((stock: any, i) => (
@@ -68,7 +68,7 @@ export default function Home() {
                   {stock.regularMarketChangePercent >= 0 ? '▲' : '▼'} {Math.abs(stock.regularMarketChangePercent).toFixed(2)}%
                 </span>
               </div>
-            )) : <div className="text-[9px] font-mono uppercase animate-pulse px-6 text-slate-600 italic">Sincronizando pregão B3...</div>}
+            )) : <div className="text-[9px] font-mono uppercase animate-pulse px-6 text-slate-600">Sincronizando pregão B3...</div>}
          </div>
       </div>
 
@@ -88,7 +88,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7">
             <h1 className="text-7xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">Mercado <br/><span className="text-blue-500 not-italic uppercase">Capitais</span></h1>
-            <p className="mt-8 text-slate-500 text-xl max-w-lg leading-relaxed font-bold">Arquitetura quantitativa e ferramentas de cálculo aplicadas a portfólios institucionais.</p>
+            <p className="mt-8 text-slate-500 text-xl max-w-lg leading-relaxed">Arquitetura quantitativa e ferramentas de cálculo financeiro aplicadas a portfólios institucionais.</p>
           </div>
 
           <div className="lg:col-span-5 bg-slate-950/40 border border-slate-800 p-8 rounded-2xl backdrop-blur-sm shadow-2xl space-y-8">
@@ -104,10 +104,10 @@ export default function Home() {
             </div>
             <div className="flex justify-between items-center border-b border-slate-900 pb-6">
               <div>
-                 <span className="text-[9px] font-mono text-slate-500 uppercase block mb-1 font-bold">USD / BRL</span>
+                 <span className="text-[9px] font-mono text-slate-500 uppercase block mb-1">USD / BRL</span>
                  <span className="text-3xl font-black text-white tracking-tighter">R$ {market.usd}</span>
               </div>
-              <Sparkline trend="up" />
+              <Sparkline trend={market.usd < "5,2500" ? "down" : "up"} />
             </div>
             <div className="flex justify-between items-center">
               <div>
@@ -124,40 +124,22 @@ export default function Home() {
       </header>
 
       <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8 font-bold">
-        {/* Caixa 1: Tesouro Direto */}
-        <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-emerald-500/40 transition-all shadow-lg">
+        <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-emerald-500/40 transition-all">
           <TrendingUp className="text-emerald-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Tesouro Direto</h3>
           <p className="text-xs text-slate-500 mb-6 leading-relaxed">Consulta de preços e taxas de títulos federais em tempo real.</p>
-          <span className="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-2">Ver Taxas Atuais <ExternalLink size={14} /></span>
+          <span className="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-2">Ver Taxas Atuais <ArrowUpRight size={14} /></span>
         </a>
 
-        {/* Caixa 2: Calculadora Bacen Corrigida */}
-        <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-blue-500/40 transition-all shadow-lg">
+        <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="p-8 border border-slate-800 bg-slate-900/10 rounded-2xl group hover:border-blue-500/40 transition-all">
           <Calculator className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Calculadora Bacen</h3>
           <p className="text-xs text-slate-500 mb-6 leading-relaxed">Correção de valores por índices de preços e taxa Selic oficial.</p>
-          <span className="text-[10px] font-bold text-blue-500 uppercase flex items-center gap-2">Acessar Simulador <ExternalLink size={14} /></span>
+          <span className="text-[10px] font-bold text-blue-500 uppercase flex items-center gap-2">Acessar Simulador <ArrowUpRight size={14} /></span>
         </a>
 
-        {/* Caixa 3: Portfolio Manager Restaurada */}
         <div className="p-8 border border-slate-800 bg-blue-600/5 border-blue-500/20 rounded-2xl shadow-xl shadow-blue-900/10">
           <Download className="text-blue-500 mb-6" size={32} />
           <h3 className="text-white text-xl font-bold mb-2 uppercase tracking-tighter">Portfolio Manager</h3>
           <p className="text-xs text-slate-400 mb-6 leading-relaxed">Gestão de portfólios e análise quantitativa otimizada para uso local.</p>
-          <a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" 
-             className="w-full bg-blue-600 text-white py-3 rounded text-[10px] font-black flex items-center justify-center gap-2 hover:bg-red-600 transition-all uppercase tracking-widest shadow-lg">
-            <Activity size={14} /> Download v.0.0.1
-          </a>
-        </div>
-      </section>
-
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center text-[9px] font-mono text-slate-600 font-bold uppercase tracking-widest">
-        <p>© 2026 MAD MARCUS ALEKS - QUANTITATIVE SYSTEMS</p>
-        <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10">
-          <Activity size={12} className="animate-pulse" /> ENGINE STATUS: OPTIMAL
-        </div>
-      </footer>
-    </div>
-  );
-}
+          <a href="
