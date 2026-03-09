@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link'; // CORREÇÃO: Import necessário para o build passar
 import { useRouter } from 'next/router';
 import { Shield, Lock, ArrowRight, Activity, AlertCircle, Fingerprint, Eye, EyeOff, X } from 'lucide-react';
 
@@ -34,16 +35,15 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#020408] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
-      {/* Grid Pattern de Fundo Restaurado */}
+      {/* Grid Pattern de Fundo */}
       <div className="absolute inset-0 z-0 opacity-10" 
            style={{ backgroundImage: 'radial-gradient(#2563eb 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-900/10 blur-[150px] rounded-full"></div>
 
       <div className="w-full max-w-md space-y-10 z-10 animate-in fade-in zoom-in duration-1000">
         
-        {/* BRANDING SIFAZ INTEGRAL */}
         <div className="text-center space-y-6">
-          <div className="inline-flex w-24 h-24 bg-blue-600 rounded-[2.5rem] items-center justify-center text-white shadow-[0_0_60px_rgba(37,99,235,0.4)] border border-blue-500/30 mx-auto transition-transform hover:scale-105 duration-500">
+          <div className="inline-flex w-24 h-24 bg-blue-600 rounded-[2.5rem] items-center justify-center text-white shadow-[0_0_60px_rgba(37,99,235,0.4)] border border-blue-500/30 mx-auto">
             <Shield size={48} className="animate-pulse" />
           </div>
           <div className="space-y-2">
@@ -52,7 +52,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* MÓDULO DE AUTENTICAÇÃO GLASSMORPHISM */}
         <div className="bg-slate-950/60 border border-slate-800 p-12 rounded-[3rem] backdrop-blur-2xl shadow-2xl space-y-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-blue-600 to-transparent opacity-40"></div>
 
@@ -91,13 +90,12 @@ export default function Login() {
             <button 
               type="submit"
               disabled={loading}
-              className={`w-full h-20 ${loading ? 'bg-slate-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/30'} text-white font-black rounded-2xl flex items-center justify-center gap-4 transition-all duration-500 active:scale-[0.96] uppercase text-sm tracking-[0.3em] shadow-2xl`}
+              className={`w-full h-20 ${loading ? 'bg-slate-800' : 'bg-blue-600 hover:bg-blue-700'} text-white font-black rounded-2xl flex items-center justify-center gap-4 transition-all duration-500 active:scale-[0.96] uppercase text-sm tracking-[0.3em] shadow-2xl`}
             >
               {loading ? <Activity size={24} className="animate-spin" /> : <>Validar Acesso <ArrowRight size={22} /></>}
             </button>
           </form>
 
-          {/* RODAPÉ DO MÓDULO */}
           <div className="text-center pt-2">
              <Link href="/" className="text-[10px] font-black text-slate-700 hover:text-blue-500 uppercase tracking-widest transition-colors inline-flex items-center gap-2">
                 <X size={12} /> Abortar Procedimento
