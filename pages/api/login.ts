@@ -1,21 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Método não permitido' });
-  }
-
-  const { password } = req.body;
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') return res.status(405).end();
   
-  // Puxa a lista de senhas que você salvou na Vercel (ALLOWED_KEYS)
-  const allowedKeys = process.env.ALLOWED_KEYS || '';
-  const keysArray = allowedKeys.split(',');
+  const { key } = req.body;
+  const allowed = process.env.ALLOWED_KEYS || ""; // Lê a variável protegida da Vercel
+  const keysArray = allowed.split(',').map(k => k.trim());
 
-  if (keysArray.includes(password)) {
-    // Se a senha estiver na lista, retorna sucesso
-    return res.status(200).json({ authenticated: true });
-  } else {
-    // Se não estiver, retorna erro
-    return res.status(401).json({ authenticated: false, message: 'Credencial Inválida' });
+  if (keysArray.includes(key)) {
+    return res.status(200).json({ authorized: true });
   }
+  
+  return res.status(401).json({ authorized: false });
 }
