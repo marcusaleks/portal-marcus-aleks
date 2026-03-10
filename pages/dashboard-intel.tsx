@@ -64,65 +64,47 @@ export default function SifazDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#020408] text-slate-400 font-sans font-bold">
+    <div className="min-h-screen bg-[#020408] text-slate-400 font-sans font-bold" style={{ fontSize: '1.2em' }}>
       <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white"><Shield size={20}/></div>
-            <div><h1 className="text-white font-black text-xl uppercase tracking-tighter leading-none">SIFAZ <span className="text-blue-500 text-[10px] ml-1">v.0.0.1</span></h1><p className="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] font-black mt-1">Sistema de Inteligência Fazendária</p></div>
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white"><Shield size={24}/></div>
+            <div><h1 className="text-white font-black text-2xl uppercase tracking-tighter leading-none">SIFAZ <span className="text-blue-500 text-[12px] ml-1">v.0.0.1</span></h1><p className="text-[11px] text-slate-500 font-mono uppercase tracking-[0.3em] font-black mt-1">Sistema de Inteligência Fazendária</p></div>
           </div>
-          <nav className="flex gap-2 items-center">
-            {[{ id: 'briefing', label: 'Briefing', icon: <Newspaper size={14}/> }, { id: 'osint', label: 'Dorks', icon: <Search size={14}/> }, { id: 'legislacao', label: 'Legislação', icon: <Gavel size={14}/> }].map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}>{tab.icon} {tab.label}</button>
+          <nav className="flex gap-3 items-center">
+            {[{ id: 'briefing', label: 'Briefing', icon: <Newspaper size={18}/> }, { id: 'osint', label: 'Dorks', icon: <Search size={18}/> }, { id: 'legislacao', label: 'Legislação', icon: <Gavel size={18}/> }].map(tab => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-5 py-3 rounded text-[12px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}>{tab.icon} {tab.label}</button>
             ))}
-            <button onClick={handleLogout} className="flex items-center gap-2 p-2 text-red-600 hover:bg-red-600/10 rounded-lg ml-4 uppercase text-[10px] font-black"><LogOut size={18}/> SAIR</button>
+            <button onClick={handleLogout} className="flex items-center gap-2 p-3 text-red-600 hover:bg-red-600/10 rounded-lg ml-6 uppercase text-[12px] font-black"><LogOut size={22}/> SAIR</button>
           </nav>
         </div>
       </div>
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        {activeTab === 'briefing' && (
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-white font-black text-lg uppercase tracking-tighter border-b border-slate-800 pb-4 flex items-center gap-3"><ShieldAlert className="text-red-600" size={20} /> Intel Briefing</h2>
-              <div className="grid gap-4">
-                {intelNews.map((news: any, idx: number) => (
-                  <div key={idx} className="p-6 bg-slate-900/20 border border-slate-800 rounded-xl font-bold group">
-                    <span className="text-[9px] font-mono text-blue-500 uppercase tracking-widest">{news.date}</span>
-                    <h3 className="text-white text-sm font-bold mt-2 uppercase">{news.title}</h3>
-                    <p className="text-xs text-slate-500 mt-2 line-clamp-2">{news.summary}</p>
-                    <a href={news.link} target="_blank" className="inline-flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase mt-4 hover:underline">Analisar <ArrowUpRight size={12}/></a>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <aside className="space-y-6"><div className="bg-slate-950/40 border border-slate-800 p-6 rounded-2xl shadow-xl"><h3 className="text-blue-500 font-black text-[10px] uppercase mb-4 flex items-center gap-2"><Network size={14}/> Infra Recon</h3><input className="w-full bg-black border border-slate-800 rounded px-3 py-2 text-[10px] text-white font-mono mb-3" placeholder="domínio.com.br" id="dns-input" /><div className="grid grid-cols-2 gap-2"><button onClick={() => { const v = (document.getElementById('dns-input') as HTMLInputElement).value; if(v) window.open(`https://viewdns.info/dnsrecord/?domain=${v}`, '_blank')}} className="bg-slate-900 border border-slate-700 text-[8px] font-black py-2">DNS</button><button onClick={() => { const v = (document.getElementById('dns-input') as HTMLInputElement).value; if(v) window.open(`https://who.is/whois/${v}`, '_blank')}} className="bg-slate-900 border border-slate-700 text-[8px] font-black py-2">WHOIS</button></div></div></aside>
-          </div>
-        )}
+      <main className="max-w-7xl mx-auto px-6 py-14">
         {activeTab === 'osint' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {dorkLibrary.map((d) => (
-              <div key={d.id} className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl font-bold">
-                <div className="flex justify-between items-center mb-4"><span className="text-[8px] font-black bg-slate-800 text-slate-400 px-2 py-1 rounded uppercase">{d.cat}</span>{d.risk && <span className="text-red-600 text-[8px] font-black uppercase animate-pulse">! Sigilo</span>}</div>
-                <h3 className="text-white text-xs font-bold mb-3 tracking-tight">{d.title}</h3>
-                <div className="bg-black/60 p-3 rounded border border-slate-800 font-mono text-[10px] text-blue-400 relative"><code className="break-all">{d.code}</code><button onClick={() => copyToClipboard(d.code, d.id)} className="absolute top-2 right-2 text-slate-600 hover:text-white">{copiedId === d.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}</button></div>
+              <div key={d.id} className="bg-slate-950/60 border border-slate-800 p-8 rounded-3xl font-bold shadow-xl">
+                <div className="flex justify-between items-center mb-6"><span className="text-[10px] font-black bg-slate-800 text-slate-400 px-3 py-1.5 rounded uppercase">{d.cat}</span>{d.risk && <span className="text-red-600 text-[10px] font-black uppercase animate-pulse">! Sigilo</span>}</div>
+                <h3 className="text-white text-[1.1em] font-bold mb-4 tracking-tight">{d.title}</h3>
+                <div className="bg-black/80 p-5 rounded-xl border border-slate-800 font-mono text-[13px] text-blue-400 relative"><code className="break-all">{d.code}</code><button onClick={() => copyToClipboard(d.code, d.id)} className="absolute top-3 right-3 text-slate-600 hover:text-white">{copiedId === d.id ? <Check size={20} className="text-emerald-500" /> : <Copy size={20} />}</button></div>
               </div>
             ))}
           </div>
         )}
         {activeTab === 'legislacao' && (
-          <section className="bg-slate-900/20 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-black/50 text-slate-500 font-mono text-[10px] uppercase"><tr><th className="px-6 py-4">Ato Legal</th><th className="px-6 py-4 text-right">Repositório</th></tr></thead>
-              <tbody className="divide-y divide-slate-800">
+          <section className="bg-slate-900/20 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <table className="w-full text-left">
+              <thead className="bg-black text-slate-500 font-mono text-[12px] uppercase"><tr><th className="px-8 py-6">Ato Legal</th><th className="px-8 py-6 text-right">Repositório</th></tr></thead>
+              <tbody className="divide-y divide-slate-800 text-[1em]">
                 {legislationList.map((l, i) => (
-                  <tr key={i} className="hover:bg-blue-600/5 transition-all font-bold"><td className="px-6 py-4"><p className="text-blue-500 uppercase tracking-tighter">{l.title}</p><p className="text-[10px] text-slate-500 italic mt-1">{l.desc}</p></td><td className="px-6 py-4 text-right"><a href={l.url} target="_blank" className="inline-flex items-center gap-2 text-slate-500 hover:text-white font-black text-[10px] uppercase border border-slate-800 px-3 py-1 rounded transition-all">Fonte <ExternalLink size={12}/></a></td></tr>
+                  <tr key={i} className="hover:bg-blue-600/5 transition-all font-bold"><td className="px-8 py-8"><p className="text-blue-500 uppercase tracking-tighter text-[1.1em]">{l.title}</p><p className="text-[13px] text-slate-500 italic mt-2">{l.desc}</p></td><td className="px-8 py-8 text-right"><a href={l.url} target="_blank" className="inline-flex items-center gap-3 text-slate-500 hover:text-white font-black text-[12px] uppercase border border-slate-800 px-5 py-2 rounded-xl transition-all">Fonte <ExternalLink size={14}/></a></td></tr>
                 ))}
               </tbody>
             </table>
           </section>
         )}
       </main>
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex justify-between items-center text-[10px] font-mono text-slate-600 font-black uppercase tracking-[0.3em]"><p>© 2026 MARCUS ALEKS DEVELOPERS</p><div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/10"><Activity size={12} className="animate-pulse" /> STATUS: OPERACIONAL</div></footer>
+      <footer className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-900 flex justify-between items-center text-[12px] font-mono text-slate-600 font-black uppercase tracking-[0.3em]"><p>© 2026 MARCUS ALEKS DEVELOPERS</p><div className="flex items-center gap-3 text-emerald-500 bg-emerald-500/5 px-6 py-3 rounded-full border border-emerald-500/10"><Activity size={16} className="animate-pulse" /> STATUS: OPERACIONAL</div></footer>
     </div>
   );
 }
