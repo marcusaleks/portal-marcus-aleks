@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X, LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink } from 'lucide-react';
+import { 
+  Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X, 
+  LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink 
+} from 'lucide-react';
 
 export default function SifazDashboard() {
   const router = useRouter();
@@ -8,11 +11,15 @@ export default function SifazDashboard() {
   const [activeTab, setActiveTab] = useState('briefing');
   const [intelNews, setIntelNews] = useState([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showAtifBanner, setShowAtifBanner] = useState(false); // ESTADO DO POPUP
 
   useEffect(() => {
     const token = localStorage.getItem('mad_access_token');
     if (!token) { router.push('/login'); return; }
+    
     setAuthorized(true);
+    setShowAtifBanner(true); // GATILHO DO POPUP APÓS LOGIN
+
     const fetchNews = async () => {
       try {
         const res = await fetch('/data/news.json');
@@ -23,8 +30,16 @@ export default function SifazDashboard() {
     fetchNews();
   }, [router]);
 
-  const handleLogout = () => { localStorage.removeItem('mad_access_token'); router.push('/'); };
-  const copyToClipboard = (text: string, id: string) => { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); };
+  const handleLogout = () => { 
+    localStorage.removeItem('mad_access_token'); 
+    router.push('/'); 
+  };
+
+  const copyToClipboard = (text: string, id: string) => { 
+    navigator.clipboard.writeText(text); 
+    setCopiedId(id); 
+    setTimeout(() => setCopiedId(null), 2000); 
+  };
 
   if (!authorized) return <div className="min-h-screen bg-[#020408]" />;
 
@@ -65,6 +80,19 @@ export default function SifazDashboard() {
 
   return (
     <div className="min-h-screen bg-[#020408] text-slate-400 font-sans font-bold" style={{ fontSize: '1.2em' }}>
+      
+      {/* REINCLUSÃO DO POPUP ATIF */}
+      {showAtifBanner && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+          <div className="bg-slate-950 border-4 border-red-600 p-16 rounded-[3rem] shadow-[0_0_80px_rgba(220,38,38,0.4)] relative max-w-2xl w-full text-center animate-in zoom-in duration-300">
+            <button onClick={() => setShowAtifBanner(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white"><X size={32}/></button>
+            <ShieldAlert size={80} className="text-red-600 mx-auto mb-8 animate-bounce" />
+            <h2 className="text-white text-5xl font-black uppercase tracking-tighter mb-6 italic">AQUI É ATIF, PORRA!!!</h2>
+            <button onClick={() => setShowAtifBanner(false)} className="mt-10 bg-red-600 text-white font-black text-sm uppercase py-5 px-12 rounded-2xl tracking-[0.2em] hover:bg-red-700 transition-all shadow-lg">Assumir Comando</button>
+          </div>
+        </div>
+      )}
+
       <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
         <div className="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
           <div className="flex items-center gap-4">
