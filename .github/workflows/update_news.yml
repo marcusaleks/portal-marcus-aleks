@@ -25,8 +25,8 @@ jobs:
 
       - name: Salvar mudanças no GitHub
         run: |
-          git config --global user.name 'News Robot'
-          git config --global user.email 'robot@marcus.aleks'
+          git config --global user.name 'marcusaleks'
+          git config --global user.email 'github@marcus.aleks.nom.br'
           git add public/data/news.json
           git commit -m "Radar atualizado: $(date)" || echo "Sem mudanças"
           git push
