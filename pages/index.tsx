@@ -1,6 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from 'lucide-react';
+import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download, Calendar } from 'lucide-react';
+import fs from 'fs';
+import path from 'path';
+
+export async function getStaticProps() {
+  const filePath = path.join(process.cwd(), 'data', 'copom.md');
+  let copomMeetings = [];
+  try {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const lines = fileContent.split('\n');
+    for (const line of lines) {
+      const match = line.match(/\|\s*([\wª\s]+)\s*\|\s*(\d{2}\/\d{2}\/\d{4})\s*\|/);
+      if (match && !match[1].includes('Reunião |')) {
+         const name = match[1].trim();
+         const dateStr = match[2].trim();
+         const [day, month, year] = dateStr.split('/');
+         const timestamp = new Date(`${year}-${month}-${day}T23:59:59-03:00`).getTime();
+         copomMeetings.push({ name, date: dateStr, parsed: timestamp });
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao ler copom.md:", error);
+  }
+
+  return {
+    props: {
+      copomMeetings
+    },
+    revalidate: 3600
+  };
+}
 
 const Sparkline = ({ trend = "up" }) => (
   <svg className="w-16 h-8" viewBox="0 0 48 24" fill="none">
@@ -9,8 +39,14 @@ const Sparkline = ({ trend = "up" }) => (
   </svg>
 );
 
-export default function Home() {
+export default function Home({ copomMeetings = [] }: { copomMeetings: any[] }) {
+  const getNextCopomMeeting = () => {
+    const now = Date.now();
+    const next = copomMeetings.find((m: any) => m.parsed >= now);
+    return next ? next.date : 'A definir';
+  };
   const [market, setMarket] = useState({ usd: '...', usdChange: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] });
+  const [nextCopom, setNextCopom] = useState('...');
 
   useEffect(() => {
     const fetchMarket = async () => {
@@ -40,6 +76,7 @@ export default function Home() {
       } catch (e) { console.error("Uplink Offline"); }
     };
     fetchMarket();
+    setNextCopom(getNextCopomMeeting());
   }, []);
 
   return (
@@ -82,7 +119,7 @@ export default function Home() {
             </div>
             <div className="flex justify-between items-center">
               <div><span className="text-[14px] font-mono text-blue-500 uppercase block mb-1 tracking-widest">SELIC EFETIVA</span><span className="text-4xl font-black text-blue-500 tracking-tighter">{market.selic}%</span></div>
-              <div className="text-right"><span className="text-[12px] font-mono text-slate-600 uppercase block font-bold mb-1">REUNIÃO COPOM</span><span className="text-sm font-bold text-slate-400">17/03/2026</span></div>
+              <div className="text-right"><span className="text-[12px] font-mono text-slate-600 uppercase block font-bold mb-1">REUNIÃO COPOM</span><span className="text-sm font-bold text-slate-400">{nextCopom}</span></div>
             </div>
           </div>
         </div>
@@ -92,6 +129,41 @@ export default function Home() {
         <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] group hover:border-emerald-500/40 transition-all shadow-xl"><TrendingUp className="text-emerald-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Tesouro Direto</h3><p className="text-[1em] text-slate-500 mb-10 leading-relaxed font-bold">Preços e taxas de títulos federais em tempo real.</p></a>
         <a href="https://www3.bcb.gov.br/CALCIDADAO/publico/exibirFormCorrecaoValores.do?method=exibirFormCorrecaoValores&aba=4" target="_blank" className="p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] group hover:border-blue-500/40 transition-all shadow-xl"><Calculator className="text-blue-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Calculadora Bacen</h3><p className="text-[1em] text-slate-500 mb-10 leading-relaxed font-bold">Simulador oficial de correção de valores.</p></a>
         <div className="p-12 border border-slate-800 bg-blue-600/5 border-blue-500/10 rounded-[3rem] shadow-2xl"><Download className="text-blue-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Portfolio Manager</h3><p className="text-[1em] text-slate-400 mb-10 leading-relaxed font-bold">Engine quantitativa em Python para uso local.</p><a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white py-6 rounded-2xl text-[16px] font-black flex items-center justify-center gap-4 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg shadow-blue-900/20"><Activity size={24} /> Download v.0.0.1</a></div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-6 py-12 mb-20">
+        <div className="border border-slate-800 bg-slate-950/40 rounded-[3rem] p-12 shadow-2xl">
+          <div className="flex items-center gap-4 mb-8">
+             <Calendar className="text-slate-400" size={40} />
+             <h3 className="text-white text-[1.8em] font-black uppercase tracking-tighter italic">Calendário COPOM 2026</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+               <thead>
+                 <tr className="border-b border-slate-800 text-[14px] font-mono text-slate-500 uppercase tracking-widest">
+                   <th className="pb-4 font-bold">Reunião</th>
+                   <th className="pb-4 font-bold text-right">Data Final</th>
+                   <th className="pb-4 font-bold text-right">Status</th>
+                 </tr>
+               </thead>
+               <tbody className="text-slate-300">
+                 {copomMeetings.map((m: any, i: number) => {
+                   const isPast = m.parsed < Date.now();
+                   const isNext = m.date === nextCopom;
+                   return (
+                     <tr key={i} className={`border-b border-slate-800/50 last:border-0 hover:bg-slate-900/30 transition-colors ${isNext ? 'bg-blue-900/10' : ''}`}>
+                       <td className="py-6 font-bold text-[1.1em]">{m.name}</td>
+                       <td className="py-6 font-mono text-right">{m.date}</td>
+                       <td className="py-6 text-right font-bold text-[0.9em]">
+                         {isNext ? <span className="text-blue-500 uppercase tracking-widest">Próxima</span> : isPast ? <span className="text-slate-600 uppercase tracking-widest">Realizada</span> : <span className="text-slate-500 uppercase tracking-widest">Agendada</span>}
+                       </td>
+                     </tr>
+                   )
+                 })}
+               </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <footer className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-900 flex justify-between items-center text-[12px] font-mono text-slate-600 font-bold uppercase tracking-[0.3em]"><p>© 2026 MARCUS ALEKS DEVELOPERS</p><div className="flex items-center gap-3 text-emerald-500 bg-emerald-500/5 px-6 py-3 rounded-full border border-emerald-500/10"><Activity size={16} className="animate-pulse" /> ENGINE: OPTIMAL</div></footer>
