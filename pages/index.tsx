@@ -5,7 +5,7 @@ import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from '
 export async function getStaticProps() {
   const fs = require('fs');
   const path = require('path');
-  const filePath = path.join(process.cwd(), 'data', 'copom.md');
+  const filePath = path.join(process.cwd(), 'public', 'copom.md');
   let copomMeetings = [];
   try {
     const fileContent = fs.readFileSync(filePath, 'utf8');
