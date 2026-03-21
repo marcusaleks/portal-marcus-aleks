@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from 'lucide-react';
-import fs from 'fs';
-import path from 'path';
 
 export async function getStaticProps() {
+  const fs = require('fs');
+  const path = require('path');
   const filePath = path.join(process.cwd(), 'data', 'copom.md');
   let copomMeetings = [];
   try {
