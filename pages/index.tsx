@@ -2,36 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from 'lucide-react';
 
-export async function getStaticProps() {
-  const fs = require('fs');
-  const path = require('path');
-  const filePath = path.join(process.cwd(), 'public', 'copom.md');
-  let copomMeetings = [];
-  try {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    const lines = fileContent.split('\n');
-    for (const line of lines) {
-      const match = line.match(/\|\s*([^|]+)\s*\|\s*(\d{2}\/\d{2}\/\d{4})\s*\|/);
-      if (match && !match[1].includes('Reunião |')) {
-         const name = match[1].trim();
-         const dateStr = match[2].trim();
-         const [day, month, year] = dateStr.split('/');
-         const timestamp = new Date(`${year}-${month}-${day}T23:59:59-03:00`).getTime();
-         copomMeetings.push({ name, date: dateStr, parsed: timestamp });
-      }
-    }
-  } catch (error) {
-    console.error("Erro ao ler copom.md:", error);
-  }
-
-  return {
-    props: {
-      copomMeetings
-    },
-    revalidate: 3600
-  };
-}
-
 const Sparkline = ({ trend = "up" }) => (
   <svg className="w-16 h-8" viewBox="0 0 48 24" fill="none">
     <path d={trend === "up" ? "M0 20L10 16L20 18L30 8L40 10L48 2" : "M0 2L10 8L20 6L30 18L40 16L48 22"} 
@@ -39,12 +9,7 @@ const Sparkline = ({ trend = "up" }) => (
   </svg>
 );
 
-export default function Home({ copomMeetings = [] }: { copomMeetings: any[] }) {
-  const getNextCopomMeeting = () => {
-    const now = Date.now();
-    const next = copomMeetings.find((m: any) => m.parsed >= now);
-    return next ? next.date : 'A definir';
-  };
+export default function Home() {
   const [market, setMarket] = useState({ usd: '...', usdChange: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] });
   const [nextCopom, setNextCopom] = useState('...');
 
@@ -75,8 +40,35 @@ export default function Home({ copomMeetings = [] }: { copomMeetings: any[] }) {
         });
       } catch (e) { console.error("Uplink Offline"); }
     };
+
+    const fetchCopom = async () => {
+      try {
+        const res = await fetch('/copom.md');
+        if (!res.ok) throw new Error('Not found');
+        const text = await res.text();
+        const lines = text.split('\n');
+        let nextDate = 'A definir';
+        const now = Date.now();
+        for (const line of lines) {
+          const match = line.match(/\|\s*([^|]+)\s*\|\s*(\d{2}\/\d{2}\/\d{4})\s*\|/);
+          if (match && !match[1].includes('Reunião |')) {
+             const dateStr = match[2].trim();
+             const [day, month, year] = dateStr.split('/');
+             const timestamp = new Date(`${year}-${month}-${day}T23:59:59-03:00`).getTime();
+             if (timestamp >= now) {
+                nextDate = dateStr;
+                break;
+             }
+          }
+        }
+        setNextCopom(nextDate);
+      } catch (error) {
+        console.error("Erro ao carregar dados do COPOM local:", error);
+      }
+    };
+
     fetchMarket();
-    setNextCopom(getNextCopomMeeting());
+    fetchCopom();
   }, []);
 
   return (
