@@ -5,6 +5,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script src="https://cdn.tailwindcss.com"></script>
       </Head>
       <Component {...pageProps} />
