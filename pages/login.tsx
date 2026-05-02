@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Shield, Lock, ArrowRight, Activity, AlertCircle, Fingerprint, Eye, EyeOff, X } from 'lucide-react';
+import MadSignature from '../components/MadSignature';
 
 export default function Login() {
   const [key, setKey] = useState('');
@@ -57,7 +58,7 @@ export default function Login() {
         </div>
       </div>
       <footer className="fixed bottom-12 flex items-center gap-5 text-[14px] text-emerald-500 font-mono bg-emerald-500/5 px-10 py-5 rounded-full border border-emerald-500/10 backdrop-blur-xl">© 2026 - MARCUS ALEKS DEVELOPERS</footer>
-      <a href="https://marcus.aleks.nom.br" className="mad-signature" aria-label="built by mad"><img src="/favicon.png" width={16} height={16} alt="MAD" />built by mad</a>
+      <MadSignature />
     </div>
   );
 }

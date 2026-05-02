@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { ExternalLink, Shield, LogOut } from 'lucide-react';
+import MadSignature from '../components/MadSignature';
 
 type Item = { nome: string; url?: string | null; descricao?: string | null };
 type Secao = { id: string; titulo: string; icone: string; subsecoes: { titulo: string; itens: Item[] }[] };
@@ -364,7 +365,7 @@ export default function OsintHub() {
           )}
         </main>
       </div>
-      <a href="https://marcus.aleks.nom.br" className="mad-signature" aria-label="built by mad"><img src="/favicon.png" width={16} height={16} alt="MAD" />built by mad</a>
+      <MadSignature />
     </div>
   );
 }

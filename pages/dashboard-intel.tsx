@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import MadSignature from '../components/MadSignature';
 import { 
   Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X, 
   LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink 
@@ -157,7 +158,7 @@ export default function SifazDashboard() {
       </main>
 
       <footer className="max-w-7xl mx-auto px-6 py-20 border-t border-slate-900 flex justify-between items-center text-[14px] font-mono text-slate-600 font-black uppercase tracking-[0.3em]"><p>© 2026 MARCUS ALEKS DEVELOPERS</p><div className="flex items-center gap-4 text-emerald-500 bg-emerald-500/5 px-8 py-4 rounded-full border border-emerald-500/10">SISTEMA OPERACIONAL</div></footer>
-      <a href="https://marcus.aleks.nom.br" className="mad-signature" aria-label="built by mad"><img src="/favicon.png" width={16} height={16} alt="MAD" />built by mad</a>
+      <MadSignature />
     </div>
   );
 }
