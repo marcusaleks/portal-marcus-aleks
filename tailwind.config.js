@@ -1,9 +1,13 @@
 // tailwind.config.js
 module.exports = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     extend: {
       animation: {
-        'marquee': 'marquee 30s linear infinite',
+        'marquee': 'marquee 280s linear infinite',
       },
       keyframes: {
         marquee: {
