@@ -15,25 +15,42 @@ export default function Home() {
 
   useEffect(() => {
     const fetchMarket = async () => {
-      try {
-        const resCur = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-        const dataCur = await resCur.json();
-        const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
-        const dataSelic = await resSelic.json();
-        const resMarket = await fetch('/api/market');
-        const dataMarket = await resMarket.json();
-        const results: any[] = dataMarket.results || [];
-        const ibov = results.find(r => r.symbol === '^BVSP');
-        const sortedStocks = results.filter(r => r.symbol !== '^BVSP').sort((a, b) => a.symbol.localeCompare(b.symbol));
-        setMarket({
-          usd: parseFloat(dataCur.USDBRL.bid).toFixed(4).replace('.', ','),
-          usdChange: (parseFloat(dataCur.USDBRL.pctChange) > 0 ? '+' : '') + dataCur.USDBRL.pctChange + '%',
-          selic: dataSelic[0].valor.replace('.', ','),
-          ibov: ibov.regularMarketPrice.toLocaleString('pt-BR'),
-          ibovChange: (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%',
-          stocks: sortedStocks
-        });
-      } catch (e) { console.error("Uplink Offline"); }
+      const [resCur, resSelic, resMarket] = await Promise.allSettled([
+        fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r => r.json()),
+        fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json').then(r => r.json()),
+        fetch('/api/market').then(r => r.json()),
+      ]);
+
+      setMarket(prev => {
+        const next = { ...prev };
+
+        if (resCur.status === 'fulfilled') {
+          try {
+            next.usd = parseFloat(resCur.value.USDBRL.bid).toFixed(4).replace('.', ',');
+            next.usdChange = (parseFloat(resCur.value.USDBRL.pctChange) > 0 ? '+' : '') + resCur.value.USDBRL.pctChange + '%';
+          } catch {}
+        }
+
+        if (resSelic.status === 'fulfilled') {
+          try {
+            next.selic = resSelic.value[0].valor.replace('.', ',');
+          } catch {}
+        }
+
+        if (resMarket.status === 'fulfilled') {
+          try {
+            const results: any[] = resMarket.value.results || [];
+            const ibov = results.find(r => r.symbol === '^BVSP');
+            if (ibov) {
+              next.ibov = ibov.regularMarketPrice.toLocaleString('pt-BR');
+              next.ibovChange = (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%';
+            }
+            next.stocks = results.filter(r => r.symbol !== '^BVSP').sort((a: any, b: any) => a.symbol.localeCompare(b.symbol));
+          } catch {}
+        }
+
+        return next;
+      });
     };
 
     const fetchCopom = async () => {
