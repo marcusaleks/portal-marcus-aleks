@@ -21,10 +21,10 @@ tags = ["next", "mad-critico"]
 
 [allowlist]
 paths = [
-  ".gitleaks.toml",
-  "*.md",
-  "Administrativos/",
-  "secrets.manifest.json",
-  "scripts/fetch_news.py",
-  "public/data/news.json"
+  '''.gitleaks.toml''',
+  '''.*\.md''',
+  '''Administrativos/''',
+  '''secrets\.manifest\.json''',
+  '''scripts/fetch_news\.py''',
+  '''public/data/news\.json'''
 ]
