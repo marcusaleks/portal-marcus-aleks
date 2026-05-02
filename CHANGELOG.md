@@ -9,6 +9,28 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Não lançado]
 
 ### Added
+- Commitlint + Husky: validação de formato de commits local (Adendo 01)
+- `.github/workflows/mad-compliance.yml`: CI com 5 jobs (build, .mad-project, gitleaks, npm audit, conformidade visual)
+- Branches `dev` e `staging` criadas e publicadas
+- Tags retroativas `v0.0.1` → `v0.4.1`
+- Branch Protection Rules ativas em `main` e `staging`
+
+### Changed
+- `next` fixado em `^16.2.4` (corrige CVE DoS em Server Components)
+- `postcss` fixado em `^8.5.10` (corrige CVE XSS via `</style>`)
+- `overrides.postcss` adicionado ao `package.json` para forçar versão segura em subdependências
+- CSP no `vercel.json`: remove `unsafe-eval` e referência ao CDN Tailwind removido; `frame-ancestors 'self'` → `'none'`
+
+### Security
+- **[High]** Next.js DoS via Server Components — corrigido com `next@^16.2.4`
+- **[Moderate]** PostCSS XSS via `</style>` — corrigido com `postcss@^8.5.10`
+- `npm audit --audit-level=high`: **0 vulnerabilidades** em 02/05/2026
+
+---
+
+## [Não lançado — anterior]
+
+### Added
 - `.mad-project` com declaração formal de stack `vercel-legacy` e alvo de migração `cloudflare`
 - `CHANGELOG.md` (este arquivo) com histórico retroativo
 - Assinatura `.mad-signature` em todas as páginas (index, login, dashboard-intel, osint_hub)

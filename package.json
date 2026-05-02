@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "lucide-react": "latest",
-    "next": "latest",
+    "next": "^16.2.4",
     "react": "latest",
     "react-dom": "latest"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
@@ -22,7 +25,7 @@
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "husky": "^9.1.7",
-    "postcss": "latest",
+    "postcss": "^8.5.10",
     "tailwindcss": "latest",
     "typescript": "latest"
   }
