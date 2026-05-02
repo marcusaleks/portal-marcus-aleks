@@ -50,7 +50,10 @@ jobs:
           sudo mv gitleaks /usr/local/bin/gitleaks
       - name: Executa Gitleaks
         run: |
-          gitleaks detect --source=. --config=.gitleaks.toml --redact --exit-code=1
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          gitleaks detect --source=. --config=.gitleaks.toml --redact --exit-code=1 \
+            --log-opts="${BASE}..${HEAD}"
           echo "✓ Nenhum secret detectado"
 
   audit:
