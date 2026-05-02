@@ -85,7 +85,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 font-bold" style={{ fontSize: '1.2em' }}>
-      <style dangerouslySetInnerHTML={{ __html: `.ticker-wrap { display: flex; animation: marquee 180s linear infinite; width: max-content; } @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }`}} />
+      <style dangerouslySetInnerHTML={{ __html: `.ticker-wrap { display: flex; animation: marquee 257s linear infinite; width: max-content; } @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }`}} />
       
       {/* Banner Ampliado: Texto +20% e Velocidade -80% */}
       <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden z-[60] relative">
