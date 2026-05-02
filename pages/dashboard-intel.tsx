@@ -158,7 +158,7 @@ export default function SifazDashboard() {
         )}
       </main>
 
-      <footer className="max-w-7xl mx-auto px-6 py-20 border-t border-slate-900 flex justify-between items-center text-[14px] font-mono text-slate-600 font-black uppercase tracking-[0.3em]"><p>© 2026 MARCUS ALEKS DEVELOPERS</p><div className="flex items-center gap-4 text-emerald-500 bg-emerald-500/5 px-8 py-4 rounded-full border border-emerald-500/10">SISTEMA OPERACIONAL</div></footer>
+      <footer className="max-w-7xl mx-auto px-6 py-20 border-t border-slate-900 flex justify-between items-center text-[14px] font-mono text-slate-600 font-black uppercase tracking-[0.3em]"><div className="flex items-center gap-4 text-emerald-500 bg-emerald-500/5 px-8 py-4 rounded-full border border-emerald-500/10">SISTEMA OPERACIONAL</div></footer>
       <MadSignature />
     </div>
   );

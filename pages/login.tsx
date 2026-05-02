@@ -57,7 +57,6 @@ export default function Login() {
           <div className="text-center pt-4"><Link href="/" className="text-[14px] font-black text-slate-700 hover:text-blue-500 uppercase tracking-widest inline-flex items-center gap-3"><X size={16} /> Cancelar</Link></div>
         </div>
       </div>
-      <footer className="fixed bottom-12 flex items-center gap-5 text-[14px] text-emerald-500 font-mono bg-emerald-500/5 px-10 py-5 rounded-full border border-emerald-500/10 backdrop-blur-xl">© 2026 - MARCUS ALEKS DEVELOPERS</footer>
       <MadSignature />
     </div>
   );
