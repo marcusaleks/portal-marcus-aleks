@@ -28,6 +28,9 @@ export default function SifazDashboard() {
       } catch (e) { console.error("Erro Uplink."); }
     };
     fetchNews();
+
+    const interval = setInterval(fetchNews, 60 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [router]);
 
   const handleLogout = () => {
