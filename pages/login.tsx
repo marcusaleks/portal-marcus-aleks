@@ -12,7 +12,7 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/session').then(r => { if (r.ok) router.push('/dashboard-intel'); });
+    fetch('/api/session').then(r => r.json()).then(d => { if (d.valid) router.push('/dashboard-intel'); });
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {

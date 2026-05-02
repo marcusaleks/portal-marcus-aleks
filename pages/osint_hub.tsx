@@ -244,8 +244,8 @@ export default function OsintHub() {
   };
 
   useEffect(() => {
-    fetch('/api/session').then(r => {
-      if (!r.ok) { router.push('/login'); return; }
+    fetch('/api/session').then(r => r.json()).then(d => {
+      if (!d.valid) { router.push('/login'); return; }
       setAuthorized(true);
     });
   }, [router]);
