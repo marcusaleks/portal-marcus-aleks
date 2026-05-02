@@ -1,0 +1,15 @@
+{
+  "project": "portal-marcus-aleks.marcus.aleks.nom.br",
+  "stack": "vercel-legacy",
+  "coverage_threshold": 0,
+  "coverage_exemption_reason": "Projeto legado sem suite de testes — inclusao planejada na migracao para stack Cloudflare",
+  "llm_budget_brl": 10,
+  "team_lead": "marcusaleks",
+  "created_at": "2026-05",
+  "next_review": "2026-11",
+  "sentry_sample_rate_staging": 0.1,
+  "sentry_sample_rate_production": 1.0,
+  "auth_persistence": "httponly-cookie",
+  "migration_target": "cloudflare",
+  "migration_priority": "asap"
+}

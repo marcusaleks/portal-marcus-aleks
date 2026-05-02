@@ -1,0 +1,23 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "mad-brapi-token"
+description = "BRAPI Token — Categoria B"
+regex = '''brapi\.dev.*token=[a-zA-Z0-9]{20,}'''
+tags = ["brapi", "mad-critico"]
+
+[[rules]]
+id = "mad-allowed-keys"
+description = "ALLOWED_KEYS hardcoded — Categoria B"
+regex = '''ALLOWED_KEYS\s*=\s*["'][^"']{8,}["']'''
+tags = ["auth", "mad-critico"]
+
+[[rules]]
+id = "mad-next-public-secret"
+description = "Segredo exposto via NEXT_PUBLIC_ — Categoria B proibida em build-time"
+regex = '''NEXT_PUBLIC_[A-Z_]*(TOKEN|KEY|SECRET|PASSWORD)[^=]*='''
+tags = ["next", "mad-critico"]
+
+[allowlist]
+paths = [".gitleaks.toml", "*.md", "Administrativos/"]

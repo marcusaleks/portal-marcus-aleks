@@ -1,0 +1,15 @@
+# Responsável padrão para todo o repositório
+* @marcusaleks
+
+# Arquivos de governança — Tech Lead obrigatório
+.github/ @marcusaleks
+.mad-project @marcusaleks
+secrets.manifest.json @marcusaleks
+vercel.json @marcusaleks
+
+# Autenticação e segurança
+pages/api/ @marcusaleks
+pages/login.tsx @marcusaleks
+
+# Documentação — qualquer membro do time
+*.md @marcusaleks

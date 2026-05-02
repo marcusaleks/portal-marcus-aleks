@@ -238,9 +238,10 @@ export default function OsintHub() {
   const [activeSection, setActiveSection] = useState('pesquisas-gerais');
 
   useEffect(() => {
-    const token = localStorage.getItem('mad_access_token');
-    if (!token) { router.push('/login'); return; }
-    setAuthorized(true);
+    fetch('/api/session').then(r => {
+      if (!r.ok) { router.push('/login'); return; }
+      setAuthorized(true);
+    });
   }, [router]);
 
   if (!authorized) return <div className="min-h-screen bg-[#0f172a]" />;
@@ -363,6 +364,7 @@ export default function OsintHub() {
           )}
         </main>
       </div>
+      <a href="https://marcus.aleks.nom.br" className="mad-signature" aria-label="built by mad"><img src="/favicon.png" width={16} height={16} alt="MAD" />built by mad</a>
     </div>
   );
 }
