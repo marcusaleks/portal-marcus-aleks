@@ -88,11 +88,12 @@ export default function SifazDashboard() {
       {/* REINCLUSÃO DO POPUP ATIF */}
       {showAtifBanner && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-          <div className="bg-slate-950 border-4 border-red-600 p-16 rounded-[3rem] shadow-[0_0_80px_rgba(220,38,38,0.4)] relative max-w-2xl w-full text-center animate-in zoom-in duration-300">
+          <div className="bg-slate-950 border border-blue-500/30 p-16 rounded-[3rem] shadow-[0_0_80px_rgba(37,99,235,0.2)] relative max-w-2xl w-full text-center animate-in zoom-in duration-300">
             <button onClick={() => setShowAtifBanner(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white"><X size={32}/></button>
-            <ShieldAlert size={80} className="text-red-600 mx-auto mb-8 animate-bounce" />
-            <h2 className="text-white text-5xl font-black uppercase tracking-tighter mb-6 italic">AQUI É ATIF, PORRA!!!</h2>
-            <button onClick={() => setShowAtifBanner(false)} className="mt-10 bg-red-600 text-white font-black text-sm uppercase py-5 px-12 rounded-2xl tracking-[0.2em] hover:bg-red-700 transition-all shadow-lg">Assumir Comando</button>
+            <Shield size={80} className="text-blue-500 mx-auto mb-8" />
+            <h2 className="text-white text-4xl font-black uppercase tracking-tighter mb-6 italic">Bem-vindo(a)</h2>
+            <p className="text-slate-400 text-lg font-bold">à área restrita e exclusiva deste portal</p>
+            <button onClick={() => setShowAtifBanner(false)} className="mt-10 bg-blue-600 text-white font-black text-sm uppercase py-5 px-12 rounded-2xl tracking-[0.2em] hover:bg-blue-700 transition-all shadow-lg">Entrar</button>
           </div>
         </div>
       )}
