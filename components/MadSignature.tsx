@@ -13,7 +13,7 @@ export default function MadSignature() {
       </span>
       <span style={{ color: '#ffffff', fontWeight: 900, letterSpacing: '0.08em' }}>MAD</span>
       <span style={{ color: '#6B7E99' }}>·</span>
-      <span>MARCUS ALEKS DEVS</span>
+      <span>MAD DEVELOPERS</span>
     </a>
   );
 }

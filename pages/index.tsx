@@ -102,7 +102,7 @@ export default function Home() {
       </div>
 
       <nav className="max-w-7xl mx-auto px-6 py-10 flex justify-between items-center">
-        <div className="flex items-center gap-3"><div className="bg-blue-600 px-3 py-1 rounded font-black text-white text-[16px]">MAD</div><span className="text-[1.2em] font-black tracking-widest text-blue-500 uppercase">MARCUS ALEKS DEVS</span></div>
+        <div className="flex items-center gap-3"><div className="bg-blue-600 px-3 py-1 rounded font-black text-white text-[16px]">MAD</div><span className="text-[1.2em] font-black tracking-widest text-blue-500 uppercase">MAD DEVELOPERS</span></div>
         <Link href="/login" className="bg-slate-900 border border-slate-800 px-8 py-4 rounded-xl text-[14px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-all shadow-xl"><Lock size={18} className="inline mr-2"/> ACESSO RESTRITO</Link>
       </nav>
 
