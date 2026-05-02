@@ -4,7 +4,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'GET') return res.status(405).end();
 
   const token = process.env.BRAPI_TOKEN;
-  const symbols = ['^BVSP', 'PETR4', 'VALE3', 'ITUB4', 'BBAS3', 'BBDC4', 'ABEV3', 'MGLU3'];
+  const symbols = ['^BVSP', 'AXIA6', 'BBAS3', 'BBDC3', 'BBSE3', 'CMIG4', 'CSMG3', 'ISAE4', 'ITSA4', 'ITUB4', 'MXRF11', 'PETR4', 'PMLL11', 'ROMI3', 'VALE3', 'VISC11', 'VIVT3', 'XPML11'];
 
   try {
     const responses = await Promise.all(
