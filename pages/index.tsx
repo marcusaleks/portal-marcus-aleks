@@ -10,8 +10,10 @@ const Sparkline = ({ trend = "up" }) => (
   </svg>
 );
 
+type Stock = { symbol: string; regularMarketPrice: number; regularMarketChangePercent: number };
+
 export default function Home() {
-  const [market, setMarket] = useState({ usd: '...', usdChange: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] });
+  const [market, setMarket] = useState<{ usd: string; usdChange: string; selic: string; ibov: string; ibovChange: string; stocks: Stock[] }>({ usd: '...', usdChange: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] });
   const [nextCopom, setNextCopom] = useState('...');
 
   useEffect(() => {
@@ -40,13 +42,13 @@ export default function Home() {
 
         if (resMarket.status === 'fulfilled') {
           try {
-            const results: any[] = resMarket.value.results || [];
+            const results: Stock[] = resMarket.value.results || [];
             const ibov = results.find(r => r.symbol === '^BVSP');
             if (ibov) {
               next.ibov = ibov.regularMarketPrice.toLocaleString('pt-BR');
               next.ibovChange = (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%';
             }
-            next.stocks = results.filter(r => r.symbol !== '^BVSP').sort((a: any, b: any) => a.symbol.localeCompare(b.symbol));
+            next.stocks = results.filter(r => r.symbol !== '^BVSP').sort((a, b) => a.symbol.localeCompare(b.symbol));
           } catch {}
         }
 
