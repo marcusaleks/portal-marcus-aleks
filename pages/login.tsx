@@ -11,8 +11,7 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('mad_access_token');
-    if (token) router.push('/dashboard-intel');
+    fetch('/api/session').then(r => { if (r.ok) router.push('/dashboard-intel'); });
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -25,7 +24,6 @@ export default function Login() {
         body: JSON.stringify({ key: key.trim() })
       });
       if (res.ok) {
-        localStorage.setItem('mad_access_token', 'session_' + Date.now());
         router.push('/dashboard-intel');
       } else { throw new Error(); }
     } catch (err) { setError(true); setLoading(false); setTimeout(() => setError(false), 3000); }

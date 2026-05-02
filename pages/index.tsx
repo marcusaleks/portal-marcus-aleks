@@ -20,14 +20,9 @@ export default function Home() {
         const dataCur = await resCur.json();
         const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
         const dataSelic = await resSelic.json();
-        const token = process.env.NEXT_PUBLIC_BRAPI_TOKEN;
-        const symbols = ['^BVSP', 'PETR4', 'VALE3', 'ITUB4', 'BBAS3', 'BBDC4', 'ABEV3', 'MGLU3'];
-        const results: any[] = [];
-        for (const s of symbols) {
-          const r = await fetch(`https://brapi.dev/api/quote/${s}?token=${token}`);
-          const d = await r.json();
-          if (d.results) results.push(d.results[0]);
-        }
+        const resMarket = await fetch('/api/market');
+        const dataMarket = await resMarket.json();
+        const results: any[] = dataMarket.results || [];
         const ibov = results.find(r => r.symbol === '^BVSP');
         const sortedStocks = results.filter(r => r.symbol !== '^BVSP').sort((a, b) => a.symbol.localeCompare(b.symbol));
         setMarket({

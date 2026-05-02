@@ -14,11 +14,11 @@ export default function SifazDashboard() {
   const [showAtifBanner, setShowAtifBanner] = useState(false); // ESTADO DO POPUP
 
   useEffect(() => {
-    const token = localStorage.getItem('mad_access_token');
-    if (!token) { router.push('/login'); return; }
-    
-    setAuthorized(true);
-    setShowAtifBanner(true); // GATILHO DO POPUP APÓS LOGIN
+    fetch('/api/session').then(r => {
+      if (!r.ok) { router.push('/login'); return; }
+      setAuthorized(true);
+      setShowAtifBanner(true);
+    });
 
     const fetchNews = async () => {
       try {
@@ -30,9 +30,9 @@ export default function SifazDashboard() {
     fetchNews();
   }, [router]);
 
-  const handleLogout = () => { 
-    localStorage.removeItem('mad_access_token'); 
-    router.push('/'); 
+  const handleLogout = () => {
+    document.cookie = 'mad_session=; HttpOnly; SameSite=Strict; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    router.push('/');
   };
 
   const copyToClipboard = (text: string, id: string) => { 
