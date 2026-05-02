@@ -31,6 +31,7 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+next-env.d.ts
 
 # ============================================================
 # CONFIDENCIAL — arquivos que NUNCA devem ser publicados

@@ -10,7 +10,7 @@ export default function SifazDashboard() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState('briefing');
-  const [intelNews, setIntelNews] = useState([]);
+  const [intelNews, setIntelNews] = useState<{ date: string; title: string; summary: string; link: string }[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showAtifBanner, setShowAtifBanner] = useState(false); // ESTADO DO POPUP
 
@@ -120,7 +120,7 @@ export default function SifazDashboard() {
           <div className="space-y-12">
             <h2 className="text-white font-black text-2xl uppercase tracking-tighter border-b border-slate-800 pb-6 flex items-center gap-4"><ShieldAlert className="text-red-600" size={28} /> Intel Briefing</h2>
             <div className="grid gap-6">
-              {intelNews.map((news: any, idx: number) => (
+              {intelNews.map((news, idx) => (
                 <div key={idx} className="p-10 bg-slate-900/20 border border-slate-800 rounded-3xl font-bold group">
                   <span className="text-[12px] font-mono text-blue-500 uppercase tracking-widest">{news.date}</span>
                   <h3 className="text-white text-xl font-bold mt-3 uppercase">{news.title}</h3>
