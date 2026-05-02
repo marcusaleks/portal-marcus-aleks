@@ -1,0 +1,103 @@
+name: MAD Compliance
+
+on:
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  mad-project:
+    name: Verificação .mad-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valida presença e campos obrigatórios
+        run: |
+          if [ ! -f ".mad-project" ]; then
+            echo "ERRO: .mad-project ausente — pipeline bloqueado (Lei 10.1)"
+            exit 1
+          fi
+          for field in project stack team_lead next_review auth_persistence; do
+            if ! grep -q "\"$field\"" .mad-project; then
+              echo "ERRO: campo '$field' ausente no .mad-project"
+              exit 1
+            fi
+          done
+          echo "✓ .mad-project válido"
+
+  secrets-scan:
+    name: Scan de Secrets (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  compliance-visual:
+    name: Conformidade Visual MAD
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verifica favicon.png em public/
+        run: |
+          if [ ! -f "public/favicon.png" ]; then
+            echo "ERRO: public/favicon.png ausente (Lei 2.1)"
+            exit 1
+          fi
+          echo "✓ favicon.png presente"
+      - name: Verifica apple-touch-icon.png em public/
+        run: |
+          if [ ! -f "public/apple-touch-icon.png" ]; then
+            echo "ERRO: public/apple-touch-icon.png ausente (Lei 2.1)"
+            exit 1
+          fi
+          echo "✓ apple-touch-icon.png presente"
+      - name: Verifica SVG master em src/assets/
+        run: |
+          if [ ! -f "src/assets/mad-logo.svg" ]; then
+            echo "ERRO: src/assets/mad-logo.svg ausente (Lei 2.1)"
+            exit 1
+          fi
+          echo "✓ mad-logo.svg presente"
+      - name: Verifica MadSignature nas páginas
+        run: |
+          for page in pages/index.tsx pages/login.tsx pages/dashboard-intel.tsx pages/osint_hub.tsx; do
+            if ! grep -q "MadSignature" "$page"; then
+              echo "ERRO: MadSignature ausente em $page (Lei 2.2)"
+              exit 1
+            fi
+          done
+          echo "✓ MadSignature presente em todas as páginas"
+      - name: Verifica lockfile
+        run: |
+          if [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
+            echo "ERRO: lockfile ausente (Regra #15)"
+            exit 1
+          fi
+          echo "✓ lockfile presente"
