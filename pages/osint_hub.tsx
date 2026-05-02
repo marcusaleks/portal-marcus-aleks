@@ -238,6 +238,11 @@ export default function OsintHub() {
   const [search, setSearch] = useState('');
   const [activeSection, setActiveSection] = useState('pesquisas-gerais');
 
+  const handleLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    router.push('/');
+  };
+
   useEffect(() => {
     fetch('/api/session').then(r => {
       if (!r.ok) { router.push('/login'); return; }
@@ -277,7 +282,7 @@ export default function OsintHub() {
             onChange={e => setSearch(e.target.value)}
             className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm text-white outline-none focus:border-sky-500 w-64"
           />
-          <button onClick={() => { localStorage.removeItem('mad_access_token'); router.push('/'); }} className="flex items-center gap-2 text-slate-500 hover:text-red-500 text-sm font-bold uppercase">
+          <button onClick={handleLogout} className="flex items-center gap-2 text-slate-500 hover:text-red-500 text-sm font-bold uppercase">
             <LogOut size={16} /> Sair
           </button>
         </div>

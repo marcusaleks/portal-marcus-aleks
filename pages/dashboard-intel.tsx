@@ -34,8 +34,8 @@ export default function SifazDashboard() {
     return () => clearInterval(interval);
   }, [router]);
 
-  const handleLogout = () => {
-    document.cookie = 'mad_session=; HttpOnly; SameSite=Strict; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  const handleLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
     router.push('/');
   };
 
