@@ -8,6 +8,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "iron-session": "^8.0.4",
     "lucide-react": "latest",
     "next": "^16.2.4",
     "react": "latest",
