@@ -33,11 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (result.status !== 'fulfilled') continue;
       const { data, category } = result.value;
 
-      for (const item of (data.items || []).slice(0, 10)) {
+      for (const item of (data.items || []).slice(0, 7)) {
         if (!item.title || !item.link) continue;
+        const raw = item.contentSnippet?.trim() || item.summary?.trim() || '';
         items.push({
           title: item.title.trim(),
-          summary: item.contentSnippet?.trim() || item.summary?.trim() || '',
+          summary: raw.length > 180 ? raw.slice(0, 180).trimEnd() + '…' : raw,
           link: item.link,
           date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('pt-BR') : '',
           category,
@@ -51,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return db - da;
     });
 
-    res.status(200).json(items);
+    res.status(200).json(items.slice(0, 20));
   } catch {
     res.status(500).json([]);
   }

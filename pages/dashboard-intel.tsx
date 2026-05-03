@@ -119,13 +119,20 @@ export default function SifazDashboard() {
         {activeTab === 'briefing' && (
           <div className="space-y-12">
             <h2 className="text-white font-black text-2xl uppercase tracking-tighter border-b border-slate-800 pb-6 flex items-center gap-4"><ShieldAlert className="text-red-600" size={28} /> Intel Briefing</h2>
-            <div className="grid gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {intelNews.map((news, idx) => (
-                <div key={idx} className="p-10 bg-slate-900/20 border border-slate-800 rounded-3xl font-bold group">
-                  <span className="text-[12px] font-mono text-blue-500 uppercase tracking-widest">{news.date}</span>
-                  <h3 className="text-white text-xl font-bold mt-3 uppercase">{news.title}</h3>
-                  <p className="text-sm text-slate-500 mt-4 leading-relaxed">{news.summary}</p>
-                  <a href={news.link} target="_blank" className="inline-flex items-center gap-2 text-blue-500 text-[12px] font-black uppercase mt-6 hover:underline">Analisar Origem <ArrowUpRight size={16}/></a>
+                <div key={idx} className="p-8 bg-slate-900/20 border border-slate-800 rounded-3xl font-bold group flex flex-col justify-between gap-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[11px] font-mono text-slate-500 uppercase tracking-widest">{news.date}</span>
+                      <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${news.category === 'security' ? 'bg-red-600/10 text-red-500 border border-red-600/20' : 'bg-blue-600/10 text-blue-400 border border-blue-600/20'}`}>
+                        {news.category === 'security' ? 'Segurança' : 'Finanças'}
+                      </span>
+                    </div>
+                    <h3 className="text-white text-[15px] font-black leading-snug">{news.title}</h3>
+                    <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">{news.summary}</p>
+                  </div>
+                  <a href={news.link} target="_blank" className="inline-flex items-center gap-2 text-blue-500 text-[11px] font-black uppercase hover:underline mt-2">Analisar Origem <ArrowUpRight size={14}/></a>
                 </div>
               ))}
             </div>
