@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from 'lucide-react';
 import MadSignature from '../components/MadSignature';
 
-const Sparkline = ({ trend = "up" }) => (
+const Sparkline = ({ trend = "up" }: { trend?: string }) => (
   <svg className="w-16 h-8" viewBox="0 0 48 24" fill="none">
     <path d={trend === "up" ? "M0 20L10 16L20 18L30 8L40 10L48 2" : "M0 2L10 8L20 6L30 18L40 16L48 22"} 
           className={trend === "up" ? "stroke-emerald-500" : "stroke-red-500"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -93,7 +93,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 font-bold" style={{ fontSize: '1.2em' }}>
       <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden z-[60] relative">
          <div className="animate-marquee gap-16 items-center flex whitespace-nowrap" style={{ width: 'max-content' }}>
-            {[...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks].map((stock: any, i) => (
+            {[...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks].map((stock, i) => (
               <div key={i} className="flex items-center gap-6 px-8 border-r border-slate-800/50">
                 <span className="text-[18px] font-black text-white">{stock.symbol}</span>
                 <span className="text-[18px] font-mono text-slate-400">R$ {stock.regularMarketPrice.toFixed(2)}</span>
