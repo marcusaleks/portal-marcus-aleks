@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getIronSession } from 'iron-session';
-import { sessionOptions } from '../../lib/session';
+import { sessionOptions, type SessionData } from '../../lib/session';
 
 const attempts = new Map<string, { count: number; until: number }>();
 const MAX_ATTEMPTS = 10;
@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (keysArray.includes(key)) {
     attempts.delete(ip);
-    const session = await getIronSession(req, res, sessionOptions);
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
     session.authorized = true;
     await session.save();
     return res.status(200).json({ authorized: true });

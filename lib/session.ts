@@ -1,5 +1,9 @@
 import type { SessionOptions } from 'iron-session';
 
+export interface SessionData {
+  authorized?: boolean;
+}
+
 export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET as string,
   cookieName: 'mad_session',
@@ -10,9 +14,3 @@ export const sessionOptions: SessionOptions = {
     maxAge: 8 * 60 * 60,
   },
 };
-
-declare module 'iron-session' {
-  interface IronSessionData {
-    authorized?: boolean;
-  }
-}
