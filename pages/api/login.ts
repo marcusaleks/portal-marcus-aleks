@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getIronSession } from 'iron-session';
+import { sessionOptions, type SessionData } from '../../lib/session';
 
 const attempts = new Map<string, { count: number; until: number }>();
-
 const MAX_ATTEMPTS = 10;
 const WINDOW_MS = 60 * 1000;
 const BLOCK_MS = 5 * 60 * 1000;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
@@ -14,12 +15,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const record = attempts.get(ip);
 
   if (record) {
-    if (now < record.until) {
-      return res.status(429).json({ error: 'Muitas tentativas. Tente novamente em alguns minutos.' });
-    }
-    if (now - record.until > WINDOW_MS) {
-      attempts.delete(ip);
-    }
+    if (now < record.until) return res.status(429).json({ error: 'Muitas tentativas. Tente novamente em alguns minutos.' });
+    if (now - record.until > WINDOW_MS) attempts.delete(ip);
   }
 
   const { key } = req.body;
@@ -28,17 +25,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (keysArray.includes(key)) {
     attempts.delete(ip);
-    const expires = new Date(Date.now() + 8 * 60 * 60 * 1000);
-    res.setHeader('Set-Cookie', `mad_session=1; HttpOnly; SameSite=Strict; Path=/; Expires=${expires.toUTCString()}`);
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    session.authorized = true;
+    await session.save();
     return res.status(200).json({ authorized: true });
   }
 
   const current = attempts.get(ip) || { count: 0, until: 0 };
   current.count += 1;
-  if (current.count >= MAX_ATTEMPTS) {
-    current.until = now + BLOCK_MS;
-  }
+  if (current.count >= MAX_ATTEMPTS) current.until = now + BLOCK_MS;
   attempts.set(ip, current);
-
   return res.status(401).json({ authorized: false });
 }
