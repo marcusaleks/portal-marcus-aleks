@@ -10,7 +10,7 @@ export default function SifazDashboard() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState('briefing');
-  const [intelNews, setIntelNews] = useState<{ date: string; title: string; summary: string; link: string }[]>([]);
+  const [intelNews, setIntelNews] = useState<{ date: string; title: string; summary: string; link: string; category: string }[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showAtifBanner, setShowAtifBanner] = useState(false); // ESTADO DO POPUP
 
@@ -23,9 +23,9 @@ export default function SifazDashboard() {
 
     const fetchNews = async () => {
       try {
-        const res = await fetch('/data/news.json');
+        const res = await fetch('/api/news');
         const data = await res.json();
-        setIntelNews(data.intel || []);
+        setIntelNews(Array.isArray(data) ? data : []);
       } catch (e) { console.error("Erro Uplink."); }
     };
     fetchNews();
