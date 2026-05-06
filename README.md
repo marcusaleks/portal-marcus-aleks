@@ -12,8 +12,7 @@ Portal público de mercado financeiro brasileiro e ferramentas de análise desen
 
 - Dashboard público: IBOVESPA, USD/BRL, SELIC Efetiva, calendário COPOM
 - Banner rotativo com 18 ativos em tempo real
-- Área restrita: SIFAZ — Sistema de Inteligência Fazendária
-- Hub OSINT com ferramentas de investigação
+- Área restrita: Informações restritas aos usuários do portal
 
 ## Governança
 
