@@ -86,7 +86,11 @@ export default function Home() {
     fetchCopom();
 
     const interval = setInterval(fetchMarket, 3 * 60 * 1000);
-    return () => clearInterval(interval);
+
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchMarket(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
 
   return (
