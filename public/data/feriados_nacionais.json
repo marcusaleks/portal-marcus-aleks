@@ -1,27 +1,73 @@
 {
   "year": 2026,
-  "last_updated": "2026-05-10T15:16:04.468Z",
-  "source": "brazilian-holidays (npm) + mock",
+  "last_updated": "2026-05-10T15:25:57.656Z",
+  "source": "mock",
   "feriados": [
     {
       "date": "2026-01-01",
       "nome": "Ano Novo",
-      "tipo": "recorrente"
+      "tipo": "recorrente",
+      "categoria": "nacional"
     },
     {
-      "date": "2026-05-09",
-      "nome": "Ascensão de Jesus",
-      "tipo": "móvel"
+      "date": "2026-02-24",
+      "nome": "Sexta-feira de Carnaval",
+      "tipo": "móvel",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-03-29",
+      "nome": "Páscoa",
+      "tipo": "móvel",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-04-21",
+      "nome": "Tiradentes",
+      "tipo": "recorrente",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-05-01",
+      "nome": "Dia do Trabalho",
+      "tipo": "recorrente",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-05-14",
+      "nome": "Corpus Christi",
+      "tipo": "móvel",
+      "categoria": "nacional"
     },
     {
       "date": "2026-09-07",
       "nome": "Independência",
-      "tipo": "recorrente"
+      "tipo": "recorrente",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-10-12",
+      "nome": "Nossa Senhora Aparecida",
+      "tipo": "recorrente",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-11-02",
+      "nome": "Finados",
+      "tipo": "recorrente",
+      "categoria": "nacional"
+    },
+    {
+      "date": "2026-11-20",
+      "nome": "Consciência Negra",
+      "tipo": "recorrente",
+      "categoria": "nacional"
     },
     {
       "date": "2026-12-25",
       "nome": "Natal",
-      "tipo": "recorrente"
+      "tipo": "recorrente",
+      "categoria": "nacional"
     }
   ]
 }

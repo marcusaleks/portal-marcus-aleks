@@ -12,6 +12,14 @@ import * as https from "https";
 import * as fs from "fs";
 import * as path from "path";
 
+// Tentar importar brazilian-holidays (opcional)
+let brazilianHolidays: any = null;
+try {
+  brazilianHolidays = require("brazilian-holidays");
+} catch (e) {
+  console.log("ℹ️  brazilian-holidays não instalado. Usando mock. Instale com: npm install brazilian-holidays");
+}
+
 // Tipos
 interface BCBRawEntry {
   data: string; // "DD/MM/YYYY"
@@ -181,25 +189,24 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
     );
 
     // ========================================
-    // 2. SELIC (Série 11) — com limitação de data
+    // 2. SELIC (Série 11) — Janela de 10 anos
     // ========================================
     console.log("\n📊 Buscando SELIC (Série 11)...");
-    // SELIC requer intervalo máximo de ~9.5 anos
-    const eightYearsAgo = new Date(now);
-    eightYearsAgo.setFullYear(eightYearsAgo.getFullYear() - 8);
-    eightYearsAgo.setMonth(eightYearsAgo.getMonth() - 6);
+    // BCB rejeita janelas > 10 anos em séries diárias
+    const tenYearsAgo = new Date(now);
+    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
 
-    const selidDataInicio = formatDate(eightYearsAgo);
-    const selidDataFim = formatDate(now);
+    const selicDataInicio = formatDate(tenYearsAgo);
+    const selicDataFim = formatDate(now);
 
     console.log(
-      `  Período solicitado: ${selidDataInicio} até ${selidDataFim}`
+      `  Período solicitado: ${selicDataInicio} até ${selicDataFim} (janela máx: 10 anos)`
     );
 
     let selicRaw: BCBRawEntry[] | null = null;
     try {
       const selicRawStr = await fetchWithRetry(
-        `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?format=json&dataInicio=${selidDataInicio}&dataFim=${selidDataFim}`
+        `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?format=json&dataInicio=${selicDataInicio}&dataFim=${selicDataFim}`
       );
       const parsed = JSON.parse(selicRawStr);
       if (parsed.error) {
@@ -216,10 +223,10 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
         `⚠️  Não conseguiu buscar SELIC com esses parâmetros: ${e}`
       );
       console.log(
-        `  Usando dados mock para validação de estrutura (IMPORTANTE: Substituir com dados reais antes de produção)`
+        `  Usando dados mock para validação de estrutura (IMPORTANTE: Será substituído com dados reais em produção via GitHub Actions)`
       );
 
-      // Mock data — APENAS PARA VALIDAÇÃO DE ESTRUTURA
+      // Mock data — APENAS PARA VALIDAÇÃO DE ESTRUTURA (Fase 1)
       selicRaw = [
         { data: "10/05/2026", valor: "10.50" },
         { data: "09/05/2026", valor: "10.50" },
@@ -260,15 +267,15 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
     );
 
     // ========================================
-    // 3. PTAX (Série 10813) — com limitação de data
+    // 3. PTAX (Série 10813) — Janela de 10 anos
     // ========================================
     console.log("\n📊 Buscando PTAX (Série 10813)...");
 
-    const ptaxDataInicio = formatDate(eightYearsAgo);
+    const ptaxDataInicio = formatDate(tenYearsAgo);
     const ptaxDataFim = formatDate(now);
 
     console.log(
-      `  Período solicitado: ${ptaxDataInicio} até ${ptaxDataFim}`
+      `  Período solicitado: ${ptaxDataInicio} até ${ptaxDataFim} (janela máx: 10 anos)`
     );
 
     let ptaxRaw: BCBRawEntry[] | null = null;
@@ -330,30 +337,64 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
     );
 
     // ========================================
-    // 4. Feriados (usando brazilian-holidays)
+    // 4. Feriados (usando brazilian-holidays ou mock)
     // ========================================
     console.log("\n📊 Buscando Feriados Nacionais...");
 
-    // Para agora, usar mock (brazilian-holidays seria npm install)
-    const feriadosMock = [
-      { date: "2026-01-01", nome: "Ano Novo", tipo: "recorrente" },
-      { date: "2026-05-09", nome: "Ascensão de Jesus", tipo: "móvel" },
-      { date: "2026-09-07", nome: "Independência", tipo: "recorrente" },
-      { date: "2026-12-25", nome: "Natal", tipo: "recorrente" },
-    ];
+    let feriados: any[] = [];
+    let feriadosSource = "mock";
+
+    if (brazilianHolidays && brazilianHolidays.getHolidays) {
+      try {
+        const holidays = brazilianHolidays.getHolidays(now.getFullYear());
+        feriados = holidays.map((h: any) => {
+          const date = new Date(h.date || h.toString());
+          return {
+            date: `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
+            nome: h.name || h.toString(),
+            tipo: "recorrente" as const,
+            categoria: "nacional" as const,
+          };
+        });
+        feriadosSource = "brazilian-holidays (npm)";
+        console.log(`✅ Feriados obtidos de brazilian-holidays: ${feriados.length}`);
+      } catch (e) {
+        console.log(`⚠️  Erro ao usar brazilian-holidays: ${e}. Usando mock.`);
+        feriadosSource = "mock";
+      }
+    }
+
+    // Fallback para mock se não conseguir usar biblioteca
+    if (feriados.length === 0) {
+      feriados = [
+        { date: "2026-01-01", nome: "Ano Novo", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-02-24", nome: "Sexta-feira de Carnaval", tipo: "móvel", categoria: "nacional" },
+        { date: "2026-03-29", nome: "Páscoa", tipo: "móvel", categoria: "nacional" },
+        { date: "2026-04-21", nome: "Tiradentes", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-05-01", nome: "Dia do Trabalho", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-05-14", nome: "Corpus Christi", tipo: "móvel", categoria: "nacional" },
+        { date: "2026-09-07", nome: "Independência", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-10-12", nome: "Nossa Senhora Aparecida", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-11-02", nome: "Finados", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-11-20", nome: "Consciência Negra", tipo: "recorrente", categoria: "nacional" },
+        { date: "2026-12-25", nome: "Natal", tipo: "recorrente", categoria: "nacional" },
+      ];
+      feriadosSource = "mock";
+      console.log(`ℹ️  Usando feriados mock: ${feriados.length}`);
+    }
 
     const feriadosData = {
       year: now.getFullYear(),
       last_updated: now.toISOString(),
-      source: "brazilian-holidays (npm) + mock",
-      feriados: feriadosMock,
+      source: feriadosSource,
+      feriados: feriados,
     };
 
     fs.writeFileSync(
       path.join(dataDir, "feriados_nacionais.json"),
       JSON.stringify(feriadosData, null, 2)
     );
-    console.log(`✅ Feriados salvo: ${feriadosMock.length} feriados`);
+    console.log(`✅ Feriados salvo: ${feriados.length} feriados (fonte: ${feriadosSource})`);
 
     // ========================================
     // Resumo Final
