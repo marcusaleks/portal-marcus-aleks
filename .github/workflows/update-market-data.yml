@@ -81,7 +81,7 @@ jobs:
 
           git add public/data/*.json
           git commit -m "chore(data): atualiza séries do BCB — ${SERIES_UPDATED}[automated]"
-          git push origin dev
+          git push origin HEAD
 
       - name: "Notify on failure"
         if: failure()
@@ -175,7 +175,7 @@ jobs:
           echo "✅ selic.json validado"
 
           # Validar ipca.json
-          if ! node -e "const data = require('./public/data/ipca.json'); if (data.series !== '433' || !Array.isArray(data.vna_historico)) throw new Error('IPCA schema inválido')"; then
+          if ! node -e "const data = require('./public/data/ipca.json'); if (data.series !== '433' || !Array.isArray(data.data)) throw new Error('IPCA schema inválido')"; then
             echo "❌ ipca.json estrutura inválida"
             exit 1
           fi
