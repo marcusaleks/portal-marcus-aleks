@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus, Trash2, Calculator, RotateCcw } from "lucide-react";
 import type { InputCalculadora, Fluxo } from "../../lib/types/market-data";
 
@@ -31,12 +31,12 @@ export default function CalculadoraForm({
   const [valorInicial, setValorInicial] = useState("");
   const [fluxos, setFluxos]             = useState<FluxoInput[]>([]);
   const [erros, setErros]               = useState<string[]>([]);
-  let nextId = 1;
+  const nextId = useRef(1);
 
   function adicionarFluxo() {
     setFluxos((prev) => [
       ...prev,
-      { id: nextId++, data: "", valor: "", tipo: "aporte" },
+      { id: nextId.current++, data: "", valor: "", tipo: "aporte" },
     ]);
   }
 
