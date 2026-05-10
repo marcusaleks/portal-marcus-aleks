@@ -131,23 +131,6 @@ jobs:
               });
             }
 
-      - name: "Send email notification on failure"
-        if: failure()
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: |
-          TODAY=$(date -u +"%Y-%m-%d")
-          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          curl -sf -X POST https://api.resend.com/emails \
-            -H "Authorization: Bearer ${RESEND_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"from\": \"automated@marcus.aleks.nom.br\",
-              \"to\": \"claude@marcus.aleks.nom.br\",
-              \"subject\": \"Falha no fetch de dados do BCB — ${TODAY}\",
-              \"html\": \"<p>O workflow <strong>update-market-data</strong> falhou ao buscar séries do Banco Central.</p><p>Verifique os logs em: <a href=\\\"${RUN_URL}\\\">GitHub Actions</a></p>\"
-            }" || echo "⚠️  Notificação email falhou (RESEND_API_KEY pode não estar configurada)"
-        continue-on-error: true
 
   # Job secundário: validar integridade dos dados
   validate-data:
