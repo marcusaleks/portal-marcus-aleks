@@ -3,12 +3,14 @@
 import { useState, useRef } from "react";
 import { Plus, Trash2, Calculator, RotateCcw } from "lucide-react";
 import type { InputCalculadora, Fluxo } from "../../lib/types/market-data";
+import type { ResultadoTriplo } from "../../pages/calculadora";
 
 interface FluxoInput {
   id: number;
   data: string;
   valor: string;
   tipo: "aporte" | "resgate";
+  dataErro?: string;
 }
 
 interface CalculadoraFormProps {
@@ -17,6 +19,11 @@ interface CalculadoraFormProps {
   dataMin?: string;
   dataMax?: string;
   carregando?: boolean;
+  resultado?: ResultadoTriplo | null;
+}
+
+function formatBRL(v: number): string {
+  return Math.abs(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export default function CalculadoraForm({
@@ -25,6 +32,7 @@ export default function CalculadoraForm({
   dataMin,
   dataMax,
   carregando,
+  resultado,
 }: CalculadoraFormProps) {
   const [dataInicial, setDataInicial]   = useState("");
   const [dataFinal, setDataFinal]       = useState("");
@@ -46,7 +54,19 @@ export default function CalculadoraForm({
 
   function atualizarFluxo(id: number, campo: keyof FluxoInput, valor: string) {
     setFluxos((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, [campo]: valor } : f))
+      prev.map((f) => {
+        if (f.id !== id) return f;
+        const updated = { ...f, [campo]: valor };
+        if (campo === "data") {
+          if (valor && dataInicial && valor < dataInicial)
+            updated.dataErro = `Data anterior à data inicial (${dataInicial})`;
+          else if (valor && dataFinal && valor > dataFinal)
+            updated.dataErro = `Data posterior à data final (${dataFinal})`;
+          else
+            updated.dataErro = undefined;
+        }
+        return updated;
+      })
     );
   }
 
@@ -110,6 +130,10 @@ export default function CalculadoraForm({
     });
   }
 
+  // detalhamento[0] = valor inicial, detalhamento[1..n] = fluxos adicionais
+  // usamos SELIC como referência para o valor corrigido exibido por linha
+  const detSelic = resultado?.selic.detalhamento ?? [];
+
   const inputClass =
     "w-full bg-black/60 border border-slate-800 focus:border-blue-600 " +
     "rounded-2xl px-6 py-4 text-white font-mono text-sm outline-none transition-all " +
@@ -165,53 +189,108 @@ export default function CalculadoraForm({
       {fluxos.length > 0 && (
         <div className="space-y-3">
           <p className={labelClass}>Aportes / Resgates</p>
-          {fluxos.map((f, i) => (
-            <div key={f.id} className="grid grid-cols-[1fr_1fr_auto_auto] gap-3 items-end">
-              <div>
-                {i === 0 && <label className={labelClass}>Data</label>}
-                <input
-                  type="date"
-                  value={f.data}
-                  min={dataInicial || dataMin}
-                  max={dataFinal   || dataMax}
-                  onChange={(e) => atualizarFluxo(f.id, "data", e.target.value)}
-                  className={inputClass}
-                />
+          {fluxos.map((f, i) => {
+            const isAporte = f.tipo === "aporte";
+            // detalhamento[0] = valor inicial, fluxos adicionais começam no índice 1
+            const det = detSelic[i + 1];
+            const valorCorrigido = det?.valor_corrigido;
+            const valorOriginal  = det ? Math.abs(det.fluxo) : null;
+            const pct = (valorCorrigido != null && valorOriginal != null && valorOriginal > 0)
+              ? ((Math.abs(valorCorrigido) - valorOriginal) / valorOriginal) * 100
+              : null;
+
+            // cores por tipo
+            const corBorda  = isAporte ? "border-blue-500/30"  : "border-red-500/30";
+            const corFundo  = isAporte ? "bg-blue-950/20"       : "bg-red-950/20";
+            const corTexto  = isAporte ? "text-blue-400"        : "text-red-400";
+            const corValor  = isAporte ? "text-blue-300"        : "text-red-300";
+
+            return (
+              <div
+                key={f.id}
+                className={`rounded-2xl border ${corBorda} ${corFundo} p-3 transition-all`}
+              >
+                <div className="grid grid-cols-[1fr_1fr_auto_auto_auto] gap-3 items-end">
+                  {/* Data */}
+                  <div>
+                    {i === 0 && <label className={labelClass}>Data</label>}
+                    <input
+                      type="date"
+                      value={f.data}
+                      onChange={(e) => atualizarFluxo(f.id, "data", e.target.value)}
+                      className={inputClass + (f.dataErro ? " border-red-500/60" : "")}
+                    />
+                    {f.dataErro && (
+                      <p className="text-red-400 text-xs font-bold mt-1">{f.dataErro}</p>
+                    )}
+                  </div>
+
+                  {/* Valor */}
+                  <div>
+                    {i === 0 && <label className={labelClass}>Valor (R$)</label>}
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="5000.00"
+                      value={f.valor}
+                      onChange={(e) => atualizarFluxo(f.id, "valor", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  {/* Tipo */}
+                  <div>
+                    {i === 0 && <label className={labelClass}>Tipo</label>}
+                    <select
+                      value={f.tipo}
+                      onChange={(e) => atualizarFluxo(f.id, "tipo", e.target.value)}
+                      className={inputClass + " cursor-pointer"}
+                    >
+                      <option value="aporte">Aporte</option>
+                      <option value="resgate">Resgate</option>
+                    </select>
+                  </div>
+
+                  {/* Valor corrigido (SELIC) — só exibe após cálculo */}
+                  <div className="min-w-30">
+                    {i === 0 && (
+                      <label className={labelClass + " " + corTexto}>
+                        Corrigido (SELIC)
+                      </label>
+                    )}
+                    {valorCorrigido != null ? (
+                      <div className={`rounded-2xl border ${corBorda} bg-black/40 px-4 py-4 text-right`}>
+                        <p className={`text-sm font-mono font-bold ${corValor}`}>
+                          {isAporte ? "+" : "−"}{formatBRL(valorCorrigido)}
+                        </p>
+                        {pct != null && (
+                          <p className={`text-xs font-bold mt-0.5 ${corTexto}`}>
+                            {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-slate-800 bg-black/20 px-4 py-4 text-right">
+                        <p className="text-xs font-mono text-slate-700">—</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Remover */}
+                  <div className={i === 0 ? "mt-6" : ""}>
+                    <button
+                      type="button"
+                      onClick={() => removerFluxo(f.id)}
+                      className="p-4 border border-slate-800 rounded-2xl text-slate-600 hover:text-red-500 hover:border-red-500/40 transition-all"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div>
-                {i === 0 && <label className={labelClass}>Valor (R$)</label>}
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  placeholder="5000.00"
-                  value={f.valor}
-                  onChange={(e) => atualizarFluxo(f.id, "valor", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                {i === 0 && <label className={labelClass}>Tipo</label>}
-                <select
-                  value={f.tipo}
-                  onChange={(e) => atualizarFluxo(f.id, "tipo", e.target.value)}
-                  className={inputClass + " cursor-pointer"}
-                >
-                  <option value="aporte">Aporte</option>
-                  <option value="resgate">Resgate</option>
-                </select>
-              </div>
-              <div className={i === 0 ? "mt-6" : ""}>
-                <button
-                  type="button"
-                  onClick={() => removerFluxo(f.id)}
-                  className="p-4 border border-slate-800 rounded-2xl text-slate-600 hover:text-red-500 hover:border-red-500/40 transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -185,6 +185,7 @@ export default function CalculadoraPage() {
                 dataMin={dataMin}
                 dataMax={dataMax}
                 carregando={carregando}
+                resultado={resultado}
               />
             )}
           </section>
