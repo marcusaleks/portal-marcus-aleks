@@ -156,6 +156,24 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
     );
     const ipcaRaw = JSON.parse(ipcaRawStr) as BCBRawEntry[];
 
+    // Derivar oficial e projeção do último registro real disponível
+    const ultimoIPCA = ipcaRaw[ipcaRaw.length - 1];
+    const penultimoIPCA = ipcaRaw[ipcaRaw.length - 2];
+
+    // Último mês divulgado é "oficial"; o próximo mês (ainda não divulgado) é "projeção"
+    const ultimaDataIPCA = dateToISO(ultimoIPCA.data); // YYYY-MM-DD
+    const [anoOficial, mesOficial] = ultimaDataIPCA.split("-");
+    const anoAtual = now.getFullYear();
+
+    // Próximo mês após o último divulgado
+    const mesProxNum = parseInt(mesOficial) + 1;
+    const anoProx = mesProxNum > 12 ? anoAtual + 1 : anoAtual;
+    const mesProxStr = String(mesProxNum > 12 ? 1 : mesProxNum).padStart(2, "0");
+    const anoProxStr = String(anoProx);
+
+    // Usar penúltimo como estimativa de projeção quando o mês ainda não foi divulgado
+    const valorProjecao = parseFloat(penultimoIPCA.valor);
+
     const ipcaData: IPCAData = {
       series: "433",
       series_name: "IPCA — Índice de Preços ao Consumidor Amplo",
@@ -163,20 +181,20 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
       last_updated: now.toISOString(),
       source: "SEAD Banco Central (bcdata.sgs.433)",
       oficial: {
-        mes: "2026-03",
-        valor: 0.88,
-        data_divulgacao: "2026-04-01T13:00:00Z",
+        mes: `${anoOficial}-${mesOficial}`,
+        valor: parseFloat(ultimoIPCA.valor),
+        data_divulgacao: now.toISOString(),
       },
       projecao: {
-        mes: "2026-04",
-        valor: 0.52,
-        fonte: "Focus BCB (estimado)",
+        mes: `${anoProxStr}-${mesProxStr}`,
+        valor: valorProjecao,
+        fonte: "Estimativa baseada no último IPCA divulgado",
         data_atualizacao: now.toISOString(),
       },
       vna_historico: ipcaRaw.slice(-30).map((entry) => ({
         date: dateToISO(entry.data),
         vna: parseFloat(entry.valor),
-        tipo: "oficial",
+        tipo: "oficial" as const,
       })),
     };
 
@@ -234,28 +252,36 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
       ];
     }
 
+    // Calcular índice acumulado recursivamente a partir da taxa diária
+    // Fórmula: Índice_t = Índice_{t-1} × (1 + taxa_anual/100) ^ (1/252)
+    // Base: 100.000 no primeiro registro disponível (valor arbitrário para série relativa)
+    const BASE_INDICE_SELIC = 100000;
+    let indiceAcumulado = BASE_INDICE_SELIC;
+    const selicEntries = selicRaw.map((entry) => {
+      const isoDate = dateToISO(entry.data);
+      const date = parseDate(entry.data);
+      const taxa = parseFloat(entry.valor);
+
+      // Fator diário: (1 + taxa_anual/100)^(1/252)
+      const fatorDiario = Math.pow(1 + taxa / 100, 1 / 252);
+      indiceAcumulado = indiceAcumulado * fatorDiario;
+
+      return {
+        date: isoDate,
+        taxa_diaria: taxa,
+        indice_acumulado: parseFloat(indiceAcumulado.toFixed(6)),
+        is_feriado: isFeriado(isoDate, new Set()),
+        is_weekend: isWeekend(date),
+      };
+    });
+
     const selicData: SELICData = {
       series: "11",
       series_name: "Taxa SELIC — média diária",
       unit: "%",
       last_updated: now.toISOString(),
       source: "SEAD Banco Central (bcdata.sgs.11)",
-      data: selicRaw.map((entry, idx) => {
-        const isoDate = dateToISO(entry.data);
-        const date = parseDate(entry.data);
-        const taxa = parseFloat(entry.valor);
-
-        // Índice acumulado (simplificado para mock)
-        const indiceAcumulado = 105234.567 + idx * 50;
-
-        return {
-          date: isoDate,
-          taxa_diaria: taxa,
-          indice_acumulado: indiceAcumulado,
-          is_feriado: isFeriado(isoDate, new Set()), // TODO: carregar feriados reais
-          is_weekend: isWeekend(date),
-        };
-      }),
+      data: selicEntries,
     };
 
     fs.writeFileSync(

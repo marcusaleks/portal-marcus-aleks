@@ -2,18 +2,18 @@
   "series": "433",
   "series_name": "IPCA — Índice de Preços ao Consumidor Amplo",
   "unit": "%",
-  "last_updated": "2026-05-10T15:16:04.468Z",
+  "last_updated": "2026-05-10T15:31:05.937Z",
   "source": "SEAD Banco Central (bcdata.sgs.433)",
   "oficial": {
     "mes": "2026-03",
     "valor": 0.88,
-    "data_divulgacao": "2026-04-01T13:00:00Z"
+    "data_divulgacao": "2026-05-10T15:31:05.937Z"
   },
   "projecao": {
     "mes": "2026-04",
-    "valor": 0.52,
-    "fonte": "Focus BCB (estimado)",
-    "data_atualizacao": "2026-05-10T15:16:04.468Z"
+    "valor": 0.7,
+    "fonte": "Estimativa baseada no último IPCA divulgado",
+    "data_atualizacao": "2026-05-10T15:31:05.937Z"
   },
   "vna_historico": [
     {

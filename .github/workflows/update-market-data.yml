@@ -3,12 +3,10 @@ name: "update-market-data"
 on:
   # Triggers agendados (horários em UTC, convertem para Brasília: -3h)
   schedule:
-    # SELIC (Série 11) — Seg-Sex 18h30 BRT (21h30 UTC)
+    # SELIC + PTAX — Seg-Sex 18h30 BRT (21h30 UTC)
     - cron: "30 21 * * 1-5"
-    # IPCA (Série 433) — Todos os dias 13h BRT (16h UTC)
+    # IPCA — Todos os dias 13h BRT (16h UTC)
     - cron: "0 16 * * *"
-    # PTAX (Série 10813) — Seg-Sex 18h30 BRT (21h30 UTC)
-    - cron: "30 21 * * 1-5"
 
   # Permitir execução manual (workflow_dispatch)
   workflow_dispatch:
@@ -71,13 +69,13 @@ jobs:
 
           # Determinar qual série foi atualizada
           SERIES_UPDATED=""
-          if git diff --quiet public/data/selic.json; then
+          if ! git diff --quiet public/data/selic.json; then
             SERIES_UPDATED="${SERIES_UPDATED}SELIC "
           fi
-          if git diff --quiet public/data/ipca.json; then
+          if ! git diff --quiet public/data/ipca.json; then
             SERIES_UPDATED="${SERIES_UPDATED}IPCA "
           fi
-          if git diff --quiet public/data/ptax.json; then
+          if ! git diff --quiet public/data/ptax.json; then
             SERIES_UPDATED="${SERIES_UPDATED}PTAX "
           fi
 
@@ -138,18 +136,17 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
-          # Usar curl + jq se disponível
-          if command -v curl &> /dev/null; then
-            curl -X POST https://api.resend.com/emails \
-              -H "Authorization: Bearer $RESEND_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "from": "automated@marcus.aleks.nom.br",
-                "to": "claude@marcus.aleks.nom.br",
-                "subject": "❌ Falha no fetch de dados do BCB — " + new Date().toISOString().split("T")[0],
-                "html": "<p>O workflow <strong>update-market-data</strong> falhou ao buscar séries do Banco Central.</p><p>Verifique os logs em: <a href=\"'$GITHUB_SERVER_URL'/'$GITHUB_REPOSITORY'/actions/runs/'$GITHUB_RUN_ID'\">GitHub Actions</a></p>"
-              }' || echo "⚠️  Notificação email falhou (RESEND_API_KEY pode não estar configurada)"
-          fi
+          TODAY=$(date -u +"%Y-%m-%d")
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          curl -sf -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"from\": \"automated@marcus.aleks.nom.br\",
+              \"to\": \"claude@marcus.aleks.nom.br\",
+              \"subject\": \"Falha no fetch de dados do BCB — ${TODAY}\",
+              \"html\": \"<p>O workflow <strong>update-market-data</strong> falhou ao buscar séries do Banco Central.</p><p>Verifique os logs em: <a href=\\\"${RUN_URL}\\\">GitHub Actions</a></p>\"
+            }" || echo "⚠️  Notificação email falhou (RESEND_API_KEY pode não estar configurada)"
         continue-on-error: true
 
   # Job secundário: validar integridade dos dados
