@@ -1,0 +1,170 @@
+{
+  "series": "433",
+  "series_name": "IPCA — Índice de Preços ao Consumidor Amplo",
+  "unit": "%",
+  "last_updated": "2026-05-10T15:16:04.468Z",
+  "source": "SEAD Banco Central (bcdata.sgs.433)",
+  "oficial": {
+    "mes": "2026-03",
+    "valor": 0.88,
+    "data_divulgacao": "2026-04-01T13:00:00Z"
+  },
+  "projecao": {
+    "mes": "2026-04",
+    "valor": 0.52,
+    "fonte": "Focus BCB (estimado)",
+    "data_atualizacao": "2026-05-10T15:16:04.468Z"
+  },
+  "vna_historico": [
+    {
+      "date": "2023-10-01",
+      "vna": 0.24,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2023-11-01",
+      "vna": 0.28,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2023-12-01",
+      "vna": 0.56,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-01-01",
+      "vna": 0.42,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-02-01",
+      "vna": 0.83,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-03-01",
+      "vna": 0.16,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-04-01",
+      "vna": 0.38,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-05-01",
+      "vna": 0.46,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-06-01",
+      "vna": 0.21,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-07-01",
+      "vna": 0.38,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-08-01",
+      "vna": -0.02,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-09-01",
+      "vna": 0.44,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-10-01",
+      "vna": 0.56,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-11-01",
+      "vna": 0.39,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2024-12-01",
+      "vna": 0.52,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-01-01",
+      "vna": 0.16,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-02-01",
+      "vna": 1.31,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-03-01",
+      "vna": 0.56,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-04-01",
+      "vna": 0.43,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-05-01",
+      "vna": 0.26,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-06-01",
+      "vna": 0.24,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-07-01",
+      "vna": 0.26,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-08-01",
+      "vna": -0.11,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-09-01",
+      "vna": 0.48,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-10-01",
+      "vna": 0.09,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-11-01",
+      "vna": 0.18,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2025-12-01",
+      "vna": 0.33,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2026-01-01",
+      "vna": 0.33,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2026-02-01",
+      "vna": 0.7,
+      "tipo": "oficial"
+    },
+    {
+      "date": "2026-03-01",
+      "vna": 0.88,
+      "tipo": "oficial"
+    }
+  ]
+}

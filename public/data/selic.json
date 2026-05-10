@@ -1,0 +1,30 @@
+{
+  "series": "11",
+  "series_name": "Taxa SELIC — média diária",
+  "unit": "%",
+  "last_updated": "2026-05-10T15:16:04.468Z",
+  "source": "SEAD Banco Central (bcdata.sgs.11)",
+  "data": [
+    {
+      "date": "2026-05-10",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 105234.567,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-09",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 105284.567,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-08",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 105334.567,
+      "is_feriado": false,
+      "is_weekend": false
+    }
+  ]
+}

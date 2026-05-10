@@ -1,0 +1,27 @@
+{
+  "year": 2026,
+  "last_updated": "2026-05-10T15:16:04.468Z",
+  "source": "brazilian-holidays (npm) + mock",
+  "feriados": [
+    {
+      "date": "2026-01-01",
+      "nome": "Ano Novo",
+      "tipo": "recorrente"
+    },
+    {
+      "date": "2026-05-09",
+      "nome": "Ascensão de Jesus",
+      "tipo": "móvel"
+    },
+    {
+      "date": "2026-09-07",
+      "nome": "Independência",
+      "tipo": "recorrente"
+    },
+    {
+      "date": "2026-12-25",
+      "nome": "Natal",
+      "tipo": "recorrente"
+    }
+  ]
+}

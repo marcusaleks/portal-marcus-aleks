@@ -1,0 +1,27 @@
+{
+  "series": "10813",
+  "series_name": "Taxa de câmbio nominal — USD/BRL",
+  "unit": "BRL/USD",
+  "last_updated": "2026-05-10T15:16:04.468Z",
+  "source": "SEAD Banco Central (bcdata.sgs.10813)",
+  "data": [
+    {
+      "date": "2026-05-10",
+      "cotacao": 4.8532,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-09",
+      "cotacao": 4.8645,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-08",
+      "cotacao": 4.872,
+      "is_feriado": false,
+      "is_weekend": false
+    }
+  ]
+}
