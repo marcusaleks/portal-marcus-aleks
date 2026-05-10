@@ -1,6 +1,5 @@
 import type {
   InputCalculadora,
-  OutputCalculadora,
   ErroCalculadora,
   ResultadoCalculadora,
   DetalhamentoFluxo,
@@ -9,16 +8,14 @@ import type {
 import { indiceSelicNaData } from "./selic";
 import { indiceIPCANaData } from "./ipca";
 import { indicePTAXNaData } from "./ptax";
-import { toISO, contarDiasUteis, buildFeriadosSet, ultimoDiaUtil } from "./utils";
+import { toISO, contarDiasUteis, buildFeriadosSet } from "./utils";
 
 // Limite de segurança contra overflow numérico
 const PERIODO_MAXIMO_ANOS = 50;
 
 type ObterIndiceFn = (data: Date, marketData: MarketData) => number;
 
-function resolverObterIndice(
-  indice: InputCalculadora["indice"]
-): ObterIndiceFn {
+function resolverObterIndice(indice: InputCalculadora["indice"]): ObterIndiceFn {
   switch (indice) {
     case "selic":
       return (d, md) => indiceSelicNaData(d, md.selic, md.feriados);

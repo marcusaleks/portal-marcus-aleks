@@ -6,45 +6,63 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [0.8.0] — 2026-05-06
+
+### Fixed
+- Cotação USD/BRL congela quando a aba fica em background: adicionado listener `visibilitychange` que força refresh imediato ao retornar à aba (`pages/index.tsx`)
+
+### Changed
+- Janela de aprovação de merge atualizada de 09h–18h para 08h–20h em toda a documentação (`Administrativos/LEI_OPERACAO_MAD_v1_0_LLM.md` — 5 ocorrências: seções 4.1, 4.2, 6.2, 07 e Regra 7)
+
+---
+
 ## [Não lançado]
 
 ### Added
+
+- **Calculadora de Fluxo Indexado** (`/calculadora`): simulação de investimentos corrigidos por SELIC, IPCA e PTAX com múltiplos aportes e resgates — capitalização individualizada por fluxo
+- `scripts/fetch-market-data.ts`: geração dos JSONs de dados de mercado via API BCB SEAD (Séries 11, 432, 433, 10813 + Focus) — 4 arquivos, ~26.000 registros no total
+- `public/data/selic.json`: 6.617 registros históricos (Série 11) + projeções COPOM (Série 432), base 1999-12-31
+- `public/data/ipca.json`: ~6.740 registros diários pro-rata (Série 433 + Focus expandida por DU real do mês), base 1999-12-31
+- `public/data/ptax.json`: 6.617 registros históricos (Série 10813), base 1999-12-31
+- `public/data/feriados_nacionais.json`: 224 feriados fixos nacionais (2000–2027)
+- `lib/calculadora/`: motores SELIC, IPCA e PTAX com convenção overnight unificada; orquestrador com 6 códigos de erro tipados
+- `lib/types/market-data.ts`: interfaces TypeScript para todos os JSONs de dados de mercado
+- `components/calculadora/ResultadoCards.tsx`: 3 cards simultâneos (SELIC, IPCA, PTAX) com custo de oportunidade vs SELIC
+- `components/calculadora/EvolutionChart.tsx`: gráfico com 3 linhas usando amostragem real dos motores por mês
+- `pages/api/market-data-excel.ts`: endpoint `GET /api/market-data-excel` — exporta `.xlsx` com 3 abas (ExcelJS)
+- `tests/calculadora.test.ts`: 37 testes (utils, motores, orquestrador) — paridade verificada com Calculadora do Cidadão BCB
 - Commitlint + Husky: validação de formato de commits local (Adendo 01)
 - `.github/workflows/mad-compliance.yml`: CI com 5 jobs (build, .mad-project, gitleaks, npm audit, conformidade visual)
 - Branches `dev` e `staging` criadas e publicadas
 - Tags retroativas `v0.0.1` → `v0.4.1`
 - Branch Protection Rules ativas em `main` e `staging`
+- Commitlint + Husky: validação de formato de commits local (Adendo 01)
+- `.github/workflows/mad-compliance.yml`: CI com 5 jobs (build, .mad-project, gitleaks, npm audit, conformidade visual)
+- `.mad-project` com declaração formal de stack `vercel-legacy` e alvo de migração `cloudflare`
+- `secrets.manifest.json` e `.gitleaks.toml`
+- `src/assets/mad-logo.svg` como SVG master da identidade MAD
+- `.github/pull_request_template.md` e `.github/CODEOWNERS`
 
 ### Changed
+
+- `pages/calculadora.tsx`: removido seletor de índice — todos os 3 índices calculados simultaneamente; resultado triplo (`ResultadoTriplo`)
+- `components/calculadora/CalculadoraForm.tsx`: removido seletor de índice; grid ajustado
 - `next` fixado em `^16.2.4` (corrige CVE DoS em Server Components)
 - `postcss` fixado em `^8.5.10` (corrige CVE XSS via `</style>`)
 - `overrides.postcss` adicionado ao `package.json` para forçar versão segura em subdependências
 - CSP no `vercel.json`: remove `unsafe-eval` e referência ao CDN Tailwind removido; `frame-ancestors 'self'` → `'none'`
+- `_app.tsx`: links de favicon corrigidos para `image/png` + `apple-touch-icon`
+- `vercel.json`: `X-Frame-Options` alterado de `SAMEORIGIN` para `DENY`
+- `.gitignore` expandido com `.env*`, `.next/`, IDE configs, `Administrativos/`
 
 ### Security
+
 - **[High]** Next.js DoS via Server Components — corrigido com `next@^16.2.4`
 - **[Moderate]** PostCSS XSS via `</style>` — corrigido com `postcss@^8.5.10`
 - `npm audit --audit-level=high`: **0 vulnerabilidades** em 02/05/2026
-
----
-
-## [Não lançado — anterior]
-
-### Added
-- `.mad-project` com declaração formal de stack `vercel-legacy` e alvo de migração `cloudflare`
-- `CHANGELOG.md` (este arquivo) com histórico retroativo
-- Assinatura `.mad-signature` em todas as páginas (index, login, dashboard-intel, osint_hub)
-- `.github/pull_request_template.md` e `.github/CODEOWNERS`
-- `secrets.manifest.json` e `.gitleaks.toml`
-- `src/assets/mad-logo.svg` como SVG master da identidade MAD
-
-### Changed
-- `_app.tsx`: links de favicon corrigidos para `image/png` + `apple-touch-icon`
-- `vercel.json`: `X-Frame-Options` alterado de `SAMEORIGIN` para `DENY`
-- `.gitignore` expandido com `.env*`, `.next/`, IDE configs
-
-### Security
 - `pages/osint_hub.tsx` protegido com verificação de sessão (cookie httpOnly)
+- Sessão migrada para `iron-session` com cookie criptografado (`SESSION_SECRET` via variável de ambiente)
 
 ---
 

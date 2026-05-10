@@ -1,9 +1,7 @@
 import type { SELICData, FeriadosData } from "../types/market-data";
 import {
   toISO,
-  fromISO,
   addDays,
-  isDiaUtil,
   ultimoDiaUtil,
   buildFeriadosSet,
   buscaAnteriorOuIgual,
@@ -58,11 +56,11 @@ export function calcularFatorSelic(
     );
   }
 
-  const fator = entryFim.indice_acumulado / entryIni.indice_acumulado;
+  const fator = entryFim.indice / entryIni.indice;
 
   return {
-    indice_ini: entryIni.indice_acumulado,
-    indice_fim: entryFim.indice_acumulado,
+    indice_ini: entryIni.indice,
+    indice_fim: entryFim.indice,
     fator,
     data_ini_efetiva: isoIni,
     data_fim_efetiva: isoFim,
@@ -70,8 +68,12 @@ export function calcularFatorSelic(
 }
 
 /**
- * Retorna o fator SELIC de uma data específica (para cálculo de fluxo individualizado).
- * Retroatua para o último dia útil se necessário.
+ * Retorna o índice SELIC acumulado até o DU anterior à data informada.
+ *
+ * Convenção BCB (Calculadora do Cidadão):
+ *   base = índice do DU anterior a data_ini
+ *   fim  = índice do DU anterior a data_fim
+ * Ou seja, as taxas dos próprios dias ini/fim não entram no acumulado.
  */
 export function indiceSelicNaData(
   data: Date,
@@ -79,12 +81,13 @@ export function indiceSelicNaData(
   feriados: FeriadosData
 ): number {
   const feriadosSet = buildFeriadosSet(feriados);
-  const dataEfetiva = ultimoDiaUtil(data, feriadosSet);
-  const iso = toISO(dataEfetiva);
+  // Recua 1 dia e então encontra o último DU anterior ou igual
+  const dataAnterior = ultimoDiaUtil(addDays(data, -1), feriadosSet);
+  const iso = toISO(dataAnterior);
 
   const entry = buscaAnteriorOuIgual(selic.data, iso);
   if (!entry) {
     throw new Error(`SELIC: sem dados para ${iso}`);
   }
-  return entry.indice_acumulado;
+  return entry.indice;
 }

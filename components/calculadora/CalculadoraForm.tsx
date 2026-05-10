@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Calculator, RotateCcw } from "lucide-react";
-import type { InputCalculadora, Fluxo, IndiceType } from "../../lib/types/market-data";
+import type { InputCalculadora, Fluxo } from "../../lib/types/market-data";
 
 interface FluxoInput {
   id: number;
@@ -12,18 +12,12 @@ interface FluxoInput {
 }
 
 interface CalculadoraFormProps {
-  onCalcular: (input: InputCalculadora) => void;
+  onCalcular: (input: Omit<InputCalculadora, "indice" | "marketData">) => void;
   onLimpar: () => void;
-  dataMin?: string; // YYYY-MM-DD — menor data disponível nos dados
-  dataMax?: string; // YYYY-MM-DD — maior data disponível nos dados
+  dataMin?: string;
+  dataMax?: string;
   carregando?: boolean;
 }
-
-const INDICES: { value: IndiceType; label: string; desc: string }[] = [
-  { value: "selic", label: "SELIC",  desc: "Taxa básica de juros" },
-  { value: "ipca",  label: "IPCA",   desc: "Inflação oficial (IBGE)" },
-  { value: "ptax",  label: "PTAX",   desc: "Câmbio USD/BRL" },
-];
 
 export default function CalculadoraForm({
   onCalcular,
@@ -32,12 +26,11 @@ export default function CalculadoraForm({
   dataMax,
   carregando,
 }: CalculadoraFormProps) {
-  const [dataInicial, setDataInicial] = useState("");
-  const [dataFinal, setDataFinal]     = useState("");
+  const [dataInicial, setDataInicial]   = useState("");
+  const [dataFinal, setDataFinal]       = useState("");
   const [valorInicial, setValorInicial] = useState("");
-  const [indice, setIndice]           = useState<IndiceType>("selic");
-  const [fluxos, setFluxos]           = useState<FluxoInput[]>([]);
-  const [erros, setErros]             = useState<string[]>([]);
+  const [fluxos, setFluxos]             = useState<FluxoInput[]>([]);
+  const [erros, setErros]               = useState<string[]>([]);
   let nextId = 1;
 
   function adicionarFluxo() {
@@ -61,7 +54,6 @@ export default function CalculadoraForm({
     setDataInicial("");
     setDataFinal("");
     setValorInicial("");
-    setIndice("selic");
     setFluxos([]);
     setErros([]);
     onLimpar();
@@ -115,8 +107,6 @@ export default function CalculadoraForm({
       fluxos: fluxosConvertidos,
       data_inicial: new Date(yi, mi - 1, di),
       data_final:   new Date(yf, mf - 1, df),
-      indice,
-      marketData: null as any, // injetado pela página pai
     });
   }
 
@@ -130,8 +120,8 @@ export default function CalculadoraForm({
   return (
     <form onSubmit={submeter} className="space-y-6">
 
-      {/* Linha 1: datas + índice */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* Linha 1: datas */}
+      <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Data inicial</label>
           <input
@@ -153,20 +143,6 @@ export default function CalculadoraForm({
             onChange={(e) => setDataFinal(e.target.value)}
             className={inputClass}
           />
-        </div>
-        <div>
-          <label className={labelClass}>Índice</label>
-          <select
-            value={indice}
-            onChange={(e) => setIndice(e.target.value as IndiceType)}
-            className={inputClass + " cursor-pointer"}
-          >
-            {INDICES.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label} — {opt.desc}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 

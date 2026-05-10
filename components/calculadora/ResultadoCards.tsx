@@ -1,32 +1,11 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Calendar, DollarSign, Activity } from "lucide-react";
-import type { OutputCalculadora } from "../../lib/types/market-data";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import type { ResultadoTriplo } from "../../pages/calculadora";
 
 interface ResultadoCardsProps {
-  resultado: OutputCalculadora;
+  resultado: ResultadoTriplo;
 }
-
-const COR_INDICE: Record<string, { border: string; text: string; bg: string; label: string }> = {
-  selic: {
-    border: "border-blue-500/40",
-    text:   "text-blue-400",
-    bg:     "bg-blue-500/5",
-    label:  "SELIC",
-  },
-  ipca: {
-    border: "border-emerald-500/40",
-    text:   "text-emerald-400",
-    bg:     "bg-emerald-500/5",
-    label:  "IPCA",
-  },
-  ptax: {
-    border: "border-red-500/40",
-    text:   "text-red-400",
-    bg:     "bg-red-500/5",
-    label:  "PTAX",
-  },
-};
 
 function formatBRL(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -36,124 +15,102 @@ function formatPct(v: number): string {
   return `${v >= 0 ? "+" : ""}${v.toFixed(4).replace(".", ",")}%`;
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("pt-BR");
-}
+const INDICES = [
+  {
+    key:    "selic" as const,
+    label:  "SELIC",
+    desc:   "Taxa básica de juros",
+    border: "border-blue-500/40",
+    text:   "text-blue-400",
+    bg:     "bg-blue-500/5",
+    star:   true,
+  },
+  {
+    key:    "ipca" as const,
+    label:  "IPCA",
+    desc:   "Inflação oficial",
+    border: "border-emerald-500/40",
+    text:   "text-emerald-400",
+    bg:     "bg-emerald-500/5",
+    star:   false,
+  },
+  {
+    key:    "ptax" as const,
+    label:  "PTAX",
+    desc:   "Câmbio USD/BRL",
+    border: "border-amber-500/40",
+    text:   "text-amber-400",
+    bg:     "bg-amber-500/5",
+    star:   false,
+  },
+];
 
 export default function ResultadoCards({ resultado }: ResultadoCardsProps) {
-  const {
-    valor_inicial,
-    valor_final,
-    taxa_retorno,
-    data_inicial,
-    data_final,
-    indice,
-    dias_uteis,
-    custo_oportunidade,
-    detalhamento,
-  } = resultado;
-
-  const cor = COR_INDICE[indice] ?? COR_INDICE.selic;
-  const positivo = custo_oportunidade >= 0;
-  const IconeTendencia = positivo ? TrendingUp : TrendingDown;
-  const corTendencia = positivo ? "text-emerald-400" : "text-red-400";
+  const selicFinal = resultado.selic.valor_final;
 
   return (
-    <div className="space-y-4">
+    <div className="grid md:grid-cols-3 gap-4">
+      {INDICES.map(({ key, label, desc, border, text, bg, star }) => {
+        const r          = resultado[key];
+        const vsSelicAbs = r.valor_final - selicFinal;
+        const positivo   = r.taxa_retorno >= 0;
+        const melhorSelic = vsSelicAbs >  0.005;
+        const piorSelic   = vsSelicAbs < -0.005;
 
-      {/* Badge do índice */}
-      <div className="flex items-center gap-3">
-        <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border ${cor.border} ${cor.text} ${cor.bg}`}>
-          {cor.label}
-        </span>
-        <span className="text-xs text-slate-600 font-bold uppercase tracking-widest">
-          {formatDate(data_inicial)} → {formatDate(data_final)}
-        </span>
-      </div>
+        const IconeTendencia = positivo ? TrendingUp : TrendingDown;
+        const corTendencia   = positivo ? "text-emerald-400" : "text-red-400";
 
-      {/* Cards principais */}
-      <div className="grid md:grid-cols-3 gap-4">
+        return (
+          <div key={key} className={`p-6 border ${border} ${bg} rounded-[2rem] space-y-4`}>
 
-        {/* Card 1: Valor Final */}
-        <div className={`p-6 border ${cor.border} ${cor.bg} rounded-[2rem] space-y-2`}>
-          <div className="flex items-center gap-2">
-            <DollarSign size={16} className={cor.text} />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Valor final</span>
+            {/* Cabeçalho */}
+            <div className="flex items-center justify-between">
+              <div>
+                <span className={`text-xs font-black uppercase tracking-widest ${text}`}>
+                  {label}{star ? " ★" : ""}
+                </span>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
+                  {desc}
+                </p>
+              </div>
+              <IconeTendencia size={18} className={corTendencia} />
+            </div>
+
+            {/* Valor final */}
+            <div>
+              <p className="text-2xl font-black text-white font-mono leading-none">
+                {formatBRL(r.valor_final)}
+              </p>
+              <p className="text-xs text-slate-600 font-mono mt-1">
+                de {formatBRL(resultado.valor_inicial)}
+              </p>
+            </div>
+
+            {/* Retorno */}
+            <div className={`text-sm font-black font-mono ${corTendencia}`}>
+              {formatPct(r.taxa_retorno)}
+            </div>
+
+            {/* vs SELIC */}
+            {star ? (
+              <div className="text-xs font-bold text-slate-600 uppercase tracking-widest pt-1 border-t border-slate-800">
+                Referência
+              </div>
+            ) : (
+              <div className={`flex items-center gap-1.5 text-xs font-bold pt-1 border-t border-slate-800 ${
+                melhorSelic ? "text-emerald-400" : piorSelic ? "text-red-400" : "text-slate-500"
+              }`}>
+                {melhorSelic
+                  ? <TrendingUp size={12} />
+                  : piorSelic
+                    ? <TrendingDown size={12} />
+                    : <Minus size={12} />}
+                {vsSelicAbs >= 0 ? "+" : ""}{formatBRL(vsSelicAbs)} vs SELIC
+              </div>
+            )}
           </div>
-          <p className="text-2xl font-black text-white font-mono">
-            {formatBRL(valor_final)}
-          </p>
-          <p className="text-xs text-slate-600 font-bold font-mono">
-            Inicial: {formatBRL(valor_inicial)}
-          </p>
-        </div>
-
-        {/* Card 2: Taxa de Retorno */}
-        <div className={`p-6 border ${positivo ? "border-emerald-500/30" : "border-red-500/30"} ${positivo ? "bg-emerald-500/5" : "bg-red-500/5"} rounded-[2rem] space-y-2`}>
-          <div className="flex items-center gap-2">
-            <IconeTendencia size={16} className={corTendencia} />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Taxa de retorno</span>
-          </div>
-          <p className={`text-2xl font-black font-mono ${corTendencia}`}>
-            {formatPct(taxa_retorno)}
-          </p>
-          <p className="text-xs text-slate-600 font-bold font-mono">
-            {positivo ? "+" : ""}{formatBRL(custo_oportunidade)} de rendimento
-          </p>
-        </div>
-
-        {/* Card 3: Período */}
-        <div className="p-6 border border-slate-800 bg-slate-950/20 rounded-[2rem] space-y-2">
-          <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-slate-500" />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Período</span>
-          </div>
-          <p className="text-2xl font-black text-white font-mono">
-            {dias_uteis} <span className="text-sm text-slate-500">d.u.</span>
-          </p>
-          <p className="text-xs text-slate-600 font-bold">
-            {formatDate(data_inicial)} até {formatDate(data_final)}
-          </p>
-        </div>
-      </div>
-
-      {/* Detalhamento de fluxos */}
-      {detalhamento.length > 1 && (
-        <div className="mt-2">
-          <div className="flex items-center gap-2 mb-3">
-            <Activity size={14} className="text-slate-600" />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Detalhamento dos fluxos</span>
-          </div>
-          <div className="overflow-hidden border border-slate-800 rounded-2xl">
-            <table className="w-full text-xs">
-              <thead className="bg-slate-900/60 text-slate-500 uppercase font-black">
-                <tr>
-                  <th className="px-4 py-3 text-left">Data</th>
-                  <th className="px-4 py-3 text-right">Fluxo</th>
-                  <th className="px-4 py-3 text-right">Índice</th>
-                  <th className="px-4 py-3 text-right">Valor corrigido</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {detalhamento.map((d, i) => (
-                  <tr key={i} className="hover:bg-slate-800/20 transition-colors">
-                    <td className="px-4 py-3 font-mono text-slate-400">{formatDate(d.data)}</td>
-                    <td className={`px-4 py-3 font-mono text-right font-bold ${d.fluxo >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {d.fluxo >= 0 ? "+" : ""}{formatBRL(d.fluxo)}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-right text-slate-500">
-                      {d.indice_valor.toFixed(6)}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-right text-white font-bold">
-                      {formatBRL(d.valor_corrigido)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }

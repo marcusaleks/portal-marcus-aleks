@@ -1,27 +1,41 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw, AlertTriangle, Download } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertTriangle, FileSpreadsheet } from "lucide-react";
 import MadSignature from "../components/MadSignature";
 import CalculadoraForm from "../components/calculadora/CalculadoraForm";
 import ResultadoCards from "../components/calculadora/ResultadoCards";
 import EvolutionChart from "../components/calculadora/EvolutionChart";
 import { calcularFluxoIndexado } from "../lib/calculadora/index";
 import { isErroCalculadora } from "../lib/types/market-data";
-import type {
-  InputCalculadora,
-  OutputCalculadora,
-  MarketData,
-} from "../lib/types/market-data";
+import type { OutputCalculadora, MarketData, Fluxo } from "../lib/types/market-data";
+
+export interface ResultadoTriplo {
+  selic: OutputCalculadora;
+  ipca:  OutputCalculadora;
+  ptax:  OutputCalculadora;
+  data_inicial: Date;
+  data_final:   Date;
+  valor_inicial: number;
+  dias_uteis: number;
+  marketData: MarketData;
+  fluxos: Fluxo[];
+}
+
+interface InputBase {
+  valor_inicial: number;
+  fluxos: Fluxo[];
+  data_inicial: Date;
+  data_final: Date;
+}
 
 export default function CalculadoraPage() {
   const [marketData, setMarketData]   = useState<MarketData | null>(null);
   const [loadError, setLoadError]     = useState<string | null>(null);
-  const [resultado, setResultado]     = useState<OutputCalculadora | null>(null);
+  const [resultado, setResultado]     = useState<ResultadoTriplo | null>(null);
   const [erroCalculo, setErroCalculo] = useState<string | null>(null);
   const [carregando, setCarregando]   = useState(false);
 
-  // ── Carregar dados de mercado ──────────────────────────────────────────────
   useEffect(() => {
     async function carregar() {
       try {
@@ -32,40 +46,49 @@ export default function CalculadoraPage() {
           fetch("/data/feriados_nacionais.json").then((r) => r.json()),
         ]);
         setMarketData({ selic, ipca, ptax, feriados, loaded_at: new Date().toISOString() });
-      } catch (e: any) {
+      } catch {
         setLoadError("Falha ao carregar dados de mercado. Tente recarregar a página.");
       }
     }
     carregar();
   }, []);
 
-  // Derivar datas mínima e máxima disponíveis (para limitar pickers)
-  // dados podem estar em ordem crescente ou decrescente — usar sort para garantir
   const selicDates = marketData?.selic.data.map((e) => e.date).sort() ?? [];
   const dataMin = selicDates[0];
   const dataMax = selicDates[selicDates.length - 1];
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  function handleCalcular(input: InputCalculadora) {
+  function handleCalcular(input: InputBase) {
     if (!marketData) return;
     setCarregando(true);
     setErroCalculo(null);
 
-    // setTimeout 0 para não bloquear o render antes do "Calculando..."
     setTimeout(() => {
       try {
-        const r = calcularFluxoIndexado({ ...input, marketData });
-        if (isErroCalculadora(r)) {
-          setErroCalculo(r.mensagem);
-          setResultado(null);
-        } else {
-          setResultado(r);
-          setErroCalculo(null);
-          // Rolar para o resultado
-          setTimeout(() => {
-            document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth" });
-          }, 100);
-        }
+        const base = { ...input, marketData };
+        const rSelic = calcularFluxoIndexado({ ...base, indice: "selic" });
+        const rIpca  = calcularFluxoIndexado({ ...base, indice: "ipca"  });
+        const rPtax  = calcularFluxoIndexado({ ...base, indice: "ptax"  });
+
+        // Se qualquer índice retornar erro, mostra a primeira mensagem
+        if (isErroCalculadora(rSelic)) { setErroCalculo(rSelic.mensagem); setResultado(null); return; }
+        if (isErroCalculadora(rIpca))  { setErroCalculo(rIpca.mensagem);  setResultado(null); return; }
+        if (isErroCalculadora(rPtax))  { setErroCalculo(rPtax.mensagem);  setResultado(null); return; }
+
+        setResultado({
+          selic: rSelic,
+          ipca:  rIpca,
+          ptax:  rPtax,
+          data_inicial:  input.data_inicial,
+          data_final:    input.data_final,
+          valor_inicial: input.valor_inicial,
+          dias_uteis:    rSelic.dias_uteis,
+          marketData,
+          fluxos:        input.fluxos,
+        });
+        setErroCalculo(null);
+        setTimeout(() => {
+          document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       } finally {
         setCarregando(false);
       }
@@ -77,12 +100,11 @@ export default function CalculadoraPage() {
     setErroCalculo(null);
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
       <Head>
         <title>Calculadora de Fluxo Indexado — Marcus Aleks</title>
-        <meta name="description" content="Calcule a evolução de investimentos indexados a SELIC, IPCA ou PTAX com múltiplos fluxos de caixa." />
+        <meta name="description" content="Compare a evolução de investimentos indexados a SELIC, IPCA e PTAX com múltiplos fluxos de caixa." />
       </Head>
 
       <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans">
@@ -122,7 +144,7 @@ export default function CalculadoraPage() {
             <span className="text-slate-600">de Fluxo Indexado</span>
           </h1>
           <p className="text-slate-500 font-bold max-w-xl leading-relaxed">
-            Simule a evolução de investimentos indexados a SELIC, IPCA ou PTAX.
+            Compare a evolução do mesmo capital corrigido por SELIC, IPCA e PTAX.
             Suporta múltiplos aportes e resgates com capitalização individualizada.
           </p>
         </header>
@@ -177,47 +199,33 @@ export default function CalculadoraPage() {
 
           {/* ── Resultado ────────────────────────────────────────────────── */}
           {resultado && (
-            <section id="resultado" className="p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl space-y-8">
+            <section id="resultado" className="p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl space-y-10">
               <div className="flex justify-between items-center">
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">
                   Resultado
                 </h2>
-                <a
-                  href={`/api/calculadora/export?format=json&data=${encodeURIComponent(JSON.stringify({
-                    valor_inicial: resultado.valor_inicial,
-                    valor_final: resultado.valor_final,
-                    taxa_retorno: resultado.taxa_retorno,
-                    indice: resultado.indice,
-                    data_inicial: resultado.data_inicial,
-                    data_final: resultado.data_final,
-                    dias_uteis: resultado.dias_uteis,
-                  }))}`}
-                  className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all border border-slate-800 hover:border-slate-600 rounded-xl px-4 py-2"
-                >
-                  <Download size={12} /> Exportar
-                </a>
+                <span className="text-xs font-mono text-slate-700">
+                  {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
+                  {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
+                </span>
               </div>
 
               <ResultadoCards resultado={resultado} />
 
-              {resultado.detalhamento.length >= 2 && (
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">
-                    Evolução do saldo
-                  </p>
-                  <EvolutionChart
-                    detalhamento={resultado.detalhamento}
-                    indice={resultado.indice}
-                    valorFinal={resultado.valor_final}
-                  />
-                </div>
-              )}
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">
+                  Evolução do saldo
+                </p>
+                <EvolutionChart resultado={resultado} />
+              </div>
             </section>
           )}
+        </main>
 
-          {/* ── Nota sobre dados ─────────────────────────────────────────── */}
-          <footer className="border-t border-slate-900 pt-8 pb-4">
-            <div className="flex flex-wrap gap-6 text-xs font-bold text-slate-700">
+        {/* ── Footer ─────────────────────────────────────────────────────── */}
+        <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-slate-800">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-700">
               {marketData && (
                 <>
                   <span>SELIC: {marketData.selic.source}</span>
@@ -226,10 +234,16 @@ export default function CalculadoraPage() {
                   <span>Feriados: {marketData.feriados.source}</span>
                 </>
               )}
-              <span className="ml-auto">Calculadora de Fluxo Indexado v1.0</span>
             </div>
-          </footer>
-        </main>
+            <a
+              href="/api/market-data-excel"
+              download
+              className="ml-auto flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-all border border-slate-700 hover:border-emerald-500/50 rounded-xl px-4 py-2"
+            >
+              <FileSpreadsheet size={13} /> Exportar tabelas (.xlsx)
+            </a>
+          </div>
+        </footer>
 
         <MadSignature />
       </div>

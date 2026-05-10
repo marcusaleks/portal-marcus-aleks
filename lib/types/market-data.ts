@@ -11,86 +11,67 @@
  * Entrada individual de taxa SELIC
  */
 export interface SELICEntry {
-  date: string; // ISO 8601: YYYY-MM-DD
-  taxa_diaria: number; // Taxa SELIC anualizada (%)
-  indice_acumulado: number; // Índice acumulado (base 100.000 em 15/07/2000)
-  is_feriado: boolean;
-  is_weekend: boolean;
+  date: string;         // ISO 8601: YYYY-MM-DD
+  taxa_diaria: number;  // Taxa diária % a.d. (Série 11)
+  indice: number;       // Número-índice acumulado (base 1,00000000 em 31/12/1999)
+  tipo: "historico" | "projecao"; // projecao = projeção COPOM via Série 432
 }
 
 /**
- * Dados completos da série SELIC (Série 11 do BCB)
+ * Dados completos da série SELIC
  */
 export interface SELICData {
-  series: "11";
-  series_name: string; // "Taxa SELIC — média diária"
-  unit: "%"; // Porcentagem ao ano
+  series: string;
+  series_name: string;
+  base_date: string;    // "1999-12-31"
+  base_value: number;   // 1
   last_updated: string; // ISO 8601 timestamp
-  source: string; // "SEAD Banco Central (bcdata.sgs.11)"
+  source: string;
   data: SELICEntry[];
 }
 
 /**
- * Entrada individual de IPCA (VNA)
+ * Entrada individual de IPCA (registros diários, um por DU)
  */
 export interface IPCAEntry {
-  date: string; // ISO 8601: YYYY-MM-DD
-  vna: number; // Valor Nominal Atualizado (base 1.000,00 em 15/07/2000)
-  tipo: "oficial" | "projecao"; // Rastreabilidade de fonte
-}
-
-/**
- * Informação sobre IPCA oficial divulgado
- */
-export interface IPCAOficial {
-  mes: string; // YYYY-MM
-  valor: number; // Porcentagem (ex: 0.52 para 0,52%)
-  data_divulgacao: string; // ISO 8601 timestamp
-}
-
-/**
- * Informação sobre projeção IPCA (até divulgação oficial)
- */
-export interface IPCAProjecao {
-  mes: string; // YYYY-MM
-  valor: number; // Porcentagem
-  fonte: string; // "Focus BCB", "ANBIMA", etc
-  data_atualizacao: string; // ISO 8601 timestamp
+  date: string;         // ISO 8601: YYYY-MM-DD (dia útil)
+  taxa_diaria: number;  // Taxa diária equivalente pro-rata do mês (% a.d.)
+  indice: number;       // Número-índice acumulado (base 1,00000000 em 31/12/1999)
+  tipo: "oficial" | "projecao";
 }
 
 /**
  * Dados completos da série IPCA (Série 433 do BCB)
  */
 export interface IPCAData {
-  series: "433";
-  series_name: string; // "IPCA — Índice de Preços ao Consumidor Amplo"
-  unit: "%"; // Porcentagem ao mês
+  series: string;
+  series_name: string;
+  base_date: string;    // "1999-12-31"
+  base_value: number;   // 1
   last_updated: string; // ISO 8601 timestamp
-  source: string; // "SEAD Banco Central + Focus Bacen"
-  oficial: IPCAOficial;
-  projecao: IPCAProjecao;
-  vna_historico: IPCAEntry[];
+  source: string;
+  data: IPCAEntry[];
 }
 
 /**
  * Entrada individual de PTAX
  */
 export interface PTAXEntry {
-  date: string; // ISO 8601: YYYY-MM-DD
-  cotacao: number; // Taxa de câmbio BRL/USD (venda)
-  is_feriado: boolean;
-  is_weekend: boolean;
+  date: string;    // ISO 8601: YYYY-MM-DD
+  cotacao: number; // Cotação BRL/USD (venda)
+  indice: number;  // Número-índice acumulado (base 1,00000000 em 31/12/1999)
 }
 
 /**
  * Dados completos da série PTAX (Série 10813 do BCB)
  */
 export interface PTAXData {
-  series: "10813";
-  series_name: string; // "Taxa de câmbio nominal — USD/BRL (venda)"
-  unit: "BRL/USD";
+  series: string;
+  series_name: string;
+  base_date: string;    // "1999-12-31"
+  base_value: number;   // 1
   last_updated: string; // ISO 8601 timestamp
-  source: string; // "SEAD Banco Central (bcdata.sgs.10813)"
+  source: string;
   data: PTAXEntry[];
 }
 
@@ -99,18 +80,15 @@ export interface PTAXData {
  */
 export interface Feriado {
   date: string; // ISO 8601: YYYY-MM-DD
-  nome: string; // "Ano Novo", "Ascensão de Jesus", etc
-  tipo: "recorrente" | "móvel" | "decretal";
-  categoria: "nacional"; // Pode ser expandido: estadual, municipal
+  nome: string;
 }
 
 /**
  * Dados de feriados nacionais
  */
 export interface FeriadosData {
-  year: number;
   last_updated: string; // ISO 8601 timestamp
-  source: string; // "brazilian-holidays (npm) + decretos manuais"
+  source: string;
   feriados: Feriado[];
 }
 

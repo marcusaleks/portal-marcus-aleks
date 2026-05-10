@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "iron-session": "^8.0.4",
     "lucide-react": "latest",
     "next": "^16.2.4",

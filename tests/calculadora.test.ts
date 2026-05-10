@@ -24,45 +24,43 @@ import type {
 // ─── Fixtures ───────────────────────────────────────────────────────────────
 
 const feriadosSemFeriados: FeriadosData = {
-  year: 2026,
   last_updated: "2026-01-01T00:00:00Z",
   source: "mock",
   feriados: [],
 };
 
 const feriadosComFeriado: FeriadosData = {
-  year: 2026,
   last_updated: "2026-01-01T00:00:00Z",
   source: "mock",
   feriados: [
-    { date: "2026-05-01", nome: "Dia do Trabalho", tipo: "recorrente", categoria: "nacional" },
+    { date: "2026-05-01", nome: "Dia do Trabalho" },
   ],
 };
 
-// SELIC com taxa 10,5% ao ano e índice calculado recursivamente
-// Base 100.000 em 2026-05-05 (segunda-feira)
+// SELIC com taxa 10,5% ao ano e índice calculado recursivamente.
+// Base 1,00000000 em 04/05/2026 (domingo) para que data_ini=05/05 tenha DU anterior.
 function gerarSelicFixture(dias: number): SELICData {
-  const taxa = 10.5;
-  const fator = Math.pow(1 + taxa / 100, 1 / 252);
-  let indice = 100000;
+  const metaAnual = 10.5 / 100;
+  const fator = Math.pow(1 + metaAnual, 1 / 252);
+  let indice = 1.0;
   const data: SELICData["data"] = [];
 
   for (let i = 0; i < dias; i++) {
-    const d = new Date(2026, 4, 5 + i); // 05/05/2026 + i dias
+    const d = new Date(2026, 4, 4 + i); // 04/05/2026 + i dias
     indice = indice * fator;
     data.push({
       date: toISO(d),
-      taxa_diaria: taxa,
-      indice_acumulado: parseFloat(indice.toFixed(6)),
-      is_feriado: false,
-      is_weekend: isWeekend(d),
+      taxa_diaria: parseFloat(((fator - 1) * 100).toFixed(6)),
+      indice: parseFloat(indice.toFixed(8)),
+      tipo: "historico",
     });
   }
 
   return {
     series: "11",
-    series_name: "Taxa SELIC — média diária",
-    unit: "%",
+    series_name: "Taxa SELIC — mock",
+    base_date: "2026-05-03",
+    base_value: 1,
     last_updated: "2026-05-10T00:00:00Z",
     source: "mock",
     data,
@@ -73,33 +71,49 @@ const selicFixture = gerarSelicFixture(30);
 
 const ptaxFixture: PTAXData = {
   series: "10813",
-  series_name: "Taxa de câmbio nominal — USD/BRL",
-  unit: "BRL/USD",
+  series_name: "PTAX mock",
+  base_date: "1999-12-31",
+  base_value: 1,
   last_updated: "2026-05-10T00:00:00Z",
   source: "mock",
   data: [
-    { date: "2026-05-05", cotacao: 5.00, is_feriado: false, is_weekend: false },
-    { date: "2026-05-06", cotacao: 5.05, is_feriado: false, is_weekend: false },
-    { date: "2026-05-07", cotacao: 5.10, is_feriado: false, is_weekend: false },
-    { date: "2026-05-08", cotacao: 5.20, is_feriado: false, is_weekend: false },
+    { date: "2026-05-05", cotacao: 5.00, indice: 1.0 },
+    { date: "2026-05-06", cotacao: 5.05, indice: 1.01 },
+    { date: "2026-05-07", cotacao: 5.10, indice: 1.02 },
+    { date: "2026-05-08", cotacao: 5.20, indice: 1.04 },
   ],
 };
 
-const ipcaFixture: IPCAData = {
-  series: "433",
-  series_name: "IPCA",
-  unit: "%",
-  last_updated: "2026-05-10T00:00:00Z",
-  source: "mock",
-  oficial: { mes: "2026-04", valor: 0.52, data_divulgacao: "2026-05-08T00:00:00Z" },
-  projecao: { mes: "2026-05", valor: 0.40, fonte: "mock", data_atualizacao: "2026-05-10T00:00:00Z" },
-  vna_historico: [
-    { date: "2026-01-01", vna: 0.35, tipo: "oficial" },
-    { date: "2026-02-01", vna: 0.42, tipo: "oficial" },
-    { date: "2026-03-01", vna: 0.63, tipo: "oficial" },
-    { date: "2026-04-01", vna: 0.52, tipo: "oficial" },
-  ],
-};
+// IPCA diário: simula maio/2026 com taxa mensal de 0,40% distribuída em 20 DU
+// DU de maio/2026: 04,05,06,07,08,11,12,13,14,15,18,19,20,21,22,25,26,27,28,29
+function gerarIpcaFixture(): IPCAData {
+  const ipcaMensal = 0.40 / 100;
+  const duMes = 20;
+  const taxaDiaria = Math.pow(1 + ipcaMensal, 1 / duMes) - 1;
+  const diasUteisMaio = [4,5,6,7,8,11,12,13,14,15,18,19,20,21,22,25,26,27,28,29];
+  let indice = 1.0;
+  const data: IPCAData["data"] = [];
+  for (const dia of diasUteisMaio) {
+    indice = indice * (1 + taxaDiaria);
+    data.push({
+      date: `2026-05-${String(dia).padStart(2,"0")}`,
+      taxa_diaria: parseFloat((taxaDiaria * 100).toFixed(8)),
+      indice: parseFloat(indice.toFixed(8)),
+      tipo: "oficial",
+    });
+  }
+  return {
+    series: "433",
+    series_name: "IPCA mock",
+    base_date: "1999-12-31",
+    base_value: 1,
+    last_updated: "2026-05-10T00:00:00Z",
+    source: "mock",
+    data,
+  };
+}
+
+const ipcaFixture = gerarIpcaFixture();
 
 const marketDataFixture: MarketData = {
   selic: selicFixture,
@@ -215,14 +229,16 @@ describe("utils — buscaAnteriorOuIgual", () => {
 describe("SELIC — indiceSelicNaData", () => {
   test("retorna índice para dia útil disponível", () => {
     const val = indiceSelicNaData(new Date(2026, 4, 7), selicFixture, feriadosSemFeriados);
-    expect(val).toBeGreaterThan(100000);
+    expect(val).toBeGreaterThan(1);
   });
 
-  test("retroatua fim de semana para sexta", () => {
-    // 09/05 sáb → deve usar 08/05 sex
+  test("retroatua fim de semana — sábado e domingo produzem mesmo índice", () => {
+    // Convenção overnight: indiceSelicNaData(d) usa DU anterior a d
+    // sáb 09/05 → DU anterior = sex 08/05
+    // dom 10/05 → recua para sáb 09/05 → ultimoDiaUtil = sex 08/05
     const valSab = indiceSelicNaData(new Date(2026, 4, 9), selicFixture, feriadosSemFeriados);
-    const valSex = indiceSelicNaData(new Date(2026, 4, 8), selicFixture, feriadosSemFeriados);
-    expect(valSab).toBe(valSex);
+    const valDom = indiceSelicNaData(new Date(2026, 4, 10), selicFixture, feriadosSemFeriados);
+    expect(valSab).toBe(valDom);
   });
 });
 
@@ -354,7 +370,6 @@ describe("calcularFluxoIndexado — cálculo SELIC", () => {
 
     expect(isErroCalculadora(r)).toBe(false);
     if (!isErroCalculadora(r)) {
-      // Com aporte de 5000, saldo_final > que sem aporte
       expect(r.valor_final).toBeGreaterThan(15000);
       expect(r.detalhamento).toHaveLength(2);
     }
@@ -419,6 +434,68 @@ describe("calcularFluxoIndexado — cálculo PTAX", () => {
       // Valorização de 4%: 5,20/5,00 = 1,04
       expect(r.valor_final).toBeCloseTo(10400, 0);
       expect(r.taxa_retorno).toBeCloseTo(4.0, 1);
+    }
+  });
+});
+
+describe("calcularFluxoIndexado — cálculo IPCA (pro-rata diário)", () => {
+  test("saldo cresce com IPCA ao longo de dias úteis", () => {
+    const r = calcularFluxoIndexado({
+      valor_inicial: 10000,
+      fluxos: [],
+      data_inicial: new Date(2026, 4, 5),  // 05/05
+      data_final:   new Date(2026, 4, 12), // 12/05
+      indice: "ipca",
+      marketData: marketDataFixture,
+    });
+    expect(isErroCalculadora(r)).toBe(false);
+    if (!isErroCalculadora(r)) {
+      expect(r.valor_final).toBeGreaterThan(10000);
+      expect(r.taxa_retorno).toBeGreaterThan(0);
+    }
+  });
+
+  test("resultado pro-rata: 5 DU vale menos que 10 DU", () => {
+    const r5 = calcularFluxoIndexado({
+      valor_inicial: 10000,
+      fluxos: [],
+      data_inicial: new Date(2026, 4, 5),
+      data_final:   new Date(2026, 4, 11), // 5 DU
+      indice: "ipca",
+      marketData: marketDataFixture,
+    });
+    const r10 = calcularFluxoIndexado({
+      valor_inicial: 10000,
+      fluxos: [],
+      data_inicial: new Date(2026, 4, 5),
+      data_final:   new Date(2026, 4, 19), // 10 DU
+      indice: "ipca",
+      marketData: marketDataFixture,
+    });
+    if (!isErroCalculadora(r5) && !isErroCalculadora(r10)) {
+      expect(r5.valor_final).toBeLessThan(r10.valor_final);
+    }
+  });
+
+  test("acumulação correta: 20 DU (mês inteiro) ≈ 0,40% sobre 10.000", () => {
+    // Convenção overnight: indice_ini = DU anterior a data_ini, indice_fim = DU anterior a data_fim
+    // Para capturar os 20 DU de maio, precisamos:
+    //   data_ini tal que DU anterior = antes do primeiro DU da tabela → base_value=1
+    //   data_fim tal que DU anterior = 29/05 (último DU do mês)
+    // data_ini = 04/05 → DU anterior = 30/04 (fora da tabela) → base_value=1
+    // data_fim = 30/05 (ou qualquer dia cujo DU anterior seja 29/05)
+    const indiceFim = ipcaFixture.data[ipcaFixture.data.length - 1].indice; // índice após 20 DU
+    const esperado = 10000 * (indiceFim / ipcaFixture.base_value);
+    const r = calcularFluxoIndexado({
+      valor_inicial: 10000,
+      fluxos: [],
+      data_inicial: new Date(2026, 4, 4),  // 04/05 → DU anterior = 30/04 (fora da tabela) → base_value
+      data_final:   new Date(2026, 4, 30), // 30/05 → DU anterior = 29/05 (último DU do mês)
+      indice: "ipca",
+      marketData: marketDataFixture,
+    });
+    if (!isErroCalculadora(r)) {
+      expect(r.valor_final).toBeCloseTo(esperado, 1);
     }
   });
 });
