@@ -244,13 +244,21 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
         `  Usando dados mock para validação de estrutura (IMPORTANTE: Será substituído com dados reais em produção via GitHub Actions)`
       );
 
-      // Mock data — APENAS PARA VALIDAÇÃO DE ESTRUTURA (Fase 1)
-      selicRaw = [
-        { data: "10/05/2026", valor: "10.50" },
-        { data: "09/05/2026", valor: "10.50" },
-        { data: "08/05/2026", valor: "10.50" },
-      ];
+      // Mock data — 60 dias corridos retroativos para cobrir testes locais
+      selicRaw = [];
+      for (let i = 59; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        selicRaw.push({ data: formatDate(d), valor: "10.50" });
+      }
     }
+
+    // BCB retorna em ordem decrescente — ordenar crescente antes de calcular índice
+    selicRaw.sort((a, b) => {
+      const [da, ma, ya] = a.data.split("/").map(Number);
+      const [db, mb, yb] = b.data.split("/").map(Number);
+      return new Date(ya, ma - 1, da).getTime() - new Date(yb, mb - 1, db).getTime();
+    });
 
     // Calcular índice acumulado recursivamente a partir da taxa diária
     // Fórmula: Índice_t = Índice_{t-1} × (1 + taxa_anual/100) ^ (1/252)
@@ -327,13 +335,21 @@ function fetchWithRetry(url: string, maxRetries: number = 3): Promise<string> {
         `  Usando dados mock para validação de estrutura (IMPORTANTE: Substituir com dados reais antes de produção)`
       );
 
-      // Mock data — APENAS PARA VALIDAÇÃO DE ESTRUTURA
-      ptaxRaw = [
-        { data: "10/05/2026", valor: "4.8532" },
-        { data: "09/05/2026", valor: "4.8645" },
-        { data: "08/05/2026", valor: "4.8720" },
-      ];
+      // Mock data — 60 dias corridos retroativos para cobrir testes locais
+      ptaxRaw = [];
+      for (let i = 59; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        ptaxRaw.push({ data: formatDate(d), valor: (4.85 + (Math.sin(i / 10) * 0.15)).toFixed(4) });
+      }
     }
+
+    // BCB retorna em ordem decrescente — ordenar crescente
+    ptaxRaw.sort((a, b) => {
+      const [da, ma, ya] = a.data.split("/").map(Number);
+      const [db, mb, yb] = b.data.split("/").map(Number);
+      return new Date(ya, ma - 1, da).getTime() - new Date(yb, mb - 1, db).getTime();
+    });
 
     const ptaxData: PTAXData = {
       series: "10813",

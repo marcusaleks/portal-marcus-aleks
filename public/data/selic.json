@@ -2,29 +2,428 @@
   "series": "11",
   "series_name": "Taxa SELIC — média diária",
   "unit": "%",
-  "last_updated": "2026-05-10T15:31:05.937Z",
+  "last_updated": "2026-05-10T15:55:08.250Z",
   "source": "SEAD Banco Central (bcdata.sgs.11)",
   "data": [
     {
-      "date": "2026-05-10",
+      "date": "2026-03-12",
       "taxa_diaria": 10.5,
       "indice_acumulado": 100039.629015,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-13",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100079.273734,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-14",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100118.934165,
       "is_feriado": false,
       "is_weekend": true
     },
     {
-      "date": "2026-05-09",
+      "date": "2026-03-15",
       "taxa_diaria": 10.5,
-      "indice_acumulado": 100079.273734,
+      "indice_acumulado": 100158.610312,
       "is_feriado": false,
       "is_weekend": true
+    },
+    {
+      "date": "2026-03-16",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100198.302183,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-17",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100238.009783,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-18",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100277.733118,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-19",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100317.472196,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-20",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100357.227022,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-21",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100396.997603,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-22",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100436.783944,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-23",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100476.586052,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-24",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100516.403933,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-25",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100556.237594,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-26",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100596.08704,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-27",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100635.952279,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-28",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100675.833315,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-29",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100715.730156,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-30",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100755.642808,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-31",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100795.571276,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-01",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100835.515568,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-02",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100875.47569,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-03",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100915.451647,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-04",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100955.443446,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-05",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 100995.451094,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-06",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101035.474597,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-07",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101075.51396,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-08",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101115.56919,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-09",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101155.640294,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-10",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101195.727278,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-11",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101235.830148,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-12",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101275.94891,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-13",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101316.083571,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-14",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101356.234137,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-15",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101396.400614,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-16",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101436.583009,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-17",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101476.781327,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-18",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101516.995576,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-19",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101557.225761,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-20",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101597.471889,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-21",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101637.733967,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-22",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101678.011999,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-23",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101718.305994,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-24",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101758.615957,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-25",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101798.941894,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-26",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101839.283811,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-27",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101879.641716,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-28",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101920.015615,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-29",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 101960.405513,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-30",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102000.811417,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-01",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102041.233334,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-02",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102081.67127,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-03",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102122.12523,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-04",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102162.595222,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-05",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102203.081253,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-06",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102243.583327,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-07",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102284.101452,
+      "is_feriado": false,
+      "is_weekend": false
     },
     {
       "date": "2026-05-08",
       "taxa_diaria": 10.5,
-      "indice_acumulado": 100118.934165,
+      "indice_acumulado": 102324.635633,
       "is_feriado": false,
       "is_weekend": false
+    },
+    {
+      "date": "2026-05-09",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102365.185879,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-10",
+      "taxa_diaria": 10.5,
+      "indice_acumulado": 102405.752193,
+      "is_feriado": false,
+      "is_weekend": true
     }
   ]
 }

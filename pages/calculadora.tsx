@@ -40,12 +40,10 @@ export default function CalculadoraPage() {
   }, []);
 
   // Derivar datas mínima e máxima disponíveis (para limitar pickers)
-  const dataMin = marketData?.selic.data.length
-    ? marketData.selic.data[0].date
-    : undefined;
-  const dataMax = marketData?.selic.data.length
-    ? marketData.selic.data[marketData.selic.data.length - 1].date
-    : undefined;
+  // dados podem estar em ordem crescente ou decrescente — usar sort para garantir
+  const selicDates = marketData?.selic.data.map((e) => e.date).sort() ?? [];
+  const dataMin = selicDates[0];
+  const dataMax = selicDates[selicDates.length - 1];
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   function handleCalcular(input: InputCalculadora) {

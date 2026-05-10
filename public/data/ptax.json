@@ -2,26 +2,368 @@
   "series": "10813",
   "series_name": "Taxa de câmbio nominal — USD/BRL",
   "unit": "BRL/USD",
-  "last_updated": "2026-05-10T15:16:04.468Z",
+  "last_updated": "2026-05-10T15:55:08.250Z",
   "source": "SEAD Banco Central (bcdata.sgs.10813)",
   "data": [
     {
-      "date": "2026-05-10",
-      "cotacao": 4.8532,
+      "date": "2026-03-12",
+      "cotacao": 4.7939,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-13",
+      "cotacao": 4.7803,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-14",
+      "cotacao": 4.7674,
       "is_feriado": false,
       "is_weekend": true
     },
     {
-      "date": "2026-05-09",
-      "cotacao": 4.8645,
+      "date": "2026-03-15",
+      "cotacao": 4.7553,
       "is_feriado": false,
       "is_weekend": true
+    },
+    {
+      "date": "2026-03-16",
+      "cotacao": 4.7442,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-17",
+      "cotacao": 4.7341,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-18",
+      "cotacao": 4.7252,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-19",
+      "cotacao": 4.7175,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-20",
+      "cotacao": 4.7111,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-21",
+      "cotacao": 4.7062,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-22",
+      "cotacao": 4.7026,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-23",
+      "cotacao": 4.7006,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-24",
+      "cotacao": 4.7,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-25",
+      "cotacao": 4.7009,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-26",
+      "cotacao": 4.7034,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-27",
+      "cotacao": 4.7073,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-28",
+      "cotacao": 4.7126,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-29",
+      "cotacao": 4.7193,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-03-30",
+      "cotacao": 4.7273,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-03-31",
+      "cotacao": 4.7365,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-01",
+      "cotacao": 4.7468,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-02",
+      "cotacao": 4.7582,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-03",
+      "cotacao": 4.7705,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-04",
+      "cotacao": 4.7836,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-05",
+      "cotacao": 4.7974,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-06",
+      "cotacao": 4.8117,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-07",
+      "cotacao": 4.8263,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-08",
+      "cotacao": 4.8412,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-09",
+      "cotacao": 4.8562,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-10",
+      "cotacao": 4.8712,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-11",
+      "cotacao": 4.8859,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-12",
+      "cotacao": 4.9002,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-13",
+      "cotacao": 4.9141,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-14",
+      "cotacao": 4.9273,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-15",
+      "cotacao": 4.9398,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-16",
+      "cotacao": 4.9513,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-17",
+      "cotacao": 4.9619,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-18",
+      "cotacao": 4.9713,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-19",
+      "cotacao": 4.9795,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-20",
+      "cotacao": 4.9864,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-21",
+      "cotacao": 4.9919,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-22",
+      "cotacao": 4.9961,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-23",
+      "cotacao": 4.9987,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-24",
+      "cotacao": 4.9999,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-25",
+      "cotacao": 4.9996,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-26",
+      "cotacao": 4.9978,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-04-27",
+      "cotacao": 4.9945,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-28",
+      "cotacao": 4.9898,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-29",
+      "cotacao": 4.9837,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-04-30",
+      "cotacao": 4.9762,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-01",
+      "cotacao": 4.9675,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-02",
+      "cotacao": 4.9576,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-03",
+      "cotacao": 4.9466,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-04",
+      "cotacao": 4.9347,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-05",
+      "cotacao": 4.9219,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-06",
+      "cotacao": 4.9084,
+      "is_feriado": false,
+      "is_weekend": false
+    },
+    {
+      "date": "2026-05-07",
+      "cotacao": 4.8943,
+      "is_feriado": false,
+      "is_weekend": false
     },
     {
       "date": "2026-05-08",
-      "cotacao": 4.872,
+      "cotacao": 4.8798,
       "is_feriado": false,
       "is_weekend": false
+    },
+    {
+      "date": "2026-05-09",
+      "cotacao": 4.865,
+      "is_feriado": false,
+      "is_weekend": true
+    },
+    {
+      "date": "2026-05-10",
+      "cotacao": 4.85,
+      "is_feriado": false,
+      "is_weekend": true
     }
   ]
 }
