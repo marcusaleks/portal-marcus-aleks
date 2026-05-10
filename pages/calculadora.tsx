@@ -235,13 +235,14 @@ export default function CalculadoraPage() {
                 </>
               )}
             </div>
-            <a
-              href="/api/market-data-excel"
-              download
-              className="ml-auto flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-all border border-slate-700 hover:border-emerald-500/50 rounded-xl px-4 py-2"
+            {/* TODO: reabilitar após validação E2E */}
+            <button
+              disabled
+              className="ml-auto flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-700 border border-slate-800 rounded-xl px-4 py-2 cursor-not-allowed"
+              title="Em breve"
             >
               <FileSpreadsheet size={13} /> Exportar tabelas (.xlsx)
-            </a>
+            </button>
           </div>
         </footer>
 
