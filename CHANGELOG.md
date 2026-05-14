@@ -6,16 +6,6 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [0.8.0] — 2026-05-06
-
-### Fixed
-- Cotação USD/BRL congela quando a aba fica em background: adicionado listener `visibilitychange` que força refresh imediato ao retornar à aba (`pages/index.tsx`)
-
-### Changed
-- Janela de aprovação de merge atualizada de 09h–18h para 08h–20h em toda a documentação (`Administrativos/LEI_OPERACAO_MAD_v1_0_LLM.md` — 5 ocorrências: seções 4.1, 4.2, 6.2, 07 e Regra 7)
-
----
-
 ## [1.0.0] — 2026-05-14
 
 ### Added
@@ -75,6 +65,18 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `npm audit --audit-level=high`: **0 vulnerabilidades** em 02/05/2026
 - `pages/osint_hub.tsx` protegido com verificação de sessão (cookie httpOnly)
 - Sessão migrada para `iron-session` com cookie criptografado (`SESSION_SECRET` via variável de ambiente)
+
+---
+
+## [0.8.0] — 2026-05-06
+
+### Fixed
+
+- Cotação USD/BRL congela quando a aba fica em background: adicionado listener `visibilitychange` que força refresh imediato ao retornar à aba (`pages/index.tsx`)
+
+### Changed
+
+- Janela de aprovação de merge atualizada de 09h–18h para 08h–20h em toda a documentação (`Administrativos/LEI_OPERACAO_MAD_v1_0_LLM.md` — 5 ocorrências: seções 4.1, 4.2, 6.2, 07 e Regra 7)
 
 ---
 
