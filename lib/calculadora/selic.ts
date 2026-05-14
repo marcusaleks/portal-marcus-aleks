@@ -87,7 +87,13 @@ export function indiceSelicNaData(
 
   const entry = buscaAnteriorOuIgual(selic.data, iso);
   if (!entry) {
-    throw new Error(`SELIC: sem dados para ${iso}`);
+    const primeiroRegistro = selic.data.length > 0 ? selic.data[0].date : null;
+    // Único caso válido sem dado: data recuada é exatamente 31/12/1999 (DU anterior
+    // ao primeiro registro 03/01/2000) — índice base inferido por descapitalização = 1.0
+    if (primeiroRegistro && iso === "1999-12-31") {
+      return 1.0;
+    }
+    throw new Error(`Base de dados inexistente para datas anteriores a 03/01/2000`);
   }
   return entry.indice;
 }

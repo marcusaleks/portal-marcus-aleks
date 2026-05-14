@@ -240,6 +240,43 @@ describe("SELIC — indiceSelicNaData", () => {
     const valDom = indiceSelicNaData(new Date(2026, 4, 10), selicFixture, feriadosSemFeriados);
     expect(valSab).toBe(valDom);
   });
+
+  test("retorna 1.0 quando data_ini = 03/01/2000 (base inferida por descapitalização de 31/12/1999)", () => {
+    const selicBase: SELICData = {
+      series: "11",
+      series_name: "mock base",
+      base_date: "1999-12-31",
+      base_value: 1,
+      last_updated: "2026-01-01T00:00:00Z",
+      source: "mock",
+      data: [
+        { date: "2000-01-03", taxa_diaria: 0.069186, indice: 1.00069186, tipo: "historico" },
+        { date: "2000-01-04", taxa_diaria: 0.069186, indice: 1.00138419, tipo: "historico" },
+      ],
+    };
+    // data_ini = 03/01/2000 → recua 1 dia → 02/01/2000 (dom) → último DU = 31/12/1999 → retorna 1.0
+    const val = indiceSelicNaData(new Date(2000, 0, 3), selicBase, feriadosSemFeriados);
+    expect(val).toBe(1.0);
+  });
+
+  test("lança erro para datas anteriores a 03/01/2000", () => {
+    const selicBase: SELICData = {
+      series: "11",
+      series_name: "mock base",
+      base_date: "1999-12-31",
+      base_value: 1,
+      last_updated: "2026-01-01T00:00:00Z",
+      source: "mock",
+      data: [
+        { date: "2000-01-03", taxa_diaria: 0.069186, indice: 1.00069186, tipo: "historico" },
+      ],
+    };
+    // data_ini = 02/01/2000 → recua 1 dia → 01/01/2000 (sáb) → último DU = 31/12/1999... não, recua mais
+    // Usar 15/12/1999 para garantir data recuada < 31/12/1999
+    expect(() =>
+      indiceSelicNaData(new Date(1999, 11, 15), selicBase, feriadosSemFeriados)
+    ).toThrow("Base de dados inexistente para datas anteriores a 03/01/2000");
+  });
 });
 
 describe("SELIC — calcularFatorSelic", () => {
