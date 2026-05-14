@@ -23,6 +23,11 @@
 }
 .mad-signature:hover { opacity: 1; color: #fff; }
 
+/* Suprimir spinner nativo de input[type=number] */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
 @media print {
   /* Ocultar elementos de navegação e interação */
   .print-hidden { display: none !important; }

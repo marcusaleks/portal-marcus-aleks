@@ -26,6 +26,20 @@ function formatBRL(v: number): string {
   return Math.abs(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function mascaraBRL(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+  const centavos = parseInt(digits, 10);
+  return (centavos / 100).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function parseBRL(formatted: string): number {
+  return parseFloat(formatted.replace(/\./g, "").replace(",", ".")) || 0;
+}
+
 export default function CalculadoraForm({
   onCalcular,
   onLimpar,
@@ -86,8 +100,8 @@ export default function CalculadoraForm({
     if (dataInicial && dataFinal && dataInicial >= dataFinal)
       errs.push("Data final deve ser posterior à data inicial.");
 
-    const valor = parseFloat(valorInicial.replace(",", "."));
-    if (!valorInicial || isNaN(valor) || valor <= 0)
+    const valor = parseBRL(valorInicial);
+    if (!valorInicial || valor <= 0)
       errs.push("Valor inicial deve ser maior que zero.");
 
     fluxos.forEach((f, i) => {
@@ -95,8 +109,8 @@ export default function CalculadoraForm({
         errs.push(`Fluxo ${i + 1}: data obrigatória.`);
       else if (dataInicial && dataFinal && (f.data < dataInicial || f.data > dataFinal))
         errs.push(`Fluxo ${i + 1}: data fora do período.`);
-      const v = parseFloat(f.valor.replace(",", "."));
-      if (!f.valor || isNaN(v) || v <= 0)
+      const v = parseBRL(f.valor);
+      if (!f.valor || v <= 0)
         errs.push(`Fluxo ${i + 1}: valor deve ser maior que zero.`);
     });
 
@@ -111,7 +125,7 @@ export default function CalculadoraForm({
 
     const fluxosConvertidos: Fluxo[] = fluxos.map((f) => {
       const [y, m, d] = f.data.split("-").map(Number);
-      const v = parseFloat(f.valor.replace(",", "."));
+      const v = parseBRL(f.valor);
       return {
         data: new Date(y, m - 1, d),
         valor: f.tipo === "resgate" ? -v : v,
@@ -123,7 +137,7 @@ export default function CalculadoraForm({
     const [yf, mf, df] = dataFinal.split("-").map(Number);
 
     onCalcular({
-      valor_inicial: parseFloat(valorInicial.replace(",", ".")),
+      valor_inicial: parseBRL(valorInicial),
       fluxos: fluxosConvertidos,
       data_inicial: new Date(yi, mi - 1, di),
       data_final:   new Date(yf, mf - 1, df),
@@ -174,13 +188,11 @@ export default function CalculadoraForm({
       <div>
         <label className={labelClass}>Valor inicial (R$)</label>
         <input
-          type="number"
-          min="0.01"
-          max="99999999.99"
-          step="0.01"
-          placeholder="10000.00"
+          type="text"
+          inputMode="numeric"
+          placeholder="0,00"
           value={valorInicial}
-          onChange={(e) => setValorInicial(e.target.value)}
+          onChange={(e) => setValorInicial(mascaraBRL(e.target.value))}
           className={inputClass}
         />
       </div>
@@ -229,12 +241,11 @@ export default function CalculadoraForm({
                   <div>
                     {i === 0 && <label className={labelClass}>Valor (R$)</label>}
                     <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      placeholder="5000.00"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0,00"
                       value={f.valor}
-                      onChange={(e) => atualizarFluxo(f.id, "valor", e.target.value)}
+                      onChange={(e) => atualizarFluxo(f.id, "valor", mascaraBRL(e.target.value))}
                       className={inputClass}
                     />
                   </div>
