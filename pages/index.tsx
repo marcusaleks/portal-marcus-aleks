@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Lock, Activity, TrendingUp, ArrowUpRight, Calculator, Download } from 'lucide-react';
+import { Lock, Activity, TrendingUp, Calculator, Download } from 'lucide-react';
 import MadSignature from '../components/MadSignature';
 
 const Sparkline = ({ trend = "up" }: { trend?: string }) => (

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MadSignature from '../components/MadSignature';
 import {
-  Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X,
-  LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink, Wrench, FileSpreadsheet, Calculator
+  Shield, Search, Newspaper, ShieldAlert, ArrowUpRight, X,
+  LogOut, Gavel, Copy, Check, ExternalLink, Wrench, FileSpreadsheet, Calculator
 } from 'lucide-react';
 
 export default function SifazDashboard() {

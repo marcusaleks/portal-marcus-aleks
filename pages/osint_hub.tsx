@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { ExternalLink, Shield, LogOut } from 'lucide-react';
 import MadSignature from '../components/MadSignature';
