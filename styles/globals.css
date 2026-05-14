@@ -38,11 +38,9 @@ input[type=number] { -moz-appearance: textfield; }
 
   @page { size: A4; margin: 0; }
 
-  /* Ocultar tudo exceto o relatório */
-  body > * { display: none !important; }
+  /* Ocultar a UI da tela; exibir só o relatório */
+  .screen-only { display: none !important; }
   .print-hidden { display: none !important; }
-
-  /* Exibir só o relatório */
   .print-report-page { display: flex !important; }
 
   /* Reset geral */

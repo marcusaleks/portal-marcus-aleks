@@ -118,10 +118,10 @@ export default function CalculadoraPage() {
         <meta name="description" content="Compare a evolução de investimentos indexados a SELIC, IPCA e PTAX com múltiplos fluxos de caixa." />
       </Head>
 
-      <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans">
+      {/* ── Relatório de impressão Bloomberg Noir (oculto na tela) ────────── */}
+      {resultado && <PrintReport resultado={resultado} printTime={printTime} />}
 
-        {/* ── Relatório de impressão Bloomberg Noir (oculto na tela) ────────── */}
-        {resultado && <PrintReport resultado={resultado} printTime={printTime} />}
+      <div className="screen-only min-h-screen bg-[#05070a] text-slate-300 font-sans">
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
