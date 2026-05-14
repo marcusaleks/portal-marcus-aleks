@@ -265,7 +265,7 @@ input[type=number] { -moz-appearance: textfield; }
     font-weight: 600;
     margin-bottom: 12px;
   }
-  .pr-chart-wrap { height: 200px; }
+  .pr-chart-wrap { height: 240px; }
   .pr-chart-legend {
     display: flex;
     gap: 20px;

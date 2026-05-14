@@ -105,8 +105,8 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   const points = buildChartPoints(resultado);
   if (points.length < 2) return null;
 
-  const W = 660, H = 180;
-  const PAD_L = 68, PAD_R = 72, PAD_T = 12, PAD_B = 26;
+  const W = 660, H = 220;
+  const PAD_L = 72, PAD_R = 16, PAD_T = 14, PAD_B = 28;
   const chartW = W - PAD_L - PAD_R;
   const chartH = H - PAD_T - PAD_B;
 
@@ -114,10 +114,10 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   const minV = Math.min(...allVals);
   const maxV = Math.max(...allVals);
   const range = maxV - minV || 1;
-  // padding generoso para separar as linhas verticalmente
-  const pad = Math.max(range * 0.25, range * 0.1 + 1);
-  const lo = minV - pad;
-  const hi = maxV + pad;
+  // pad mínimo de 20% do range ou 10% do valor máximo, o que for maior
+  const pad = Math.max(range * 0.20, maxV * 0.10, 1);
+  const lo = minV - pad * 0.6;
+  const hi = maxV + pad * 1.4;
 
   function px(i: number) { return PAD_L + (i / (points.length - 1)) * chartW; }
   function py(v: number) { return PAD_T + chartH - ((v - lo) / (hi - lo)) * chartH; }
@@ -128,10 +128,30 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
 
   const gridVals = Array.from({ length: 5 }, (_, i) => lo + (hi - lo) * (i / 4));
 
-  // X labels: distribuídos uniformemente, máximo 6
   const step = Math.max(1, Math.floor((points.length - 1) / 5));
   const xIdxs = Array.from({ length: Math.ceil(points.length / step) }, (_, i) => Math.min(i * step, points.length - 1));
   if (!xIdxs.includes(points.length - 1)) xIdxs.push(points.length - 1);
+
+  // Ordena índices por valor final desc para posicionar labels sem colisão
+  const finalOrder = (["selic", "ipca", "ptax"] as Idx[])
+    .map((key) => ({
+      key,
+      val: key === "selic" ? resultado.selic.valor_final
+         : key === "ipca"  ? resultado.ipca.valor_final
+         : resultado.ptax.valor_final,
+    }))
+    .sort((a, b) => b.val - a.val);
+
+  // Calcula posições Y dos labels, forçando separação mínima de 13px
+  const MIN_SEP = 13;
+  const labelPositions: Record<string, number> = {};
+  finalOrder.forEach(({ key, val }, rank) => {
+    const rawY = py(val);
+    if (rank === 0) { labelPositions[key] = rawY; return; }
+    const prevKey = finalOrder[rank - 1].key;
+    const prevY = labelPositions[prevKey];
+    labelPositions[key] = Math.max(rawY, prevY + MIN_SEP);
+  });
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
@@ -167,18 +187,27 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
         />
       ))}
 
-      {/* Dots e labels nos valores finais */}
+      {/* Dots no ponto final + labels à direita com separação garantida */}
       {(["selic", "ipca", "ptax"] as Idx[]).map((key) => {
         const last = points[points.length - 1];
-        const x = px(points.length - 1);
-        const y = py(last[key]);
+        const xDot = px(points.length - 1);
+        const yDot = py(last[key]);
+        const yLabel = labelPositions[key] ?? yDot;
         const val = key === "selic" ? resultado.selic.valor_final
                   : key === "ipca"  ? resultado.ipca.valor_final
                   : resultado.ptax.valor_final;
         return (
           <g key={key}>
-            <circle cx={x} cy={y} r="3.5" fill="white" stroke={COR[key].stroke} strokeWidth="2"/>
-            <text x={x + 7} y={y + 3} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, fill: COR[key].stroke, fontWeight: 600 }}>
+            <circle cx={xDot} cy={yDot} r="3.5" fill="white" stroke={COR[key].stroke} strokeWidth="2"/>
+            {/* linha conectando dot ao label quando deslocado */}
+            {Math.abs(yLabel - yDot) > 2 && (
+              <line x1={xDot + 3} y1={yDot} x2={xDot + 8} y2={yLabel} stroke={COR[key].stroke} strokeWidth="0.8" opacity="0.5"/>
+            )}
+            <text
+              x={xDot + 10}
+              y={yLabel + 3}
+              style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, fill: COR[key].stroke, fontWeight: 600 }}
+            >
               {formatBRL(val)}
             </text>
           </g>
