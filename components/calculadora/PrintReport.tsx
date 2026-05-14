@@ -106,7 +106,7 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   if (points.length < 2) return null;
 
   const W = 660, H = 220;
-  const PAD_L = 72, PAD_R = 16, PAD_T = 14, PAD_B = 28;
+  const PAD_L = 72, PAD_R = 110, PAD_T = 14, PAD_B = 28;
   const chartW = W - PAD_L - PAD_R;
   const chartH = H - PAD_T - PAD_B;
 
