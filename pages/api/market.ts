@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
     const results = responses.filter(Boolean);
     res.status(200).json({ results });
-  } catch (e) {
+  } catch {
     res.status(502).json({ error: 'Upstream error' });
   }
 }

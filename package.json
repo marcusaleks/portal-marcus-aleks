@@ -5,14 +5,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "jest"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "iron-session": "^8.0.4",
     "lucide-react": "latest",
     "next": "^16.2.4",
     "react": "latest",
     "react-dom": "latest",
+    "recharts": "^3.8.1",
     "rss-parser": "^3.13.0"
   },
   "overrides": {
@@ -22,13 +25,16 @@
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@tailwindcss/postcss": "latest",
+    "@types/jest": "^30.0.0",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "husky": "^9.1.7",
+    "jest": "^30.4.2",
     "postcss": "^8.5.10",
     "tailwindcss": "latest",
+    "ts-jest": "^29.4.9",
     "typescript": "latest"
   }
 }
