@@ -21,9 +21,9 @@ interface EvolutionChartProps {
 }
 
 const COR: Record<IndiceType, string> = {
-  selic: "#3B82F6",
-  ipca:  "#10B981",
-  ptax:  "#F59E0B",
+  selic: "#3B82F6", // azul
+  ipca:  "#F59E0B", // âmbar
+  ptax:  "#10B981", // verde
 };
 
 function formatBRL(v: number): string {
