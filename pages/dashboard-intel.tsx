@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MadSignature from '../components/MadSignature';
-import { 
-  Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X, 
-  LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink 
+import {
+  Shield, Activity, Search, Newspaper, ShieldAlert, ArrowUpRight, X,
+  LogOut, Gavel, Network, Camera, Copy, Check, ExternalLink, Wrench, FileSpreadsheet, Calculator
 } from 'lucide-react';
 
 export default function SifazDashboard() {
@@ -105,7 +105,7 @@ export default function SifazDashboard() {
             <div><h1 className="text-white font-black text-2xl uppercase tracking-tighter leading-none">SIFAZ <span className="text-blue-500 text-[12px] ml-1">v.0.0.1</span></h1><p className="text-[11px] text-slate-500 font-mono uppercase tracking-[0.3em] font-black mt-1">Sistema de Inteligência Fazendária</p></div>
           </div>
           <nav className="flex gap-4 items-center">
-            {[{ id: 'briefing', label: 'Briefing', icon: <Newspaper size={20}/> }, { id: 'osint', label: 'Dorks', icon: <Search size={20}/> }, { id: 'legislacao', label: 'Legislação', icon: <Gavel size={20}/> }].map(tab => (
+            {[{ id: 'briefing', label: 'Briefing', icon: <Newspaper size={20}/> }, { id: 'osint', label: 'Dorks', icon: <Search size={20}/> }, { id: 'ferramentas', label: 'Ferramentas', icon: <Wrench size={20}/> }, { id: 'legislacao', label: 'Legislação', icon: <Gavel size={20}/> }].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-3 px-6 py-4 rounded text-[14px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}>{tab.icon} {tab.label}</button>
             ))}
             <button onClick={handleLogout} className="flex items-center gap-3 p-4 text-red-600 hover:bg-red-600/10 rounded-xl ml-8 uppercase text-[14px] font-black"><LogOut size={26}/> SAIR</button>
@@ -148,6 +148,49 @@ export default function SifazDashboard() {
                 <div className="bg-black/80 p-6 rounded-2xl border border-slate-800 font-mono text-[14px] text-blue-400 relative"><code className="break-all">{d.code}</code><button onClick={() => copyToClipboard(d.code, d.id)} className="absolute top-4 right-4 text-slate-600 hover:text-white">{copiedId === d.id ? <Check size={24} className="text-emerald-500" /> : <Copy size={24} />}</button></div>
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'ferramentas' && (
+          <div className="space-y-12">
+            <h2 className="text-white font-black text-2xl uppercase tracking-tighter border-b border-slate-800 pb-6 flex items-center gap-4">
+              <Wrench className="text-blue-500" size={28} /> Ferramentas
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+
+              {/* Card — Calculadora de Fluxo Indexado */}
+              <div className="p-10 bg-slate-950/60 border border-slate-800 rounded-[3rem] shadow-2xl flex flex-col gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-600/10 border border-blue-500/20 rounded-2xl flex items-center justify-center">
+                    <Calculator size={22} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-black text-[1.1em] uppercase tracking-tight">Calculadora de Fluxo Indexado</p>
+                    <p className="text-slate-500 text-[13px] font-mono mt-0.5">SELIC · IPCA · PTAX</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-[14px] leading-relaxed">
+                  Simule a correção monetária de valores por SELIC, IPCA e PTAX com múltiplos aportes e resgates. Acesse a calculadora pública ou exporte as tabelas de índices em .xlsx.
+                </p>
+                <div className="flex flex-col gap-3 mt-auto">
+                  <a
+                    href="/calculadora"
+                    target="_blank"
+                    className="flex items-center justify-center gap-3 text-[13px] font-black uppercase tracking-widest text-white border border-slate-700 hover:border-blue-500/40 hover:text-blue-400 rounded-2xl px-6 py-4 transition-all"
+                  >
+                    <ArrowUpRight size={16} /> Abrir Calculadora
+                  </a>
+                  <a
+                    href="/api/market-data-excel"
+                    download
+                    className="flex items-center justify-center gap-3 text-[13px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/50 bg-emerald-500/5 hover:bg-emerald-500/10 rounded-2xl px-6 py-4 transition-all"
+                  >
+                    <FileSpreadsheet size={16} /> Exportar Tabelas (.xlsx)
+                  </a>
+                </div>
+              </div>
+
+            </div>
           </div>
         )}
 

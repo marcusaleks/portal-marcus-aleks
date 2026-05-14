@@ -6,6 +6,7 @@ import MadSignature from "../components/MadSignature";
 import CalculadoraForm from "../components/calculadora/CalculadoraForm";
 import ResultadoCards from "../components/calculadora/ResultadoCards";
 import EvolutionChart from "../components/calculadora/EvolutionChart";
+import PrintReport from "../components/calculadora/PrintReport";
 import { calcularFluxoIndexado } from "../lib/calculadora/index";
 import { isErroCalculadora } from "../lib/types/market-data";
 import type { OutputCalculadora, MarketData, Fluxo } from "../lib/types/market-data";
@@ -29,13 +30,7 @@ interface InputBase {
   data_final: Date;
 }
 
-const DISCLAIMER_CURTO = "⚠ Ferramenta de referência com fins informativos. Resultados podem divergir de portais oficiais. Consulte BCB/IBGE para fins jurídicos, financeiros ou contratuais.";
-
-const DISCLAIMER_COMPLETO = "⚠ Esta calculadora é uma ferramenta de referência com fins exclusivamente informativos. Os resultados podem divergir de portais oficiais em função de diferenças metodológicas, arredondamentos ou datas de corte dos dados. Não nos responsabilizamos por decisões tomadas com base nestes cálculos. Consulte sempre fontes oficiais (BCB, IBGE) para fins jurídicos, financeiros ou contratuais.";
-
-function formatBRL(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+const DISCLAIMER = "⚠ Esta calculadora é uma ferramenta de referência com fins exclusivamente informativos. Os resultados podem divergir de portais oficiais em função de diferenças metodológicas, arredondamentos ou datas de corte dos dados. Não nos responsabilizamos por decisões tomadas com base nestes cálculos. Consulte sempre fontes oficiais (BCB, IBGE) para fins jurídicos, financeiros ou contratuais.";
 
 export default function CalculadoraPage() {
   const [marketData, setMarketData]   = useState<MarketData | null>(null);
@@ -125,40 +120,8 @@ export default function CalculadoraPage() {
 
       <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans">
 
-        {/* ── Cabeçalho exclusivo de impressão (MAD — Seção 2.1 / 2.2) ────── */}
-        <div className="print-only hidden px-6 pt-6 pb-4 border-b-2 border-black mb-2">
-          <div className="flex items-center gap-3 mb-1">
-            <img src="/favicon.png" width={24} height={24} alt="MAD" style={{ borderRadius: 4 }} />
-            <span className="text-base font-black uppercase tracking-widest text-black">
-              Calculadora de Fluxo Indexado
-            </span>
-          </div>
-          <p className="text-xs text-gray-500 font-mono">
-            marcus.aleks.nom.br{printTime ? ` · Impresso em ${printTime}` : ""}
-          </p>
-        </div>
-
-        {/* ── Disclaimer exclusivo de impressão — logo abaixo do título ───── */}
-        {resultado && (
-          <div className="print-only hidden px-6 py-3 mb-2 border border-gray-400 bg-gray-50 rounded">
-            <p className="text-[10px] text-gray-700 leading-relaxed">{DISCLAIMER_COMPLETO}</p>
-          </div>
-        )}
-
-        {/* ── Parâmetros do cálculo — exclusivo de impressão ───────────────── */}
-        {resultado && (
-          <div className="print-only hidden px-6 pb-3 mb-2 border-b border-gray-300">
-            <p className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1">Parâmetros</p>
-            <p className="text-xs text-gray-800 font-mono">
-              {formatBRL(resultado.valor_inicial)} · {resultado.data_inicial.toLocaleDateString("pt-BR")} → {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
-            </p>
-            {resultado.fluxos.length > 0 && (
-              <p className="text-xs text-gray-600 font-mono mt-0.5">
-                Fluxos: {resultado.fluxos.map(f => `${f.valor >= 0 ? "+" : ""}${formatBRL(f.valor)} em ${f.data.toLocaleDateString("pt-BR")}`).join(" · ")}
-              </p>
-            )}
-          </div>
-        )}
+        {/* ── Relatório de impressão Bloomberg Noir (oculto na tela) ────────── */}
+        {resultado && <PrintReport resultado={resultado} printTime={printTime} />}
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
@@ -268,7 +231,7 @@ export default function CalculadoraPage() {
               <div className="print-hidden flex items-start gap-3 border-l-4 border-amber-500/60 bg-amber-500/5 rounded-r-xl px-4 py-3">
                 <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
                 <p className="text-xs text-slate-400 font-bold leading-relaxed">
-                  {DISCLAIMER_CURTO}
+                  {DISCLAIMER}
                 </p>
               </div>
 
