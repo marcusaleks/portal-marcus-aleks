@@ -30,25 +30,34 @@
   /* Exibir elementos exclusivos de impressão */
   .print-only { display: block !important; }
 
-  /* Forçar fundo branco e texto escuro */
-  body { background: #fff !important; color: #000 !important; }
+  /* Forçar fundo branco, texto escuro, margens A4 */
+  @page { size: A4; margin: 12mm 14mm; }
+  body { background: #fff !important; color: #000 !important; font-size: 11px !important; }
 
-  /* Cards de resultado */
-  .print-card {
+  /* Seção de resultado: remover fundo escuro, bordas e sombras */
+  #resultado {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Cards: fundo branco, bordas cinza, texto preto */
+  #resultado > div,
+  #resultado [class*="grid"] > div {
     background: #fff !important;
     border: 1px solid #ccc !important;
     border-radius: 8px !important;
-    color: #000 !important;
     break-inside: avoid;
   }
-  .print-card * { color: #000 !important; }
+  #resultado * { color: #000 !important; border-color: #ccc !important; }
 
-  /* Disclaimer completo */
-  .print-disclaimer-full { display: block !important; }
-  .print-disclaimer-short { display: none !important; }
-
-  /* Garantir que o gráfico não quebre a página */
+  /* Gráfico não quebra página */
   .print-chart { break-inside: avoid; }
+
+  /* Página inteira não quebra em lugares ruins */
+  main { padding: 0 !important; }
 }
 
 @theme {

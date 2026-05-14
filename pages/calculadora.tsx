@@ -29,12 +29,21 @@ interface InputBase {
   data_final: Date;
 }
 
+const DISCLAIMER_CURTO = "⚠ Ferramenta de referência com fins informativos. Resultados podem divergir de portais oficiais. Consulte BCB/IBGE para fins jurídicos, financeiros ou contratuais.";
+
+const DISCLAIMER_COMPLETO = "⚠ Esta calculadora é uma ferramenta de referência com fins exclusivamente informativos. Os resultados podem divergir de portais oficiais em função de diferenças metodológicas, arredondamentos ou datas de corte dos dados. Não nos responsabilizamos por decisões tomadas com base nestes cálculos. Consulte sempre fontes oficiais (BCB, IBGE) para fins jurídicos, financeiros ou contratuais.";
+
+function formatBRL(v: number) {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 export default function CalculadoraPage() {
   const [marketData, setMarketData]   = useState<MarketData | null>(null);
   const [loadError, setLoadError]     = useState<string | null>(null);
   const [resultado, setResultado]     = useState<ResultadoTriplo | null>(null);
   const [erroCalculo, setErroCalculo] = useState<string | null>(null);
   const [carregando, setCarregando]   = useState(false);
+  const [printTime, setPrintTime]     = useState("");
 
   useEffect(() => {
     async function carregar() {
@@ -69,7 +78,6 @@ export default function CalculadoraPage() {
         const rIpca  = calcularFluxoIndexado({ ...base, indice: "ipca"  });
         const rPtax  = calcularFluxoIndexado({ ...base, indice: "ptax"  });
 
-        // Se qualquer índice retornar erro, mostra a primeira mensagem
         if (isErroCalculadora(rSelic)) { setErroCalculo(rSelic.mensagem); setResultado(null); return; }
         if (isErroCalculadora(rIpca))  { setErroCalculo(rIpca.mensagem);  setResultado(null); return; }
         if (isErroCalculadora(rPtax))  { setErroCalculo(rPtax.mensagem);  setResultado(null); return; }
@@ -100,6 +108,14 @@ export default function CalculadoraPage() {
     setErroCalculo(null);
   }
 
+  function handleImprimir() {
+    const agora = new Date();
+    setPrintTime(
+      `${agora.toLocaleDateString("pt-BR")} às ${agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+    );
+    setTimeout(() => window.print(), 50);
+  }
+
   return (
     <>
       <Head>
@@ -109,15 +125,40 @@ export default function CalculadoraPage() {
 
       <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans">
 
-        {/* ── Cabeçalho exclusivo de impressão ───────────────────────────── */}
-        <div className="print-only hidden border-b border-gray-300 pb-4 mb-6 px-6 pt-6">
-          <p className="text-base font-black uppercase tracking-widest text-black">
-            Calculadora de Fluxo Indexado — marcus.aleks.nom.br
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Impresso em {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+        {/* ── Cabeçalho exclusivo de impressão (MAD — Seção 2.1 / 2.2) ────── */}
+        <div className="print-only hidden px-6 pt-6 pb-4 border-b-2 border-black mb-2">
+          <div className="flex items-center gap-3 mb-1">
+            <img src="/favicon.png" width={24} height={24} alt="MAD" style={{ borderRadius: 4 }} />
+            <span className="text-base font-black uppercase tracking-widest text-black">
+              Calculadora de Fluxo Indexado
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 font-mono">
+            marcus.aleks.nom.br{printTime ? ` · Impresso em ${printTime}` : ""}
           </p>
         </div>
+
+        {/* ── Disclaimer exclusivo de impressão — logo abaixo do título ───── */}
+        {resultado && (
+          <div className="print-only hidden px-6 py-3 mb-2 border border-gray-400 bg-gray-50 rounded">
+            <p className="text-[10px] text-gray-700 leading-relaxed">{DISCLAIMER_COMPLETO}</p>
+          </div>
+        )}
+
+        {/* ── Parâmetros do cálculo — exclusivo de impressão ───────────────── */}
+        {resultado && (
+          <div className="print-only hidden px-6 pb-3 mb-2 border-b border-gray-300">
+            <p className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1">Parâmetros</p>
+            <p className="text-xs text-gray-800 font-mono">
+              {formatBRL(resultado.valor_inicial)} · {resultado.data_inicial.toLocaleDateString("pt-BR")} → {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
+            </p>
+            {resultado.fluxos.length > 0 && (
+              <p className="text-xs text-gray-600 font-mono mt-0.5">
+                Fluxos: {resultado.fluxos.map(f => `${f.valor >= 0 ? "+" : ""}${formatBRL(f.valor)} em ${f.data.toLocaleDateString("pt-BR")}`).join(" · ")}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
@@ -211,22 +252,24 @@ export default function CalculadoraPage() {
           {/* ── Resultado ────────────────────────────────────────────────── */}
           {resultado && (
             <section id="resultado" className="p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl space-y-10">
-              <div className="flex justify-between items-center">
+
+              {/* Cabeçalho da seção */}
+              <div className="flex justify-between items-center flex-wrap gap-3">
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">
                   Resultado
                 </h2>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs font-mono text-slate-700">
-                    {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
-                    {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
-                  </span>
-                  <button
-                    onClick={() => window.print()}
-                    className="print-hidden flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-xl px-4 py-2 transition-all"
-                  >
-                    <Printer size={13} /> Imprimir
-                  </button>
-                </div>
+                <span className="text-xs font-mono text-slate-700">
+                  {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
+                  {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
+                </span>
+              </div>
+
+              {/* Disclaimer na tela — visível e legível */}
+              <div className="print-hidden flex items-start gap-3 border-l-4 border-amber-500/60 bg-amber-500/5 rounded-r-xl px-4 py-3">
+                <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                <p className="text-xs text-slate-400 font-bold leading-relaxed">
+                  {DISCLAIMER_CURTO}
+                </p>
               </div>
 
               <ResultadoCards resultado={resultado} />
@@ -238,19 +281,14 @@ export default function CalculadoraPage() {
                 <EvolutionChart resultado={resultado} />
               </div>
 
-              {/* Disclaimer */}
-              <div className="border-t border-slate-800 pt-6 space-y-1">
-                <p className="print-disclaimer-short text-[11px] text-slate-600 font-bold leading-relaxed">
-                  ⚠ Ferramenta de referência com fins informativos. Resultados podem divergir de portais oficiais.
-                  Consulte BCB/IBGE para fins jurídicos, financeiros ou contratuais.
-                </p>
-                <p className="print-disclaimer-full hidden text-[11px] text-slate-600 font-bold leading-relaxed">
-                  ⚠ Esta calculadora é uma ferramenta de referência com fins exclusivamente informativos.
-                  Os resultados podem divergir de portais oficiais em função de diferenças metodológicas,
-                  arredondamentos ou datas de corte dos dados. Não nos responsabilizamos por decisões tomadas
-                  com base nestes cálculos. Consulte sempre fontes oficiais (BCB, IBGE) para fins jurídicos,
-                  financeiros ou contratuais.
-                </p>
+              {/* Botão imprimir — barra dedicada abaixo do gráfico */}
+              <div className="print-hidden border-t border-slate-800 pt-6">
+                <button
+                  onClick={handleImprimir}
+                  className="w-full flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-2xl px-6 py-4 transition-all"
+                >
+                  <Printer size={16} /> Imprimir resultado
+                </button>
               </div>
             </section>
           )}
@@ -270,7 +308,24 @@ export default function CalculadoraPage() {
           </div>
         </footer>
 
-        <div className="print-hidden"><MadSignature /></div>
+        {/* ── Assinatura MAD — obrigatória (Lei MAD Seção 2.2) ────────────── */}
+        <MadSignature />
+
+        {/* ── Rodapé exclusivo de impressão com assinatura MAD ────────────── */}
+        <div className="print-only hidden px-6 pt-4 mt-4 border-t border-gray-300">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/favicon.png" width={16} height={16} alt="MAD" style={{ borderRadius: 3 }} />
+              <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">MAD Developers · marcus.aleks.nom.br</span>
+            </div>
+            {marketData && (
+              <span className="text-[10px] text-gray-400 font-mono">
+                Fontes: BCB SEAD (SELIC · IPCA · PTAX)
+              </span>
+            )}
+          </div>
+        </div>
+
       </div>
     </>
   );
