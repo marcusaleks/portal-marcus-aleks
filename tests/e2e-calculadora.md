@@ -38,19 +38,22 @@
 
 | Campo | Valor |
 |-------|-------|
-| Data inicial | 03/01/2000 |
-| Data final | 01/04/2026 |
+| Data inicial | 02/01/2000 (primeiro DU de jan/2000) |
+| Data final | 01/04/2026 (primeiro DU de abr/2026 — exclusive) |
 | Valor | R$ 1.000,00 |
 | Fluxos adicionais | nenhum |
 
-**No BCB:** aba "IPCA" — mesmo período e valor.
+**No BCB:** aba "IPCA" — janeiro/2000 → março/2026 (mês cheio).
+
+> **Nota:** o BCB calcula apenas meses cheios; nossa calculadora faz pro-rata diário.
+> Para comparação válida, usar sempre datas no primeiro DU de cada mês.
 
 **Resultado esperado (IPCA):** R$ 4.749,97
 
 **Checklist:**
-- [ ] Portal aceita período de 26 anos sem erro
-- [ ] Resultado IPCA = R$ 4.749,97 (≤ R$ 0,02 de diferença)
-- [ ] Gráfico renderiza sem travar (período longo com ~320 pontos mensais)
+- [x] Portal aceita período de 26 anos sem erro
+- [x] Resultado IPCA = R$ 4.749,97 (≤ R$ 0,02 de diferença)
+- [x] Gráfico renderiza sem travar (período longo com ~320 pontos mensais)
 
 ---
 
@@ -70,9 +73,9 @@
 **O que verificar:** a calculadora deve aceitar 07/09/2021 sem erro e usar internamente a cotação de 06/09/2021 (último DU anterior). Comparar valor final PTAX com o BCB.
 
 **Checklist:**
-- [ ] Portal aceita 07/09/2021 sem erro de validação
-- [ ] Resultado PTAX confere com BCB (≤ R$ 0,02 de diferença)
-- [ ] Resultado SELIC e IPCA também exibem valores coerentes para o mesmo período
+- [x] Portal aceita 07/09/2021 sem erro de validação
+- [x] Resultado PTAX confere com BCB (≤ R$ 0,02 de diferença) — manual: R$ 10.087,88 / portal: R$ 10.087,89
+- [x] Resultado SELIC e IPCA também exibem valores coerentes para o mesmo período
 
 ---
 
@@ -95,9 +98,9 @@
 *(R$ 10.000 × fator_ano + R$ 5.000 × fator_semestre)*
 
 **Checklist:**
-- [ ] Portal aceita fluxo adicional sem erro
-- [ ] Resultado SELIC confere com a soma manual calculada no BCB (≤ R$ 0,02)
-- [ ] Gráfico mostra salto no saldo na data do aporte (03/07/2023)
+- [x] Portal aceita fluxo adicional sem erro
+- [x] Resultado SELIC confere com a soma manual calculada no BCB (≤ R$ 0,02) — R$ 16.611,03
+- [x] Gráfico mostra salto no saldo na data do aporte (03/07/2023)
 
 ---
 
@@ -119,10 +122,10 @@
 **O que verificar:** período curto sem erro; IPCA mostra variação pequena (pro-rata dentro do mês); PTAX mostra variação cambial do período.
 
 **Checklist:**
-- [ ] Portal aceita período de 28 dias úteis sem erro
-- [ ] Resultado SELIC ≈ R$ 10.110,84 (≤ R$ 0,02 de diferença)
-- [ ] IPCA exibe valor menor que SELIC (juros altos em jan/2026)
-- [ ] Gráfico renderiza mesmo com poucos pontos de amostragem
+- [x] Portal aceita período de 28 dias úteis sem erro
+- [x] Resultado SELIC ≈ R$ 10.110,84 (≤ R$ 0,02 de diferença)
+- [x] IPCA exibe valor menor que SELIC (juros altos em jan/2026)
+- [x] Gráfico renderiza mesmo com poucos pontos de amostragem
 
 ---
 
@@ -130,11 +133,11 @@
 
 | Caso | Índice principal | Status | Observações |
 |------|-----------------|--------|-------------|
-| 1 — SELIC ano completo | SELIC | ⬜ | |
-| 2 — IPCA período longo | IPCA | ⬜ | |
-| 3 — PTAX com feriado | PTAX | ⬜ | |
-| 4 — SELIC com aporte | SELIC | ⬜ | |
-| 5 — Período curto | SELIC/IPCA/PTAX | ⬜ | |
+| 1 — SELIC ano completo | SELIC | ✅ | R$ 10.275,01 |
+| 2 — IPCA período longo | IPCA | ✅ | BCB mês cheio: jan/2000→mar/2026; datas no primeiro DU do mês |
+| 3 — PTAX com feriado | PTAX | ✅ | Cálculo manual via tabela PTAX BCB; diferença R$ 0,01 |
+| 4 — SELIC com aporte | SELIC | ✅ | Soma dos dois fluxos BCB = portal = R$ 16.611,03 |
+| 5 — Período curto | SELIC/IPCA/PTAX | ✅ | R$ 10.110,84 |
 
 **Legenda:** ✅ Aprovado · ❌ Reprovado · ⬜ Não testado
 

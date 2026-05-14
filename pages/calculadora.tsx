@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw, AlertTriangle, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertTriangle, Printer } from "lucide-react";
 import MadSignature from "../components/MadSignature";
 import CalculadoraForm from "../components/calculadora/CalculadoraForm";
 import ResultadoCards from "../components/calculadora/ResultadoCards";
@@ -109,8 +109,18 @@ export default function CalculadoraPage() {
 
       <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans">
 
+        {/* ── Cabeçalho exclusivo de impressão ───────────────────────────── */}
+        <div className="print-only hidden border-b border-gray-300 pb-4 mb-6 px-6 pt-6">
+          <p className="text-base font-black uppercase tracking-widest text-black">
+            Calculadora de Fluxo Indexado — marcus.aleks.nom.br
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Impresso em {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
+
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
-        <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
+        <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
           <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
             <Link
               href="/"
@@ -135,7 +145,7 @@ export default function CalculadoraPage() {
         </div>
 
         {/* ── Hero ───────────────────────────────────────────────────────── */}
-        <header className="max-w-5xl mx-auto px-6 pt-16 pb-10 border-b border-slate-900/50">
+        <header className="print-hidden max-w-5xl mx-auto px-6 pt-16 pb-10 border-b border-slate-900/50">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-500 mb-4">
             Ferramenta Financeira
           </p>
@@ -151,7 +161,7 @@ export default function CalculadoraPage() {
 
         {/* ── Erro de carga ──────────────────────────────────────────────── */}
         {loadError && (
-          <div className="max-w-5xl mx-auto px-6 mt-8">
+          <div className="print-hidden max-w-5xl mx-auto px-6 mt-8">
             <div className="border border-red-500/30 bg-red-950/20 rounded-2xl p-6 flex items-start gap-4">
               <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
               <div>
@@ -169,7 +179,7 @@ export default function CalculadoraPage() {
 
         {/* ── Formulário ─────────────────────────────────────────────────── */}
         <main className="max-w-5xl mx-auto px-6 py-12 space-y-12">
-          <section className="p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl">
+          <section className="print-hidden p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 mb-8">
               Parâmetros de cálculo
             </h2>
@@ -192,7 +202,7 @@ export default function CalculadoraPage() {
 
           {/* ── Erro de cálculo ──────────────────────────────────────────── */}
           {erroCalculo && (
-            <div className="border border-red-500/30 bg-red-950/20 rounded-2xl p-6 flex items-start gap-4">
+            <div className="print-hidden border border-red-500/30 bg-red-950/20 rounded-2xl p-6 flex items-start gap-4">
               <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
               <p className="text-red-400 font-bold text-sm">{erroCalculo}</p>
             </div>
@@ -205,49 +215,62 @@ export default function CalculadoraPage() {
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">
                   Resultado
                 </h2>
-                <span className="text-xs font-mono text-slate-700">
-                  {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
-                  {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
-                </span>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs font-mono text-slate-700">
+                    {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
+                    {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
+                  </span>
+                  <button
+                    onClick={() => window.print()}
+                    className="print-hidden flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-xl px-4 py-2 transition-all"
+                  >
+                    <Printer size={13} /> Imprimir
+                  </button>
+                </div>
               </div>
 
               <ResultadoCards resultado={resultado} />
 
-              <div>
+              <div className="print-chart">
                 <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">
                   Evolução do saldo
                 </p>
                 <EvolutionChart resultado={resultado} />
+              </div>
+
+              {/* Disclaimer */}
+              <div className="border-t border-slate-800 pt-6 space-y-1">
+                <p className="print-disclaimer-short text-[11px] text-slate-600 font-bold leading-relaxed">
+                  ⚠ Ferramenta de referência com fins informativos. Resultados podem divergir de portais oficiais.
+                  Consulte BCB/IBGE para fins jurídicos, financeiros ou contratuais.
+                </p>
+                <p className="print-disclaimer-full hidden text-[11px] text-slate-600 font-bold leading-relaxed">
+                  ⚠ Esta calculadora é uma ferramenta de referência com fins exclusivamente informativos.
+                  Os resultados podem divergir de portais oficiais em função de diferenças metodológicas,
+                  arredondamentos ou datas de corte dos dados. Não nos responsabilizamos por decisões tomadas
+                  com base nestes cálculos. Consulte sempre fontes oficiais (BCB, IBGE) para fins jurídicos,
+                  financeiros ou contratuais.
+                </p>
               </div>
             </section>
           )}
         </main>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-slate-800">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-700">
-              {marketData && (
-                <>
-                  <span>SELIC: {marketData.selic.source}</span>
-                  <span>IPCA: {marketData.ipca.source}</span>
-                  <span>PTAX: {marketData.ptax.source}</span>
-                  <span>Feriados: {marketData.feriados.source}</span>
-                </>
-              )}
-            </div>
-            {/* TODO: reabilitar após validação E2E */}
-            <button
-              disabled
-              className="ml-auto flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-700 border border-slate-800 rounded-xl px-4 py-2 cursor-not-allowed"
-              title="Em breve"
-            >
-              <FileSpreadsheet size={13} /> Exportar tabelas (.xlsx)
-            </button>
+        <footer className="print-hidden max-w-5xl mx-auto px-6 py-8 border-t border-slate-800">
+          <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-700">
+            {marketData && (
+              <>
+                <span>SELIC: {marketData.selic.source}</span>
+                <span>IPCA: {marketData.ipca.source}</span>
+                <span>PTAX: {marketData.ptax.source}</span>
+                <span>Feriados: {marketData.feriados.source}</span>
+              </>
+            )}
           </div>
         </footer>
 
-        <MadSignature />
+        <div className="print-hidden"><MadSignature /></div>
       </div>
     </>
   );

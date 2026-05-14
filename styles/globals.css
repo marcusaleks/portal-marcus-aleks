@@ -23,6 +23,34 @@
 }
 .mad-signature:hover { opacity: 1; color: #fff; }
 
+@media print {
+  /* Ocultar elementos de navegação e interação */
+  .print-hidden { display: none !important; }
+
+  /* Exibir elementos exclusivos de impressão */
+  .print-only { display: block !important; }
+
+  /* Forçar fundo branco e texto escuro */
+  body { background: #fff !important; color: #000 !important; }
+
+  /* Cards de resultado */
+  .print-card {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    border-radius: 8px !important;
+    color: #000 !important;
+    break-inside: avoid;
+  }
+  .print-card * { color: #000 !important; }
+
+  /* Disclaimer completo */
+  .print-disclaimer-full { display: block !important; }
+  .print-disclaimer-short { display: none !important; }
+
+  /* Garantir que o gráfico não quebre a página */
+  .print-chart { break-inside: avoid; }
+}
+
 @theme {
   --animate-marquee: marquee 280s linear infinite;
 
