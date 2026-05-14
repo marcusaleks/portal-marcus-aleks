@@ -16,7 +16,7 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [Não lançado]
+## [1.0.0] — 2026-05-14
 
 ### Added
 
@@ -29,16 +29,17 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `lib/calculadora/`: motores SELIC, IPCA e PTAX com convenção overnight unificada; orquestrador com 6 códigos de erro tipados
 - `lib/types/market-data.ts`: interfaces TypeScript para todos os JSONs de dados de mercado
 - `components/calculadora/ResultadoCards.tsx`: 3 cards simultâneos (SELIC, IPCA, PTAX) com custo de oportunidade vs SELIC
-- `components/calculadora/EvolutionChart.tsx`: gráfico com 3 linhas usando amostragem real dos motores por mês
+- `components/calculadora/EvolutionChart.tsx`: gráfico Recharts com 3 linhas usando amostragem real dos motores por mês
+- `components/calculadora/PrintReport.tsx`: relatório Bloomberg Noir para impressão (A4) — gráfico SVG com dados reais, cards de resultado, disclaimer e rodapé MAD
 - `pages/api/market-data-excel.ts`: endpoint `GET /api/market-data-excel` — exporta `.xlsx` com 3 abas (ExcelJS)
-- `tests/calculadora.test.ts`: 37 testes (utils, motores, orquestrador) — paridade verificada com Calculadora do Cidadão BCB
+- `tests/calculadora.test.ts`: 39 testes (utils, motores, orquestrador) — paridade verificada com Calculadora do Cidadão BCB
+- Botão **Imprimir resultado** na página da calculadora — aciona `window.print()` com timestamp capturado
+- Aba **Ferramentas** no dashboard restrito (SIFAZ) com acesso à calculadora e download de dados
 - Commitlint + Husky: validação de formato de commits local (Adendo 01)
 - `.github/workflows/mad-compliance.yml`: CI com 5 jobs (build, .mad-project, gitleaks, npm audit, conformidade visual)
 - Branches `dev` e `staging` criadas e publicadas
 - Tags retroativas `v0.0.1` → `v0.4.1`
 - Branch Protection Rules ativas em `main` e `staging`
-- Commitlint + Husky: validação de formato de commits local (Adendo 01)
-- `.github/workflows/mad-compliance.yml`: CI com 5 jobs (build, .mad-project, gitleaks, npm audit, conformidade visual)
 - `.mad-project` com declaração formal de stack `vercel-legacy` e alvo de migração `cloudflare`
 - `secrets.manifest.json` e `.gitleaks.toml`
 - `src/assets/mad-logo.svg` como SVG master da identidade MAD
@@ -46,15 +47,26 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ### Changed
 
+- Título da calculadora: "Calculadora do Marcão!" → **Calculadora de Fluxo Indexado**
 - `pages/calculadora.tsx`: removido seletor de índice — todos os 3 índices calculados simultaneamente; resultado triplo (`ResultadoTriplo`)
-- `components/calculadora/CalculadoraForm.tsx`: removido seletor de índice; grid ajustado
+- `components/calculadora/CalculadoraForm.tsx`: campos de valor migrados de `input[type=number]` para `input[type=text]` com máscara BRL em tempo real
+- `components/calculadora/ResultadoCards.tsx` / `EvolutionChart.tsx`: cores padronizadas — SELIC azul, IPCA âmbar, PTAX verde
+- `styles/globals.css`: isolamento de impressão via `.screen-only` / `.print-report-page`; CSS Bloomberg Noir completo no `@media print`
 - `next` fixado em `^16.2.4` (corrige CVE DoS em Server Components)
 - `postcss` fixado em `^8.5.10` (corrige CVE XSS via `</style>`)
 - `overrides.postcss` adicionado ao `package.json` para forçar versão segura em subdependências
-- CSP no `vercel.json`: remove `unsafe-eval` e referência ao CDN Tailwind removido; `frame-ancestors 'self'` → `'none'`
+- CSP no `vercel.json`: remove `unsafe-eval`; `frame-ancestors 'self'` → `'none'`
 - `_app.tsx`: links de favicon corrigidos para `image/png` + `apple-touch-icon`
 - `vercel.json`: `X-Frame-Options` alterado de `SAMEORIGIN` para `DENY`
 - `.gitignore` expandido com `.env*`, `.next/`, IDE configs, `Administrativos/`
+
+### Fixed
+
+- Motor SELIC: retorna base `1.0` quando data recuada pela convenção overnight cai em 31/12/1999; lança erro explícito para datas anteriores a 03/01/2000
+- Impressão em branco: `PrintReport` movido para fora do wrapper `.screen-only` no JSX root
+- Gráfico SVG do relatório impresso: substituída interpolação linear por cálculo via motores reais (mesma lógica do `EvolutionChart`)
+- Labels dos valores finais no gráfico SVG: separação mínima de 13px garantida por algoritmo com linha guia quando deslocado; `PAD_R` ajustado para 110px evitando corte fora do `viewBox`
+- IDs duplicados em fluxos adicionais do formulário
 
 ### Security
 
