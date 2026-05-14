@@ -1,6 +1,10 @@
 "use client";
 
 import type { ResultadoTriplo } from "../../pages/calculadora";
+import type { IndiceType, MarketData, Fluxo } from "../../lib/types/market-data";
+import { indiceSelicNaData } from "../../lib/calculadora/selic";
+import { indiceIPCANaData } from "../../lib/calculadora/ipca";
+import { indicePTAXNaData } from "../../lib/calculadora/ptax";
 
 interface PrintReportProps {
   resultado: ResultadoTriplo;
@@ -21,7 +25,6 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString("pt-BR");
 }
 
-// SVG inline do logo MAD (igual ao favicon.svg do projeto)
 function MadLogo({ size = 20 }: { size?: number }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width={size} height={size} style={{ flexShrink: 0 }}>
@@ -35,32 +38,51 @@ function MadLogo({ size = 20 }: { size?: number }) {
 }
 
 const COR = {
-  selic: { stroke: "#2563eb", light: "#dbeafe", dark: "#1e3a8a", label: "SELIC", desc: "Taxa Básica de Juros" },
-  ipca:  { stroke: "#d97706", light: "#fef3c7", dark: "#78350f", label: "IPCA",  desc: "Inflação Oficial"    },
-  ptax:  { stroke: "#059669", light: "#d1fae5", dark: "#064e3b", label: "PTAX",  desc: "Câmbio USD/BRL"      },
+  selic: { stroke: "#2563eb", label: "SELIC", desc: "Taxa Básica de Juros" },
+  ipca:  { stroke: "#d97706", label: "IPCA",  desc: "Inflação Oficial"    },
+  ptax:  { stroke: "#059669", label: "PTAX",  desc: "Câmbio USD/BRL"      },
 } as const;
 
 type Idx = keyof typeof COR;
 
-// Gera pontos SVG para o gráfico baseado nos valores reais
+// ── Motores reais (mesma lógica do EvolutionChart) ────────────────────────────
+
+function obterIndice(indice: IndiceType, data: Date, md: MarketData): number {
+  switch (indice) {
+    case "selic": return indiceSelicNaData(data, md.selic, md.feriados);
+    case "ipca":  return indiceIPCANaData(data, md.ipca, md.feriados);
+    case "ptax":  return indicePTAXNaData(data, md.ptax, md.feriados);
+  }
+}
+
+function saldoEm(
+  data: Date,
+  fluxosBase: { data: Date; valor: number }[],
+  indice: IndiceType,
+  md: MarketData
+): number {
+  let indiceFim: number;
+  try { indiceFim = obterIndice(indice, data, md); } catch { return 0; }
+
+  let saldo = 0;
+  for (const f of fluxosBase) {
+    if (f.data > data) break;
+    let indiceIni: number;
+    try { indiceIni = obterIndice(indice, f.data, md); } catch { continue; }
+    if (indiceIni === 0) continue;
+    saldo += f.valor * (indiceFim / indiceIni);
+  }
+  return parseFloat(saldo.toFixed(2));
+}
+
 function buildChartPoints(resultado: ResultadoTriplo) {
-  // Amostragem: data_inicial + primeiros dias de cada mês + data_final
   const { data_inicial, data_final, valor_inicial, fluxos, marketData } = resultado;
 
-  // Importar motores dinamicamente seria circular — usamos os valores já calculados
-  // do detalhamento para reconstruir os pontos mensais via proporção do índice final
-  // Simplificação: usamos os valores finais como âncoras e interpolamos linearmente
-  // para manter o relatório independente dos motores no componente de impressão.
-  // Os valores exatos aparecem nos cards — o gráfico é ilustrativo da tendência.
+  const todosFluxos: { data: Date; valor: number }[] = [
+    { data: data_inicial, valor: valor_inicial },
+    ...fluxos.map((f: Fluxo) => ({ data: f.data, valor: f.valor })),
+  ].sort((a, b) => a.data.getTime() - b.data.getTime());
 
-  const selicFinal = resultado.selic.valor_final;
-  const ipcaFinal  = resultado.ipca.valor_final;
-  const ptaxFinal  = resultado.ptax.valor_final;
-  const base       = valor_inicial;
-
-  const totalMs = data_final.getTime() - data_inicial.getTime();
-
-  // Datas de amostragem
   const datas: Date[] = [new Date(data_inicial)];
   const cursor = new Date(data_inicial.getFullYear(), data_inicial.getMonth() + 1, 1);
   while (cursor < data_final) {
@@ -69,23 +91,22 @@ function buildChartPoints(resultado: ResultadoTriplo) {
   }
   datas.push(new Date(data_final));
 
-  return datas.map((d) => {
-    const t = totalMs > 0 ? (d.getTime() - data_inicial.getTime()) / totalMs : 1;
-    return {
-      label: d.toLocaleDateString("pt-BR", { month: "2-digit", year: "2-digit" }),
-      selic: base + (selicFinal - base) * t,
-      ipca:  base + (ipcaFinal  - base) * t,
-      ptax:  base + (ptaxFinal  - base) * t,
-    };
-  });
+  return datas.map((d) => ({
+    label: d.toLocaleDateString("pt-BR", { month: "2-digit", year: "2-digit" }),
+    selic: saldoEm(d, todosFluxos, "selic", marketData),
+    ipca:  saldoEm(d, todosFluxos, "ipca",  marketData),
+    ptax:  saldoEm(d, todosFluxos, "ptax",  marketData),
+  }));
 }
+
+// ── Gráfico SVG ───────────────────────────────────────────────────────────────
 
 function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   const points = buildChartPoints(resultado);
   if (points.length < 2) return null;
 
-  const W = 660, H = 160;
-  const PAD_L = 60, PAD_R = 60, PAD_T = 10, PAD_B = 24;
+  const W = 660, H = 180;
+  const PAD_L = 68, PAD_R = 72, PAD_T = 12, PAD_B = 26;
   const chartW = W - PAD_L - PAD_R;
   const chartH = H - PAD_T - PAD_B;
 
@@ -93,38 +114,41 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   const minV = Math.min(...allVals);
   const maxV = Math.max(...allVals);
   const range = maxV - minV || 1;
-  const pad = range * 0.12;
-  const lo = minV - pad, hi = maxV + pad;
+  // padding generoso para separar as linhas verticalmente
+  const pad = Math.max(range * 0.25, range * 0.1 + 1);
+  const lo = minV - pad;
+  const hi = maxV + pad;
 
   function px(i: number) { return PAD_L + (i / (points.length - 1)) * chartW; }
   function py(v: number) { return PAD_T + chartH - ((v - lo) / (hi - lo)) * chartH; }
 
-  function polyline(key: Idx) {
+  function polylinePts(key: Idx) {
     return points.map((p, i) => `${px(i)},${py(p[key])}`).join(" ");
   }
 
-  // Grid lines (5 horizontais)
   const gridVals = Array.from({ length: 5 }, (_, i) => lo + (hi - lo) * (i / 4));
 
-  // X labels: primeiro, meio e último
-  const xLabels = [0, Math.floor((points.length - 1) / 2), points.length - 1];
+  // X labels: distribuídos uniformemente, máximo 6
+  const step = Math.max(1, Math.floor((points.length - 1) / 5));
+  const xIdxs = Array.from({ length: Math.ceil(points.length / step) }, (_, i) => Math.min(i * step, points.length - 1));
+  if (!xIdxs.includes(points.length - 1)) xIdxs.push(points.length - 1);
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
-      <style>{`.lb{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:#aaa}`}</style>
+      <style>{`.lb{font-family:'IBM Plex Mono',monospace;font-size:8.5px;fill:#aaa}`}</style>
 
       {/* Grid horizontal */}
       {gridVals.map((v, i) => (
         <g key={i}>
           <line x1={PAD_L} y1={py(v)} x2={W - PAD_R} y2={py(v)} stroke="#eeebe4" strokeWidth="1"/>
-          <text x={PAD_L - 4} y={py(v) + 3} className="lb" textAnchor="end">
+          <text x={PAD_L - 5} y={py(v) + 3} className="lb" textAnchor="end">
             {v.toLocaleString("pt-BR", { notation: "compact", maximumFractionDigits: 1 })}
           </text>
         </g>
       ))}
 
       {/* X labels */}
-      {xLabels.map((i) => (
+      {xIdxs.map((i) => (
         <text key={i} x={px(i)} y={H - 4} className="lb" textAnchor="middle">
           {points[i].label}
         </text>
@@ -134,7 +158,7 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
       {(["selic", "ipca", "ptax"] as Idx[]).map((key, ki) => (
         <polyline
           key={key}
-          points={polyline(key)}
+          points={polylinePts(key)}
           fill="none"
           stroke={COR[key].stroke}
           strokeWidth={key === "selic" ? 2.5 : 2}
@@ -154,7 +178,7 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
         return (
           <g key={key}>
             <circle cx={x} cy={y} r="3.5" fill="white" stroke={COR[key].stroke} strokeWidth="2"/>
-            <text x={x + 6} y={y + 3} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, fill: COR[key].stroke, fontWeight: 600 }}>
+            <text x={x + 7} y={y + 3} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, fill: COR[key].stroke, fontWeight: 600 }}>
               {formatBRL(val)}
             </text>
           </g>
@@ -164,10 +188,12 @@ function ChartSVG({ resultado }: { resultado: ResultadoTriplo }) {
   );
 }
 
+// ── Componente principal ──────────────────────────────────────────────────────
+
 export default function PrintReport({ resultado, printTime }: PrintReportProps) {
-  const selicR = resultado.selic;
-  const ipcaR  = resultado.ipca;
-  const ptaxR  = resultado.ptax;
+  const selicR     = resultado.selic;
+  const ipcaR      = resultado.ipca;
+  const ptaxR      = resultado.ptax;
   const selicFinal = selicR.valor_final;
 
   const indices: { key: Idx; r: typeof selicR }[] = [
@@ -203,9 +229,11 @@ export default function PrintReport({ resultado, printTime }: PrintReportProps) 
           <>
             <span className="pr-params-sep">·</span>
             <span className="pr-params-value">
-              {resultado.fluxos.map(f =>
-                `${f.valor >= 0 ? "+" : ""}${formatBRL(f.valor)} em ${formatDate(f.data)}`
-              ).join(" · ")}
+              {resultado.fluxos.map((f) => {
+                const tipo = f.valor >= 0 ? "Aporte" : "Resgate";
+                const sinal = f.valor >= 0 ? "+" : "−";
+                return `${sinal} ${tipo} ${formatBRL(Math.abs(f.valor))} em ${formatDate(f.data)}`;
+              }).join(" · ")}
             </span>
           </>
         )}
