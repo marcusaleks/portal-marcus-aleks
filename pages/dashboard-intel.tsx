@@ -87,7 +87,7 @@ export default function SifazDashboard() {
       
       {/* REINCLUSÃO DO POPUP ATIF */}
       {showAtifBanner && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-200 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
           <div className="bg-slate-950 border border-blue-500/30 p-16 rounded-[3rem] shadow-[0_0_80px_rgba(37,99,235,0.2)] relative max-w-2xl w-full text-center animate-in zoom-in duration-300">
             <button onClick={() => setShowAtifBanner(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white"><X size={32}/></button>
             <Shield size={80} className="text-blue-500 mx-auto mb-8" />
@@ -98,7 +98,7 @@ export default function SifazDashboard() {
         </div>
       )}
 
-      <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
+      <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-100">
         <div className="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white"><Shield size={28}/></div>

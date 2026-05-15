@@ -124,7 +124,7 @@ export default function CalculadoraPage() {
       <div className="screen-only min-h-screen bg-[#05070a] text-slate-300 font-sans">
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
-        <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
+        <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-100">
           <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
             <Link
               href="/"

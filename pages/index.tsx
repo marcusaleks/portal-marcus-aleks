@@ -95,7 +95,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 font-bold" style={{ fontSize: '1.2em' }}>
-      <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden z-[60] relative">
+      <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden z-60 relative">
          <div className="animate-marquee gap-16 items-center flex whitespace-nowrap" style={{ width: 'max-content' }}>
             {[...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks].map((stock, i) => (
               <div key={i} className="flex items-center gap-6 px-8 border-r border-slate-800/50">
