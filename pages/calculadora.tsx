@@ -41,6 +41,7 @@ export default function CalculadoraPage() {
   const [printTime, setPrintTime]     = useState("");
 
   useEffect(() => {
+    window.history.replaceState(null, '', '/');
     async function carregar() {
       try {
         const [selic, ipca, ptax, feriados] = await Promise.all([
@@ -121,158 +122,170 @@ export default function CalculadoraPage() {
       {/* ── Relatório de impressão Bloomberg Noir (oculto na tela) ────────── */}
       {resultado && <PrintReport resultado={resultado} printTime={printTime} />}
 
-      <div className="screen-only min-h-screen bg-[#05070a] text-slate-300 font-sans">
-
-        {/* ── Navbar ─────────────────────────────────────────────────────── */}
-        <div className="print-hidden border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-[100]">
-          <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-slate-500 hover:text-white transition-all text-sm font-black uppercase tracking-widest"
-            >
-              <ArrowLeft size={16} /> Portal
-            </Link>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-600">
-              Calculadora de Fluxo Indexado
-            </span>
-            <div className="flex items-center gap-2">
-              {marketData && (
-                <span className="text-xs font-mono text-slate-700">
-                  dados: {new Date(marketData.selic.last_updated).toLocaleDateString("pt-BR")}
-                </span>
-              )}
-              {!marketData && !loadError && (
-                <RefreshCw size={14} className="text-slate-700 animate-spin" />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Hero ───────────────────────────────────────────────────────── */}
-        <header className="print-hidden max-w-5xl mx-auto px-6 pt-16 pb-10 border-b border-slate-900/50">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-500 mb-4">
-            Ferramenta Financeira
-          </p>
-          <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic leading-none mb-4">
-            Calculadora<br />
-            <span className="text-slate-600">de Fluxo Indexado</span>
-          </h1>
-          <p className="text-slate-500 font-bold max-w-xl leading-relaxed">
-            Compare a evolução do mesmo capital corrigido por SELIC, IPCA e PTAX.
-            Suporta múltiplos aportes e resgates com capitalização individualizada.
-          </p>
-        </header>
-
-        {/* ── Erro de carga ──────────────────────────────────────────────── */}
-        {loadError && (
-          <div className="print-hidden max-w-5xl mx-auto px-6 mt-8">
-            <div className="border border-red-500/30 bg-red-950/20 rounded-2xl p-6 flex items-start gap-4">
-              <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-red-400 font-bold text-sm">{loadError}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-2 text-xs font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-all"
+      <div className="screen-only min-h-screen bg-[#eef3fd] dark:bg-slate-950 text-[#04101e] dark:text-slate-100 transition-colors duration-300 font-mono">
+        <div className="max-w-7xl mx-auto px-2 md:px-4 py-4 md:py-8">
+          
+          <div className="bg-white dark:bg-slate-900 border border-[#004ac6]/25 dark:border-slate-800 rounded-lg overflow-hidden flex flex-col shadow-xl">
+            {/* ── Navbar ─────────────────────────────────────────────────────── */}
+            <div className="print-hidden flex flex-row items-center justify-between gap-1.5 sm:gap-2 md:gap-3 px-2 sm:px-3.5 py-2 bg-[#f5f9ff] dark:bg-slate-950 border-b border-[#004ac6]/35 dark:border-slate-800 w-full select-none sticky top-0 z-[100]">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Link
+                  href="/"
+                  className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider text-[#004ac6] dark:text-blue-400 border border-[#004ac6]/40 dark:border-blue-500/40 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded hover:bg-[#004ac6]/10 transition-all"
                 >
-                  Recarregar →
-                </button>
+                  <ArrowLeft size={14} /> <span className="hidden sm:inline">Portal</span>
+                </Link>
+                <span className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold text-[#004ac6] dark:text-[#5ea2ff] tracking-widest uppercase">
+                  Calculadora de Fluxo
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 font-bold uppercase select-none">
+                    <span className="hidden sm:inline">ATUALIZADO:</span>
+                    <span className="inline sm:hidden">ATT:</span>
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#04101e] dark:text-slate-300 font-bold uppercase select-none">
+                    {marketData ? new Date(marketData.selic.last_updated).toLocaleDateString("pt-BR") : "..."}
+                  </span>
+                </div>
+                {!marketData && !loadError && (
+                  <RefreshCw size={12} className="text-[#004ac6] dark:text-blue-400 animate-spin" />
+                )}
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ── Formulário ─────────────────────────────────────────────────── */}
-        <main className="max-w-5xl mx-auto px-6 py-12 space-y-12">
-          <section className="print-hidden p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl">
-            <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 mb-8">
-              Parâmetros de cálculo
-            </h2>
-            {!marketData && !loadError ? (
-              <div className="flex items-center gap-3 text-slate-600 font-bold text-sm py-8">
-                <RefreshCw size={16} className="animate-spin" />
-                Carregando dados de mercado...
+            {/* ── Hero ───────────────────────────────────────────────────────── */}
+            <header className="print-hidden max-w-5xl mx-auto px-6 pt-12 pb-8 border-b border-[#004ac6]/15 dark:border-slate-800">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#004ac6] dark:text-blue-500 mb-3">
+                Ferramenta Financeira
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black text-[#04101e] dark:text-white uppercase tracking-tighter italic leading-none mb-4">
+                Calculadora<br />
+                <span className="text-[#6a8db0] dark:text-slate-500">de Fluxo Indexado</span>
+              </h1>
+              <p className="text-[#294c72] dark:text-slate-400 font-bold text-sm max-w-xl leading-relaxed">
+                Compare a evolução do mesmo capital corrigido por SELIC, IPCA e PTAX.
+                Suporta múltiplos aportes e resgates com capitalização individualizada.
+              </p>
+            </header>
+
+            {/* ── Erro de carga ──────────────────────────────────────────────── */}
+            {loadError && (
+              <div className="print-hidden max-w-5xl mx-auto px-6 mt-8">
+                <div className="border border-red-500/30 bg-red-50 dark:bg-red-950/20 rounded-xl p-6 flex items-start gap-4">
+                  <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-red-600 dark:text-red-400 font-bold text-sm">{loadError}</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-2 text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition-all border border-red-500/30 px-3 py-1 rounded"
+                    >
+                      Recarregar →
+                    </button>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <CalculadoraForm
-                onCalcular={handleCalcular}
-                onLimpar={handleLimpar}
-                dataMin={dataMin}
-                dataMax={dataMax}
-                carregando={carregando}
-                resultado={resultado}
-              />
             )}
-          </section>
 
-          {/* ── Erro de cálculo ──────────────────────────────────────────── */}
-          {erroCalculo && (
-            <div className="print-hidden border border-red-500/30 bg-red-950/20 rounded-2xl p-6 flex items-start gap-4">
-              <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
-              <p className="text-red-400 font-bold text-sm">{erroCalculo}</p>
-            </div>
-          )}
-
-          {/* ── Resultado ────────────────────────────────────────────────── */}
-          {resultado && (
-            <section id="resultado" className="p-8 md:p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] shadow-xl space-y-10">
-
-              {/* Cabeçalho da seção */}
-              <div className="flex justify-between items-center flex-wrap gap-3">
-                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">
-                  Resultado
+            {/* ── Formulário ─────────────────────────────────────────────────── */}
+            <main className="max-w-5xl mx-auto px-6 py-12 space-y-12">
+              <section className="print-hidden p-6 md:p-10 border border-[#004ac6]/15 dark:border-slate-800 bg-[#f8fbff] dark:bg-slate-900/50 rounded-2xl shadow-sm">
+                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6a8db0] dark:text-slate-500 mb-6">
+                  Parâmetros de cálculo
                 </h2>
-                <span className="text-xs font-mono text-slate-700">
-                  {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
-                  {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
-                </span>
+                {!marketData && !loadError ? (
+                  <div className="flex items-center gap-3 text-[#294c72] dark:text-slate-400 font-bold text-sm py-8">
+                    <RefreshCw size={16} className="animate-spin text-[#004ac6] dark:text-blue-500" />
+                    Carregando dados de mercado...
+                  </div>
+                ) : (
+                  <CalculadoraForm
+                    onCalcular={handleCalcular}
+                    onLimpar={handleLimpar}
+                    dataMin={dataMin}
+                    dataMax={dataMax}
+                    carregando={carregando}
+                    resultado={resultado}
+                  />
+                )}
+              </section>
+
+              {/* ── Erro de cálculo ──────────────────────────────────────────── */}
+              {erroCalculo && (
+                <div className="print-hidden border border-red-500/30 bg-red-50 dark:bg-red-950/20 rounded-xl p-6 flex items-start gap-4 shadow-sm">
+                  <AlertTriangle size={20} className="text-red-500 mt-0.5 shrink-0" />
+                  <p className="text-red-600 dark:text-red-400 font-bold text-sm">{erroCalculo}</p>
+                </div>
+              )}
+
+              {/* ── Resultado ────────────────────────────────────────────────── */}
+              {resultado && (
+                <section id="resultado" className="p-6 md:p-10 border border-[#004ac6]/25 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-xl space-y-8 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#004ac6] to-[#5ea2ff] opacity-80"></div>
+                  
+                  {/* Cabeçalho da seção */}
+                  <div className="flex justify-between items-center flex-wrap gap-3">
+                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6a8db0] dark:text-slate-500">
+                      Resultado
+                    </h2>
+                    <span className="text-[10px] font-bold text-[#294c72] dark:text-slate-400 tracking-wider bg-[#f5f9ff] dark:bg-slate-950 px-2.5 py-1 rounded border border-[#004ac6]/15 dark:border-slate-800">
+                      {resultado.data_inicial.toLocaleDateString("pt-BR")} →{" "}
+                      {resultado.data_final.toLocaleDateString("pt-BR")} · {resultado.dias_uteis} d.u.
+                    </span>
+                  </div>
+
+                  {/* Disclaimer na tela */}
+                  <div className="print-hidden flex items-start gap-3 border border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 rounded-xl px-4 py-3 shadow-sm">
+                    <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-[10px] text-amber-800 dark:text-amber-200/80 font-bold leading-relaxed">
+                      {DISCLAIMER}
+                    </p>
+                  </div>
+
+                  <ResultadoCards resultado={resultado} />
+
+                  <div className="print-chart pt-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#294c72] dark:text-slate-400 mb-4 px-1 border-l-2 border-[#004ac6] dark:border-blue-500 pl-2">
+                      Evolução do saldo
+                    </p>
+                    <div className="bg-white dark:bg-slate-950 border border-[#004ac6]/10 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+                      <EvolutionChart resultado={resultado} />
+                    </div>
+                  </div>
+
+                  {/* Botão imprimir */}
+                  <div className="print-hidden border-t border-[#004ac6]/15 dark:border-slate-800 pt-6 mt-4">
+                    <button
+                      onClick={handleImprimir}
+                      className="w-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-white bg-[#004ac6] hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-lg px-6 py-3.5 transition-all shadow-md active:scale-[0.99]"
+                    >
+                      <Printer size={16} /> Imprimir resultado detalhado
+                    </button>
+                  </div>
+                </section>
+              )}
+            </main>
+
+            {/* ── Footer ─────────────────────────────────────────────────────── */}
+            <footer className="print-hidden px-4 py-4 border-t border-[#004ac6]/25 dark:border-slate-800 bg-[#f5f9ff] dark:bg-slate-950">
+              <div className="flex flex-wrap justify-center gap-4 text-[9px] font-bold text-[#6a8db0] dark:text-slate-500 uppercase tracking-widest">
+                {marketData && (
+                  <>
+                    <span>SELIC: {marketData.selic.source}</span>
+                    <span>IPCA: {marketData.ipca.source}</span>
+                    <span>PTAX: {marketData.ptax.source}</span>
+                  </>
+                )}
               </div>
-
-              {/* Disclaimer na tela — visível e legível */}
-              <div className="print-hidden flex items-start gap-3 border-l-4 border-amber-500/60 bg-amber-500/5 rounded-r-xl px-4 py-3">
-                <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
-                <p className="text-xs text-slate-400 font-bold leading-relaxed">
-                  {DISCLAIMER}
-                </p>
-              </div>
-
-              <ResultadoCards resultado={resultado} />
-
-              <div className="print-chart">
-                <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">
-                  Evolução do saldo
-                </p>
-                <EvolutionChart resultado={resultado} />
-              </div>
-
-              {/* Botão imprimir — barra dedicada abaixo do gráfico */}
-              <div className="print-hidden border-t border-slate-800 pt-6">
-                <button
-                  onClick={handleImprimir}
-                  className="w-full flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-2xl px-6 py-4 transition-all"
-                >
-                  <Printer size={16} /> Imprimir resultado
-                </button>
-              </div>
-            </section>
-          )}
-        </main>
-
-        {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="print-hidden max-w-5xl mx-auto px-6 py-8 border-t border-slate-800">
-          <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-700">
-            {marketData && (
-              <>
-                <span>SELIC: {marketData.selic.source}</span>
-                <span>IPCA: {marketData.ipca.source}</span>
-                <span>PTAX: {marketData.ptax.source}</span>
-                <span>Feriados: {marketData.feriados.source}</span>
-              </>
-            )}
+            </footer>
           </div>
-        </footer>
 
         {/* ── Assinatura MAD — obrigatória (Lei MAD Seção 2.2) ────────────── */}
-        <MadSignature />
+        <div className="mt-6">
+          <MadSignature />
+        </div>
 
         {/* ── Rodapé exclusivo de impressão com assinatura MAD ────────────── */}
         <div className="print-only hidden px-6 pt-4 mt-4 border-t border-gray-300">
@@ -288,7 +301,6 @@ export default function CalculadoraPage() {
             )}
           </div>
         </div>
-
       </div>
     </>
   );

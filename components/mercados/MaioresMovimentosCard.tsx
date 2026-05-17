@@ -3,6 +3,7 @@ import React from 'react';
 type MovementItem = {
   ticker: string;
   name: string;
+  price?: string;
   change: string;
   isUp: boolean;
 };
@@ -12,19 +13,19 @@ type MaioresMovimentosCardProps = {
 };
 
 const defaultAltas: MovementItem[] = [
-  { ticker: 'BRAV3', name: 'Brava Energia', change: '+2,36%', isUp: true },
-  { ticker: 'PETR3', name: 'Petrobras ON', change: '+1,58%', isUp: true },
-  { ticker: 'RECV3', name: 'PetroReconcavo', change: '+0,83%', isUp: true },
-  { ticker: 'PETR4', name: 'Petrobras PN', change: '+0,91%', isUp: true },
-  { ticker: 'PRIO3', name: 'PRIO', change: '+0,22%', isUp: true }
+  { ticker: 'BRAV3', name: 'Brava Energia', price: 'R$ 18,50', change: '+2,36%', isUp: true },
+  { ticker: 'PETR3', name: 'Petrobras ON', price: 'R$ 38,10', change: '+1,58%', isUp: true },
+  { ticker: 'RECV3', name: 'PetroReconcavo', price: 'R$ 21,30', change: '+0,83%', isUp: true },
+  { ticker: 'PETR4', name: 'Petrobras PN', price: 'R$ 35,45', change: '+0,91%', isUp: true },
+  { ticker: 'PRIO3', name: 'PRIO', price: 'R$ 48,90', change: '+0,22%', isUp: true }
 ];
 
 const defaultQuedas: MovementItem[] = [
-  { ticker: 'CSAN3', name: 'Cosan', change: '-7,10%', isUp: false },
-  { ticker: 'CSNA3', name: 'CSN', change: '-6,00%', isUp: false },
-  { ticker: 'USIM5', name: 'Usiminas', change: '-5,56%', isUp: false },
-  { ticker: 'VALE3', name: 'Vale', change: '-2,09%', isUp: false },
-  { ticker: 'BRAP4', name: 'Bradespar PN', change: '-2,54%', isUp: false }
+  { ticker: 'CSAN3', name: 'Cosan', price: 'R$ 12,30', change: '-7,10%', isUp: false },
+  { ticker: 'CSNA3', name: 'CSN', price: 'R$ 11,20', change: '-6,00%', isUp: false },
+  { ticker: 'USIM5', name: 'Usiminas', price: 'R$ 6,80', change: '-5,56%', isUp: false },
+  { ticker: 'VALE3', name: 'Vale', price: 'R$ 61,40', change: '-2,09%', isUp: false },
+  { ticker: 'BRAP4', name: 'Bradespar PN', price: 'R$ 19,80', change: '-2,54%', isUp: false }
 ];
 
 export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardProps) {
@@ -46,6 +47,7 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
       maioresAltas = sortedStocks.slice(0, 5).map(s => ({
         ticker: s.symbol,
         name: s.longName ?? s.shortName ?? 'Ativo',
+        price: `R$ ${s.regularMarketPrice?.toFixed(2).replace('.', ',')}`,
         change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
         isUp: s.regularMarketChangePercent >= 0
       }));
@@ -55,6 +57,7 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
       maioresQuedas = reverseSorted.slice(0, 5).map(s => ({
         ticker: s.symbol,
         name: s.longName ?? s.shortName ?? 'Ativo',
+        price: `R$ ${s.regularMarketPrice?.toFixed(2).replace('.', ',')}`,
         change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
         isUp: s.regularMarketChangePercent >= 0
       }));
@@ -62,14 +65,17 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
   }
 
   const renderItem = (item: MovementItem, idx: number) => (
-    <div key={idx} className="flex items-center justify-between py-1.5 border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
-      <div className="flex flex-col">
-        <span className="text-xs font-bold text-[#04101e] dark:text-slate-200">{item.ticker}</span>
-        <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold max-w-[120px] truncate">{item.name}</span>
+    <div key={idx} className="flex items-center w-full py-1.5 border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="text-xs font-bold text-[#04101e] dark:text-slate-200 leading-tight block truncate">{item.ticker}</span>
+        <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold uppercase tracking-wider block mt-0.5 truncate">{item.name}</span>
       </div>
-      <span className={`text-xs font-bold ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+      <div className="text-right text-xs font-bold text-[#04101e] dark:text-slate-200 px-1 w-[30%] flex-shrink-0">
+        {item.price || '--'}
+      </div>
+      <div className={`text-right text-xs font-bold pl-1 w-[25%] flex-shrink-0 ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
         {item.change}
-      </span>
+      </div>
     </div>
   );
 
