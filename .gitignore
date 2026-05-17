@@ -48,3 +48,9 @@ SECURITY_REPORT.md
 
 # Favicon alternativo não publicado
 favicon-MAD.svg
+
+# Arquivos de sessão e rascunhos administrativos locais
+CALCULADORA_SELIC.md
+SESSAO.md
+public/data/selic1178.json
+scripts/gerar-selic-indice.js

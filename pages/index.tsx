@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Lock } from 'lucide-react';
 import MadSignature from '../components/MadSignature';
