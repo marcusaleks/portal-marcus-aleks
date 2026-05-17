@@ -1,66 +1,135 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Lock, Activity, TrendingUp, Calculator, Download } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import MadSignature from '../components/MadSignature';
 
-const Sparkline = ({ trend = "up" }: { trend?: string }) => (
-  <svg className="w-16 h-8" viewBox="0 0 48 24" fill="none">
-    <path d={trend === "up" ? "M0 20L10 16L20 18L30 8L40 10L48 2" : "M0 2L10 8L20 6L30 18L40 16L48 22"} 
-          className={trend === "up" ? "stroke-emerald-500" : "stroke-red-500"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-type Stock = { symbol: string; regularMarketPrice: number; regularMarketChangePercent: number };
+// Import our new subcomponents
+import Ticker from '../components/mercados/Ticker';
+import IbovespaCard from '../components/mercados/IbovespaCard';
+import BolsasMundiaisCard from '../components/mercados/BolsasMundiaisCard';
+import CambioCriptoCard from '../components/mercados/CambioCriptoCard';
+import CurvaDICard from '../components/mercados/CurvaDICard';
+import MaioresMovimentosCard from '../components/mercados/MaioresMovimentosCard';
+import FerramentasCard from '../components/mercados/FerramentasCard';
 
 export default function Home() {
-  const [market, setMarket] = useState<{ usd: string; usdChange: string; selic: string; ibov: string; ibovChange: string; stocks: Stock[] }>({ usd: '...', usdChange: '...', selic: '...', ibov: '...', ibovChange: '...', stocks: [] });
-  const [nextCopom, setNextCopom] = useState('...');
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdatedStr, setLastUpdatedStr] = useState('...');
+  const [currentDateStr, setCurrentDateStr] = useState('...');
+  const [currentTimeOnlyStr, setCurrentTimeOnlyStr] = useState('...');
+  const [countdown, setCountdown] = useState(180); // 3 minutes countdown
+  const [darkMode, setDarkMode] = useState(false);
+  const [selic, setSelic] = useState('14,40%');
+  const [nextCopom, setNextCopom] = useState('17/06/2026');
 
-  useEffect(() => {
-    const fetchMarket = async () => {
-      const [resCur, resSelic, resMarket] = await Promise.allSettled([
-        fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r => r.json()),
-        fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json').then(r => r.json()),
-        fetch('/api/market').then(r => r.json()),
-      ]);
+  const fetchData = async () => {
+    let json: any = null;
+    try {
+      const res = await fetch('/api/market');
+      if (!res.ok) throw new Error('API failed');
+      json = await res.json();
+    } catch (e) {
+      console.error('Error fetching market details:', e);
+    } finally {
+      setLoading(false);
+    }
 
-      setMarket(prev => {
-        const next = { ...prev };
+    // Fetch live currencies and cryptos client-side directly from AwesomeAPI!
+    try {
+      const awesomeApiUrl = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,BTC-BRL,ETH-BRL,XRP-BRL,SOL-BRL,BTC-USD,ETH-USD,SOL-USD,XRP-USD,BNB-BRL,BNB-USD';
+      const resCur = await fetch(awesomeApiUrl);
+      if (resCur.ok) {
+        const currenciesData = await resCur.json();
+        const mergedCurrencies = {
+          USD: {
+            bid: currenciesData.USDBRL?.bid ?? '5.74',
+            pctChange: currenciesData.USDBRL?.pctChange ?? '0.41',
+            high: currenciesData.USDBRL?.high ?? '5.75',
+            low: currenciesData.USDBRL?.low ?? '5.71'
+          },
+          EUR: {
+            bid: currenciesData.EURBRL?.bid ?? '6.52',
+            pctChange: currenciesData.EURBRL?.pctChange ?? '0.18',
+            high: currenciesData.EURBRL?.high ?? '6.54',
+            low: currenciesData.EURBRL?.low ?? '6.49'
+          },
+          GBP: {
+            bid: currenciesData.GBPBRL?.bid ?? '7.63',
+            pctChange: currenciesData.GBPBRL?.pctChange ?? '0.23',
+            high: currenciesData.GBPBRL?.high ?? '7.65',
+            low: currenciesData.GBPBRL?.low ?? '7.60'
+          }
+        };
 
-        if (resCur.status === 'fulfilled') {
-          try {
-            next.usd = parseFloat(resCur.value.USDBRL.bid).toFixed(4).replace('.', ',');
-            next.usdChange = (parseFloat(resCur.value.USDBRL.pctChange) > 0 ? '+' : '') + resCur.value.USDBRL.pctChange + '%';
-          } catch {}
+        const mergedCryptos = {
+          BTC: {
+            usd: currenciesData.BTCUSD?.bid ?? '104234',
+            brl: currenciesData.BTCBRL?.bid ?? '598142',
+            pctChange: currenciesData.BTCUSD?.pctChange ?? '2.45'
+          },
+          ETH: {
+            usd: currenciesData.ETHUSD?.bid ?? '2923',
+            brl: currenciesData.ETHBRL?.bid ?? '16778',
+            pctChange: currenciesData.ETHUSD?.pctChange ?? '1.23'
+          },
+          BNB: {
+            usd: currenciesData.BNBUSD?.bid ?? '623',
+            brl: currenciesData.BNBBRL?.bid ?? '3576',
+            pctChange: currenciesData.BNBUSD?.pctChange ?? '0.89'
+          },
+          XRP: {
+            usd: currenciesData.XRPUSD?.bid ?? '2.45',
+            brl: currenciesData.XRPBRL?.bid ?? '14.06',
+            pctChange: currenciesData.XRPUSD?.pctChange ?? '-1.23'
+          },
+          SOL: {
+            usd: currenciesData.SOLUSD?.bid ?? '178',
+            brl: currenciesData.SOLBRL?.bid ?? '1021',
+            pctChange: currenciesData.SOLUSD?.pctChange ?? '3.45'
+          }
+        };
+
+        if (json) {
+          json.currencies = mergedCurrencies;
+          json.cryptos = mergedCryptos;
+        } else {
+          json = {
+            stocks: [],
+            currencies: mergedCurrencies,
+            cryptos: mergedCryptos
+          };
         }
+      }
+    } catch (err) {
+      console.error('Error fetching live currencies client-side:', err);
+    }
 
-        if (resSelic.status === 'fulfilled') {
-          try {
-            next.selic = resSelic.value[0].valor.replace('.', ',');
-          } catch {}
+    if (json) {
+      setData(json);
+      const now = new Date();
+      const padding = (n: number) => n.toString().padStart(2, '0');
+      setLastUpdatedStr(`${padding(now.getHours())}:${padding(now.getMinutes())}`);
+    }
+
+    // Fetch Selic directly from BCB SGS
+    try {
+      const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
+      if (resSelic.ok) {
+        const dataSelic = await resSelic.json();
+        if (dataSelic?.[0]?.valor) {
+          setSelic(dataSelic[0].valor.replace('.', ',') + '%');
         }
+      }
+    } catch (err) {
+      console.error('Error fetching Selic Efetiva:', err);
+    }
 
-        if (resMarket.status === 'fulfilled') {
-          try {
-            const results: Stock[] = resMarket.value.results || [];
-            const ibov = results.find(r => r.symbol === '^BVSP');
-            if (ibov) {
-              next.ibov = ibov.regularMarketPrice.toLocaleString('pt-BR');
-              next.ibovChange = (ibov.regularMarketChangePercent > 0 ? '+' : '') + ibov.regularMarketChangePercent.toFixed(2) + '%';
-            }
-            next.stocks = results.filter(r => r.symbol !== '^BVSP').sort((a, b) => a.symbol.localeCompare(b.symbol));
-          } catch {}
-        }
-
-        return next;
-      });
-    };
-
-    const fetchCopom = async () => {
-      try {
-        const res = await fetch('/copom.md');
-        if (!res.ok) throw new Error('Not found');
-        const text = await res.text();
+    // Fetch COPOM next meeting date from public/copom.md
+    try {
+      const resCopom = await fetch('/copom.md');
+      if (resCopom.ok) {
+        const text = await resCopom.text();
         const lines = text.split('\n');
         let nextDate = 'A definir';
         const now = Date.now();
@@ -77,72 +146,209 @@ export default function Home() {
           }
         }
         setNextCopom(nextDate);
-      } catch (error) {
-        console.error("Erro ao carregar dados do COPOM local:", error);
       }
-    };
+    } catch (err) {
+      console.error('Error fetching COPOM schedule:', err);
+    }
+  };
 
-    fetchMarket();
-    fetchCopom();
+  // 1. Initial Fetch and countdown loop
+  useEffect(() => {
+    fetchData();
 
-    const interval = setInterval(fetchMarket, 3 * 60 * 1000);
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          fetchData();
+          return 180; // Reset to 3 minutes
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    const onVisible = () => { if (document.visibilityState === 'visible') fetchMarket(); };
-    document.addEventListener('visibilitychange', onVisible);
-
-    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
+    return () => clearInterval(interval);
   }, []);
 
+  // 2. Real-time Ticking Clock
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const padding = (n: number) => n.toString().padStart(2, '0');
+      const dateStr = `${padding(now.getDate())}/${padding(now.getMonth() + 1)}/${now.getFullYear()}`;
+      const timeStr = `${padding(now.getHours())}:${padding(now.getMinutes())}:${padding(now.getSeconds())}`;
+      setCurrentDateStr(dateStr);
+      setCurrentTimeOnlyStr(timeStr);
+    };
+
+    updateTime();
+    const clockInterval = setInterval(updateTime, 1000);
+    return () => clearInterval(clockInterval);
+  }, []);
+
+  // 3. Persist and apply theme
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('mad-theme');
+    if (storedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setDarkMode(prev => {
+      const newVal = !prev;
+      localStorage.setItem('mad-theme', newVal ? 'dark' : 'light');
+      if (newVal) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return newVal;
+    });
+  };
+
+  // Format countdown as M:SS
+  const formatCountdown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Placeholder data for initial load/fallback
+  const fallbackData = {
+    stocks: [],
+    currencies: null,
+    cryptos: null
+  };
+
+  const displayData = data ?? fallbackData;
+  const ibovStock = displayData.stocks?.find((s: any) => s.symbol === '^BVSP');
+
   return (
-    <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-blue-500/30 font-bold" style={{ fontSize: '1.2em' }}>
-      <div className="w-full bg-slate-950 border-b border-slate-800 py-8 overflow-hidden z-[60] relative">
-         <div className="animate-marquee gap-16 items-center flex whitespace-nowrap" style={{ width: 'max-content' }}>
-            {[...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks, ...market.stocks].map((stock, i) => (
-              <div key={i} className="flex items-center gap-6 px-8 border-r border-slate-800/50">
-                <span className="text-[18px] font-black text-white">{stock.symbol}</span>
-                <span className="text-[18px] font-mono text-slate-400">R$ {stock.regularMarketPrice.toFixed(2)}</span>
-                <span className={`text-[16px] font-bold ${stock.regularMarketChangePercent >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>{stock.regularMarketChangePercent >= 0 ? '▲' : '▼'} {Math.abs(stock.regularMarketChangePercent).toFixed(2)}%</span>
+    <div className={darkMode ? 'dark bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300' : 'bg-[#eef3fd] text-[#04101e] min-h-screen transition-colors duration-300'}>
+      <div className="max-w-7xl mx-auto px-2 md:px-4 py-4 md:py-8">
+        
+        {/* Mockup Container */}
+        <div className="bg-white dark:bg-slate-900 border border-[#004ac6]/25 dark:border-slate-800 rounded-lg overflow-hidden flex flex-col font-mono shadow-xl">
+          
+          {/* Header */}
+          <div className="flex flex-row items-center justify-between gap-1.5 sm:gap-2 md:gap-3 px-2 sm:px-3.5 py-2 bg-[#f5f9ff] dark:bg-slate-950 border-b border-[#004ac6]/35 dark:border-slate-800 w-full overflow-hidden flex-nowrap select-none">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              <div className="flex items-center gap-1 select-none shrink-0">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="32" height="32" rx="6" fill="#004ac6"/>
+                  <path d="M5 21 L5 6 L10 6 L16 16 L22 6 L27 6 L27 21 L23 21 L23 11 L17.5 20 L14.5 20 L9 11 L9 21 Z" fill="#fff"/>
+                  <text fontFamily="Arial,sans-serif" fontSize="6.2" fontWeight="700" fill="#fff" y="27">
+                    <tspan x="5">m</tspan>
+                    <tspan x="14.4">a</tspan>
+                    <tspan x="23.3">d</tspan>
+                  </text>
+                </svg>
+                <span className="text-[9px] sm:text-xs md:text-sm lg:text-base font-bold text-[#004ac6] dark:text-[#5ea2ff]">marcus.aleks</span>
               </div>
-            ))}
-         </div>
-      </div>
+              <span className="text-[9px] sm:text-xs md:text-sm lg:text-base font-bold tracking-wider text-[#004ac6] dark:text-blue-400 border border-[#004ac6]/40 dark:border-blue-500/40 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded uppercase select-none shrink-0">
+                <span className="hidden lg:inline">COTAÇÕES DO MERCADO FINANCEIRO: </span>
+                <span className="inline lg:hidden">COTAÇÕES: </span>
+                <span className="hidden sm:inline">{currentDateStr} · </span>
+                <span>{currentTimeOnlyStr}</span>
+              </span>
+            </div>
 
-      <nav className="max-w-7xl mx-auto px-6 py-10 flex justify-between items-center">
-        <div className="flex items-center gap-3"><img src="/favicon.svg" width={32} height={32} alt="MAD" style={{ borderRadius: 6 }} /><span className="text-[1.2em] font-black tracking-widest text-blue-500 uppercase">MAD DEVELOPERS</span></div>
-        <Link href="/login" className="bg-slate-900 border border-slate-800 px-8 py-4 rounded-xl text-[14px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-all shadow-xl"><Lock size={18} className="inline mr-2"/> ACESSO RESTRITO</Link>
-      </nav>
+            <div className="flex flex-row items-center gap-1.5 sm:gap-2.5 md:gap-3 shrink-0 flex-nowrap">
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 font-bold uppercase select-none">
+                  <span className="hidden sm:inline">ATUALIZADO ÀS:</span>
+                  <span className="inline sm:hidden">ATT:</span>
+                </span>
+                <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#04101e] dark:text-slate-300 font-bold uppercase select-none">
+                  {lastUpdatedStr}
+                </span>
+              </div>
+              <span 
+                onClick={fetchData}
+                className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 border border-[#004ac6]/20 dark:border-slate-800 px-1.5 py-0.5 rounded-full font-bold uppercase cursor-pointer select-none hover:bg-[#004ac6]/05 transition-all shrink-0"
+              >
+                ↻ {formatCountdown(countdown)}
+              </span>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="hidden md:inline text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 font-bold uppercase select-none">
+                  ESCOLHA:
+                </span>
+                <button 
+                  onClick={toggleTheme}
+                  className="bg-transparent border border-[#004ac6]/25 dark:border-slate-800 text-[#294c72] dark:text-slate-400 px-1.5 py-0.5 rounded text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase hover:bg-[#004ac6]/05 dark:hover:bg-slate-800 transition-all shrink-0 cursor-pointer flex items-center gap-1"
+                >
+                  {darkMode ? 'claro ☀️' : 'escuro 🌙'}
+                </button>
+              </div>
+              <Link 
+                href="/login" 
+                className="bg-slate-900 border border-slate-800 dark:border-slate-700 px-2 py-0.5 rounded text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold text-slate-400 hover:text-white transition-all uppercase tracking-wider shrink-0 flex items-center gap-1 select-none"
+              >
+                <Lock size={8} className="sm:w-2.5 sm:h-2.5" />
+                <span className="hidden sm:inline">ACESSO RESTRITO</span>
+              </Link>
+            </div>
+          </div>
 
-      <header className="max-w-7xl mx-auto px-6 py-24 border-b border-slate-900/50">
-        <div className="grid lg:grid-cols-12 gap-16 items-center">
-          <div className="lg:col-span-7 space-y-10">
-            {/* Título: Tamanho Original Restaurado */}
-            <h1 className="text-6xl md:text-8xl font-black leading-none text-white tracking-tighter uppercase italic">MERCADO<br/>FINANCEIRO<br/><span className="text-blue-500 not-italic uppercase">BRASILEIRO</span></h1>
-            <p className="text-slate-500 text-[1.2em] max-w-2xl leading-relaxed font-bold">Ferramentas de análise, cálculo e gestão desenvolvidas para investidores que tomam decisões com dados — não com achismos. Ações, FIIs, renda fixa e derivativos em um só lugar.</p>
+          {/* Ticker Banner */}
+          <Ticker data={displayData} />
+
+          {/* Dash Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
+            
+            {/* Column 1: Ibov */}
+            <IbovespaCard ibovData={ibovStock} />
+
+            {/* Column 2: Bolsas Mundiais */}
+            <BolsasMundiaisCard data={displayData} />
+
+            {/* Column 3: Cambio & Cripto */}
+            <CambioCriptoCard data={displayData} />
+
+            {/* Column 1: Curva DI (Row 2) */}
+            <CurvaDICard data={displayData} selic={selic} nextCopom={nextCopom} />
+
+            {/* Column 2 & 3: Maiores Movimentos (Row 2) */}
+            <MaioresMovimentosCard data={displayData} />
+
           </div>
-          <div className="lg:col-span-5 bg-slate-950/40 border border-slate-800 p-12 rounded-[3rem] shadow-2xl space-y-12">
-            <div className="flex justify-between items-center border-b border-slate-900 pb-10">
-              <div><span className="text-[14px] font-mono text-slate-500 uppercase block mb-1">IBOVESPA</span><div className="flex items-baseline gap-2"><span className="text-5xl font-black text-white tracking-tighter">{market.ibov}</span><span className={`text-sm font-bold ${market.ibovChange.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{market.ibovChange}</span></div></div>
-              <Sparkline trend={market.ibovChange.startsWith('+') ? "up" : "down"} />
-            </div>
-            <div className="flex justify-between items-center border-b border-slate-900 pb-10">
-              <div><span className="text-[14px] font-mono text-slate-500 uppercase block mb-1">USD / BRL</span><div className="flex items-baseline gap-2"><span className="text-4xl font-black text-white tracking-tighter">R$ {market.usd}</span><span className={`text-sm font-bold ${market.usdChange.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{market.usdChange}</span></div></div>
-              <Sparkline trend={market.usdChange.startsWith('+') ? "up" : "down"} />
-            </div>
-            <div className="flex justify-between items-center">
-              <div><span className="text-[14px] font-mono text-blue-500 uppercase block mb-1 tracking-widest">SELIC EFETIVA</span><span className="text-4xl font-black text-blue-500 tracking-tighter">{market.selic}%</span></div>
-              <div className="text-right"><span className="text-[12px] font-mono text-slate-600 uppercase block font-bold mb-1">REUNIÃO COPOM</span><span className="text-sm font-bold text-slate-400">{nextCopom}</span></div>
-            </div>
+
+          {/* Section Divider */}
+          <div className="flex items-center gap-2.5 px-2 py-3.5 select-none">
+            <div className="flex-1 h-[1px] bg-[#004ac6]/18 dark:bg-slate-800"></div>
+            <span className="text-[9px] tracking-widest uppercase text-[#6a8db0] dark:text-slate-500 font-bold">
+              Ferramentas · MAD Developers
+            </span>
+            <div className="flex-1 h-[1px] bg-[#004ac6]/18 dark:bg-slate-800"></div>
           </div>
+
+          {/* Tools Grid */}
+          <FerramentasCard />
+
+          {/* Footer Info */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-3.5 py-2.5 border-t border-[#004ac6]/15 dark:border-slate-800 text-[9px] text-[#6a8db0] dark:text-slate-500 bg-[#f5f9ff] dark:bg-slate-950 font-mono">
+            <span>
+              Fontes: <a href="https://brapi.dev" target="_blank" rel="noopener noreferrer" className="text-[#004ac6] dark:text-blue-400 hover:underline">brapi.dev</a>
+              <span className="px-1 select-none">·</span>
+              <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-[#004ac6] dark:text-blue-400 hover:underline">CoinGecko</a>
+              <span className="px-1 select-none">·</span>
+              <a href="https://economia.awesomeapi.com.br" target="_blank" rel="noopener noreferrer" className="text-[#004ac6] dark:text-blue-400 hover:underline">AwesomeAPI</a>
+              <span className="px-1 select-none">·</span>
+              Dados com atraso de até 15 min
+            </span>
+          </div>
+
         </div>
-      </header>
 
-      <section className="max-w-7xl mx-auto px-6 py-28 grid md:grid-cols-3 gap-12">
-        <a href="https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm" target="_blank" className="p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] group hover:border-emerald-500/40 transition-all shadow-xl"><TrendingUp className="text-emerald-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Tesouro Direto</h3><p className="text-[1em] text-slate-500 mb-10 leading-relaxed font-bold">Preços e taxas de títulos federais em tempo real.</p></a>
-        <a href="/calculadora" className="p-12 border border-slate-800 bg-slate-950/20 rounded-[3rem] group hover:border-blue-500/40 transition-all shadow-xl"><Calculator className="text-blue-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Calculadora de Fluxo Indexado</h3><p className="text-[1em] text-slate-500 mb-10 leading-relaxed font-bold">Corrija valores por SELIC, IPCA e PTAX com múltiplos fluxos.</p></a>
-        <div className="p-12 border border-blue-500/10 bg-blue-600/5 rounded-[3rem] shadow-2xl"><Download className="text-blue-500 mb-8" size={56} /><h3 className="text-white text-[1.4em] font-black mb-4 uppercase tracking-tighter italic">Portfolio Manager</h3><p className="text-[1em] text-slate-400 mb-10 leading-relaxed font-bold">Engine quantitativa em Python para uso local.</p><a href="https://github.com/marcusaleks/Portfolio_Manager/releases/download/v0.0.1/PortfolioManager_v0.0.1.zip" download="PortfolioManager_v0.0.1.zip" className="w-full bg-blue-600 text-white py-6 rounded-2xl text-[16px] font-black flex items-center justify-center gap-4 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg shadow-blue-900/20"><Activity size={24} /> Download v.0.0.1</a></div>
-      </section>
-      <footer className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-900 flex justify-between items-center text-[12px] font-mono text-slate-600 font-bold uppercase tracking-[0.3em]"><div className="flex items-center gap-3 text-emerald-500 bg-emerald-500/5 px-6 py-3 rounded-full border border-emerald-500/10"><Activity size={16} className="animate-pulse" /> ENGINE: OPTIMAL</div></footer>
-      <MadSignature />
+        {/* Compliance Footer (Outside the mockup frame) */}
+        <div className="mt-8 border-t border-[#004ac6]/10 dark:border-slate-900 pt-6 flex justify-center w-full">
+          <MadSignature />
+        </div>
+
+      </div>
     </div>
   );
 }
