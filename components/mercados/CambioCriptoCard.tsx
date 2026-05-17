@@ -32,6 +32,8 @@ type CambioCriptoCardProps = {
 };
 
 export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
+  const isOffline = !data.currencies && !data.cryptos;
+
   const currencies = data.currencies ?? {
     USD: { bid: '5.74', pctChange: '0.41', high: '5.75', low: '5.71' },
     EUR: { bid: '6.52', pctChange: '0.18', high: '6.54', low: '6.49' },
@@ -102,6 +104,11 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
           <span className="inline-block w-2.5 h-[2px] bg-[#004ac6] dark:bg-blue-500 rounded-sm"></span>
           Câmbio
         </span>
+        {isOffline && (
+          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com AwesomeAPI">
+            Dados offline
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col mb-3">
