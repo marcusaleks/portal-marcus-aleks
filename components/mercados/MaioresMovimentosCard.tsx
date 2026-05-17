@@ -86,6 +86,11 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
           <span className="inline-block w-2.5 h-[2px] bg-[#004ac6] dark:bg-blue-500 rounded-sm"></span>
           Maiores Movimentos · Ibovespa
         </span>
+        {otherStocks.some((s: any) => s.status === 'offline') && (
+          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com BRAPI">
+            Dados offline
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
