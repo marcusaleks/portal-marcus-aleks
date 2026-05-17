@@ -18,18 +18,19 @@ export default function BolsasMundiaisCard({ data }: BolsasMundiaisCardProps) {
     const priceVal = item ? item.price : fallbackPrice;
     const changeVal = item ? item.pctChange : fallbackChange;
     
-    const formattedPrice = priceVal >= 1000
+    const isOffline = item?.status === 'offline';
+    const formattedPrice = isOffline ? '--' : (priceVal >= 1000
       ? Math.floor(priceVal).toLocaleString('pt-BR')
-      : priceVal.toFixed(2).replace('.', ',');
+      : priceVal.toFixed(2).replace('.', ','));
       
-    const formattedChange = `${changeVal >= 0 ? '+' : ''}${changeVal.toFixed(2).replace('.', ',')}%`;
+    const formattedChange = isOffline ? 'Sem Conexão' : `${changeVal >= 0 ? '+' : ''}${changeVal.toFixed(2).replace('.', ',')}%`;
     
     return {
       name: defaultName,
       symbol: defaultSymbol,
       points: formattedPrice,
       change: formattedChange,
-      isUp: changeVal >= 0
+      isUp: isOffline ? true : changeVal >= 0
     };
   };
 
@@ -42,16 +43,17 @@ export default function BolsasMundiaisCard({ data }: BolsasMundiaisCardProps) {
 
   // Try to find real EWZ from BRAPI stocks if available
   const ewzStock = data?.stocks?.find((s: any) => s.symbol === 'EWZ' || s.symbol === 'EWZ11');
-  const ewzPoints = ewzStock ? ewzStock.regularMarketPrice.toFixed(2).replace('.', ',') : '28,21';
+  const ewzIsOffline = ewzStock?.status === 'offline';
+  const ewzPoints = ewzIsOffline ? '--' : (ewzStock ? ewzStock.regularMarketPrice.toFixed(2).replace('.', ',') : '28,21');
   const ewzChangePct = ewzStock ? ewzStock.regularMarketChangePercent : -3.02;
-  const ewzChange = `${ewzChangePct >= 0 ? '+' : ''}${ewzChangePct.toFixed(2).replace('.', ',')}%`;
+  const ewzChange = ewzIsOffline ? 'Sem Conexão' : `${ewzChangePct >= 0 ? '+' : ''}${ewzChangePct.toFixed(2).replace('.', ',')}%`;
 
   usIndices.push({
     name: 'EWZ Brasil',
     symbol: 'NYSE',
     points: ewzPoints,
     change: ewzChange,
-    isUp: ewzChangePct >= 0
+    isUp: ewzIsOffline ? true : ewzChangePct >= 0
   });
 
   const globalIndices: IndexItem[] = [

@@ -5,6 +5,7 @@ type IbovespaCardProps = {
 };
 
 export default function IbovespaCard({ ibovData }: IbovespaCardProps) {
+  const isOffline = ibovData?.status === 'offline';
   const isUp = ibovData ? ibovData.regularMarketChangePercent >= 0 : false;
   const price = ibovData ? ibovData.regularMarketPrice : 176453;
   const changePct = ibovData ? ibovData.regularMarketChangePercent : -1.07;
@@ -39,23 +40,31 @@ export default function IbovespaCard({ ibovData }: IbovespaCardProps) {
         </span>
         <div className="flex items-center gap-1.5">
           <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-bold">
-            {isMarketOpen() ? 'Aberto' : 'Fechado'}
+            {isOffline ? 'Offline' : (isMarketOpen() ? 'Aberto' : 'Fechado')}
           </span>
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isMarketOpen() ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOffline ? 'bg-slate-400' : (isMarketOpen() ? 'bg-emerald-500' : 'bg-red-500')}`}></span>
         </div>
       </div>
 
       <div className="text-2xl font-bold tracking-tight text-[#04101e] dark:text-white leading-none">
-        {price.toLocaleString('pt-BR')}
+        {isOffline ? <span className="text-xl">Aguardando conexão</span> : price.toLocaleString('pt-BR')}
       </div>
 
       <div className="flex items-center gap-2 mt-1.5">
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isUp ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'bg-red-500/10 text-red-600 dark:text-red-500'}`}>
-          {isUp ? '+' : ''}{changePct.toFixed(2)}%
-        </span>
-        <span className={`text-xs font-semibold ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
-          {isUp ? '+' : ''}{changePts.toLocaleString('pt-BR')} pts
-        </span>
+        {isOffline ? (
+           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-500">
+             Sem dados
+           </span>
+        ) : (
+          <>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isUp ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'bg-red-500/10 text-red-600 dark:text-red-500'}`}>
+              {isUp ? '+' : ''}{changePct.toFixed(2)}%
+            </span>
+            <span className={`text-xs font-semibold ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+              {isUp ? '+' : ''}{changePts.toLocaleString('pt-BR')} pts
+            </span>
+          </>
+        )}
       </div>
 
       <div className="my-2 h-11 shrink-0">

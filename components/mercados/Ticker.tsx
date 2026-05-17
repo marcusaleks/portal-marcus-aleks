@@ -21,11 +21,12 @@ export default function Ticker({ data }: TickerProps) {
   const items: TickerItem[] = [];
 
   if (ibovStock) {
+    const isOffline = ibovStock.status === 'offline';
     items.push({
       name: 'IBOV',
-      value: ibovStock.regularMarketPrice.toLocaleString('pt-BR'),
-      change: `${ibovStock.regularMarketChangePercent >= 0 ? '+' : ''}${ibovStock.regularMarketChangePercent.toFixed(2)}%`,
-      isUp: ibovStock.regularMarketChangePercent >= 0
+      value: isOffline ? '--' : ibovStock.regularMarketPrice.toLocaleString('pt-BR'),
+      change: isOffline ? 'Sem Conexão' : `${ibovStock.regularMarketChangePercent >= 0 ? '+' : ''}${ibovStock.regularMarketChangePercent.toFixed(2)}%`,
+      isUp: isOffline ? true : ibovStock.regularMarketChangePercent >= 0
     });
   } else {
     items.push({ name: 'IBOV', value: '176.453', change: '-1,07%', isUp: false });
@@ -81,11 +82,12 @@ export default function Ticker({ data }: TickerProps) {
   // Append other stocks to make it long
   const otherStocks = data.stocks?.filter(s => s.symbol !== '^BVSP') || [];
   otherStocks.forEach(s => {
+    const isOffline = s.status === 'offline';
     items.push({
       name: s.symbol,
-      value: `R$ ${s.regularMarketPrice.toFixed(2)}`,
-      change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2)}%`,
-      isUp: s.regularMarketChangePercent >= 0
+      value: isOffline ? '--' : `R$ ${s.regularMarketPrice.toFixed(2)}`,
+      change: isOffline ? 'Sem Conexão' : `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2)}%`,
+      isUp: isOffline ? true : s.regularMarketChangePercent >= 0
     });
   });
 

@@ -35,24 +35,30 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
   const otherStocks = data.stocks?.filter((s: any) => s.symbol !== '^BVSP') || [];
 
   if (otherStocks.length > 0) {
-    const sortedStocks = [...otherStocks].sort((a, b) => b.regularMarketChangePercent - a.regularMarketChangePercent);
-    
-    // Map Top 5 Gainers
-    maioresAltas = sortedStocks.slice(0, 5).map(s => ({
-      ticker: s.symbol,
-      name: s.longName ?? s.shortName ?? 'Ativo',
-      change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
-      isUp: s.regularMarketChangePercent >= 0
-    }));
+    const isOffline = otherStocks.some(s => s.status === 'offline');
+    if (isOffline) {
+      maioresAltas = defaultAltas.map(s => ({ ...s, change: 'Sem Conexão', isUp: true }));
+      maioresQuedas = defaultQuedas.map(s => ({ ...s, change: 'Sem Conexão', isUp: true }));
+    } else {
+      const sortedStocks = [...otherStocks].sort((a, b) => b.regularMarketChangePercent - a.regularMarketChangePercent);
+      
+      // Map Top 5 Gainers
+      maioresAltas = sortedStocks.slice(0, 5).map(s => ({
+        ticker: s.symbol,
+        name: s.longName ?? s.shortName ?? 'Ativo',
+        change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
+        isUp: s.regularMarketChangePercent >= 0
+      }));
 
-    // Map Top 5 Losers
-    const reverseSorted = [...otherStocks].sort((a, b) => a.regularMarketChangePercent - b.regularMarketChangePercent);
-    maioresQuedas = reverseSorted.slice(0, 5).map(s => ({
-      ticker: s.symbol,
-      name: s.longName ?? s.shortName ?? 'Ativo',
-      change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
-      isUp: s.regularMarketChangePercent >= 0
-    }));
+      // Map Top 5 Losers
+      const reverseSorted = [...otherStocks].sort((a, b) => a.regularMarketChangePercent - b.regularMarketChangePercent);
+      maioresQuedas = reverseSorted.slice(0, 5).map(s => ({
+        ticker: s.symbol,
+        name: s.longName ?? s.shortName ?? 'Ativo',
+        change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
+        isUp: s.regularMarketChangePercent >= 0
+      }));
+    }
   }
 
   const renderItem = (item: MovementItem, idx: number) => (

@@ -17,10 +17,10 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
     const pctChange = previousClose ? ((price - previousClose) / previousClose) * 100 : defaultChange;
     return { price, pctChange };
   } catch {
-    const drift = (Math.random() - 0.5) * 0.05;
     return {
-      price: defaultPrice * (1 + drift / 100),
-      pctChange: defaultChange + drift
+      price: defaultPrice,
+      pctChange: defaultChange,
+      status: 'offline'
     };
   }
 }
@@ -76,26 +76,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.error(`[BRAPI FETCH LOG] ${symbol} Error body:`, errText);
           const meta = DEFAULT_STOCK_METADATA[symbol];
           if (meta) {
-            const drift = (Math.random() - 0.5) * 0.1;
-            const pctChange = meta.changePercent + drift;
-            const price = meta.price * (1 + drift / 100);
             results.push({
               symbol: symbol,
               shortName: symbol,
               longName: meta.name,
               currency: 'BRL',
-              regularMarketPrice: price,
-              regularMarketDayHigh: price * 1.01,
-              regularMarketDayLow: price * 0.99,
-              regularMarketDayRange: `${(price * 0.99).toFixed(2)} - ${(price * 1.01).toFixed(2)}`,
-              regularMarketChange: price * (pctChange / 100),
-              regularMarketChangePercent: pctChange,
+              regularMarketPrice: meta.price,
+              regularMarketDayHigh: meta.price,
+              regularMarketDayLow: meta.price,
+              regularMarketDayRange: `${meta.price.toFixed(2)} - ${meta.price.toFixed(2)}`,
+              regularMarketChange: meta.price * (meta.changePercent / 100),
+              regularMarketChangePercent: meta.changePercent,
               regularMarketTime: new Date().toISOString(),
               marketCap: 5000000000,
               regularMarketVolume: 120000,
-              regularMarketPreviousClose: price / (1 + pctChange / 100),
-              regularMarketOpen: price * 0.995,
-              logourl: meta.logo
+              regularMarketPreviousClose: meta.price / (1 + meta.changePercent / 100),
+              regularMarketOpen: meta.price,
+              logourl: meta.logo,
+              status: 'offline'
             });
           }
         }
@@ -104,26 +102,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         responseLogs.push({ symbol, error: err.message || err.toString() });
         const meta = DEFAULT_STOCK_METADATA[symbol];
         if (meta) {
-          const drift = (Math.random() - 0.5) * 0.1;
-          const pctChange = meta.changePercent + drift;
-          const price = meta.price * (1 + drift / 100);
           results.push({
             symbol: symbol,
             shortName: symbol,
             longName: meta.name,
             currency: 'BRL',
-            regularMarketPrice: price,
-            regularMarketDayHigh: price * 1.01,
-            regularMarketDayLow: price * 0.99,
-            regularMarketDayRange: `${(price * 0.99).toFixed(2)} - ${(price * 1.01).toFixed(2)}`,
-            regularMarketChange: price * (pctChange / 100),
-            regularMarketChangePercent: pctChange,
+            regularMarketPrice: meta.price,
+            regularMarketDayHigh: meta.price,
+            regularMarketDayLow: meta.price,
+            regularMarketDayRange: `${meta.price.toFixed(2)} - ${meta.price.toFixed(2)}`,
+            regularMarketChange: meta.price * (meta.changePercent / 100),
+            regularMarketChangePercent: meta.changePercent,
             regularMarketTime: new Date().toISOString(),
             marketCap: 5000000000,
             regularMarketVolume: 120000,
-            regularMarketPreviousClose: price / (1 + pctChange / 100),
-            regularMarketOpen: price * 0.995,
-            logourl: meta.logo
+            regularMarketPreviousClose: meta.price / (1 + meta.changePercent / 100),
+            regularMarketOpen: meta.price,
+            logourl: meta.logo,
+            status: 'offline'
           });
         }
       }
@@ -157,7 +153,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Build consolidated globalIndices map
     const globalMap = globalIndices.reduce((acc: any, cur: any) => {
-      acc[cur.key] = { price: cur.price, pctChange: cur.pctChange };
+      acc[cur.key] = { price: cur.price, pctChange: cur.pctChange, status: cur.status };
       return acc;
     }, {});
 
