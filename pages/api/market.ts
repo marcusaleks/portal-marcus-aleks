@@ -117,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               regularMarketDayRange: `${meta.price.toFixed(2)} - ${meta.price.toFixed(2)}`,
               regularMarketChange: meta.price * (meta.changePercent / 100),
               regularMarketChangePercent: meta.changePercent,
-              regularMarketTime: new Date().toISOString(),
+              regularMarketTime: null,
               marketCap: 5000000000,
               regularMarketVolume: 120000,
               regularMarketPreviousClose: meta.price / (1 + meta.changePercent / 100),
