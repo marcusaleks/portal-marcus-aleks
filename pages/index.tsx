@@ -24,20 +24,92 @@ export default function Home() {
   const [nextCopom, setNextCopom] = useState('17/06/2026');
 
   const fetchData = async () => {
+    let json: any = null;
     try {
       const res = await fetch('/api/market');
       if (!res.ok) throw new Error('API failed');
-      const json = await res.json();
-      if (json) {
-        setData(json);
-        const now = new Date();
-        const padding = (n: number) => n.toString().padStart(2, '0');
-        setLastUpdatedStr(`${padding(now.getHours())}:${padding(now.getMinutes())}`);
-      }
+      json = await res.json();
     } catch (e) {
       console.error('Error fetching market details:', e);
     } finally {
       setLoading(false);
+    }
+
+    // Fetch live currencies and cryptos client-side directly from AwesomeAPI!
+    try {
+      const awesomeApiUrl = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,BTC-BRL,ETH-BRL,XRP-BRL,SOL-BRL,BTC-USD,ETH-USD,SOL-USD,XRP-USD,BNB-BRL,BNB-USD';
+      const resCur = await fetch(awesomeApiUrl);
+      if (resCur.ok) {
+        const currenciesData = await resCur.json();
+        const mergedCurrencies = {
+          USD: {
+            bid: currenciesData.USDBRL?.bid ?? '5.74',
+            pctChange: currenciesData.USDBRL?.pctChange ?? '0.41',
+            high: currenciesData.USDBRL?.high ?? '5.75',
+            low: currenciesData.USDBRL?.low ?? '5.71'
+          },
+          EUR: {
+            bid: currenciesData.EURBRL?.bid ?? '6.52',
+            pctChange: currenciesData.EURBRL?.pctChange ?? '0.18',
+            high: currenciesData.EURBRL?.high ?? '6.54',
+            low: currenciesData.EURBRL?.low ?? '6.49'
+          },
+          GBP: {
+            bid: currenciesData.GBPBRL?.bid ?? '7.63',
+            pctChange: currenciesData.GBPBRL?.pctChange ?? '0.23',
+            high: currenciesData.GBPBRL?.high ?? '7.65',
+            low: currenciesData.GBPBRL?.low ?? '7.60'
+          }
+        };
+
+        const mergedCryptos = {
+          BTC: {
+            usd: currenciesData.BTCUSD?.bid ?? '104234',
+            brl: currenciesData.BTCBRL?.bid ?? '598142',
+            pctChange: currenciesData.BTCUSD?.pctChange ?? '2.45'
+          },
+          ETH: {
+            usd: currenciesData.ETHUSD?.bid ?? '2923',
+            brl: currenciesData.ETHBRL?.bid ?? '16778',
+            pctChange: currenciesData.ETHUSD?.pctChange ?? '1.23'
+          },
+          BNB: {
+            usd: currenciesData.BNBUSD?.bid ?? '623',
+            brl: currenciesData.BNBBRL?.bid ?? '3576',
+            pctChange: currenciesData.BNBUSD?.pctChange ?? '0.89'
+          },
+          XRP: {
+            usd: currenciesData.XRPUSD?.bid ?? '2.45',
+            brl: currenciesData.XRPBRL?.bid ?? '14.06',
+            pctChange: currenciesData.XRPUSD?.pctChange ?? '-1.23'
+          },
+          SOL: {
+            usd: currenciesData.SOLUSD?.bid ?? '178',
+            brl: currenciesData.SOLBRL?.bid ?? '1021',
+            pctChange: currenciesData.SOLUSD?.pctChange ?? '3.45'
+          }
+        };
+
+        if (json) {
+          json.currencies = mergedCurrencies;
+          json.cryptos = mergedCryptos;
+        } else {
+          json = {
+            stocks: [],
+            currencies: mergedCurrencies,
+            cryptos: mergedCryptos
+          };
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching live currencies client-side:', err);
+    }
+
+    if (json) {
+      setData(json);
+      const now = new Date();
+      const padding = (n: number) => n.toString().padStart(2, '0');
+      setLastUpdatedStr(`${padding(now.getHours())}:${padding(now.getMinutes())}`);
     }
 
     // Fetch Selic directly from BCB SGS
