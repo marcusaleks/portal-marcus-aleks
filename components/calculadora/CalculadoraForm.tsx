@@ -149,11 +149,12 @@ export default function CalculadoraForm({
   const detSelic = resultado?.selic.detalhamento ?? [];
 
   const inputClass =
-    "w-full bg-black/60 border border-slate-800 focus:border-blue-600 " +
-    "rounded-2xl px-6 py-4 text-white font-mono text-sm outline-none transition-all " +
-    "placeholder:text-slate-700";
+    "w-full bg-[#f5f9ff] dark:bg-[#061426] border border-[#004ac6]/20 dark:border-[#004ac6]/30 " +
+    "focus:border-[#004ac6] dark:focus:border-[#5ea2ff] " +
+    "rounded-2xl px-6 py-4 text-[#04101e] dark:text-white font-mono text-sm outline-none transition-all " +
+    "placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-inner";
 
-  const labelClass = "block text-xs font-black uppercase tracking-widest text-slate-500 mb-2";
+  const labelClass = "block text-xs font-black uppercase tracking-widest text-[#004ac6] dark:text-[#5ea2ff] mb-2";
 
   return (
     <form onSubmit={submeter} className="space-y-6">
@@ -213,9 +214,9 @@ export default function CalculadoraForm({
 
             // cores por tipo
             const corBorda  = isAporte ? "border-blue-500/30"  : "border-red-500/30";
-            const corFundo  = isAporte ? "bg-blue-950/20"       : "bg-red-950/20";
-            const corTexto  = isAporte ? "text-blue-400"        : "text-red-400";
-            const corValor  = isAporte ? "text-blue-300"        : "text-red-300";
+            const corFundo  = isAporte ? "bg-blue-50 dark:bg-blue-950/20" : "bg-red-50 dark:bg-red-950/20";
+            const corTexto  = isAporte ? "text-blue-600 dark:text-blue-400" : "text-red-600 dark:text-red-400";
+            const corValor  = isAporte ? "text-blue-700 dark:text-blue-300" : "text-red-700 dark:text-red-300";
 
             return (
               <div
@@ -271,7 +272,7 @@ export default function CalculadoraForm({
                       </label>
                     )}
                     {valorCorrigido != null ? (
-                      <div className={`rounded-2xl border ${corBorda} bg-black/40 px-4 py-4 text-right`}>
+                      <div className={`rounded-2xl border ${corBorda} bg-white/50 dark:bg-black/40 px-4 py-4 text-right shadow-sm`}>
                         <p className={`text-sm font-mono font-bold ${corValor}`}>
                           {isAporte ? "+" : "−"}{formatBRL(valorCorrigido)}
                         </p>
@@ -282,8 +283,8 @@ export default function CalculadoraForm({
                         )}
                       </div>
                     ) : (
-                      <div className="rounded-2xl border border-slate-800 bg-black/20 px-4 py-4 text-right">
-                        <p className="text-xs font-mono text-slate-700">—</p>
+                      <div className="rounded-2xl border border-[#004ac6]/10 dark:border-slate-800 bg-[#f5f9ff] dark:bg-black/20 px-4 py-4 text-right shadow-sm">
+                        <p className="text-xs font-mono text-slate-400 dark:text-slate-700">—</p>
                       </div>
                     )}
                   </div>
@@ -293,7 +294,7 @@ export default function CalculadoraForm({
                     <button
                       type="button"
                       onClick={() => removerFluxo(f.id)}
-                      className="p-4 border border-slate-800 rounded-2xl text-slate-600 hover:text-red-500 hover:border-red-500/40 transition-all"
+                      className="p-4 border border-[#004ac6]/20 dark:border-slate-800 rounded-2xl text-slate-400 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-500 hover:border-red-500/40 transition-all bg-white dark:bg-transparent shadow-sm"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -309,7 +310,7 @@ export default function CalculadoraForm({
       <button
         type="button"
         onClick={adicionarFluxo}
-        className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-all"
+        className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#004ac6] dark:text-[#5ea2ff] hover:text-blue-700 dark:hover:text-blue-400 transition-all"
       >
         <Plus size={14} /> Adicionar aporte / resgate
       </button>
@@ -336,7 +337,7 @@ export default function CalculadoraForm({
         <button
           type="button"
           onClick={limpar}
-          className="h-14 px-6 border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-600 font-black rounded-2xl flex items-center gap-2 transition-all uppercase text-sm tracking-widest"
+          className="h-14 px-6 border border-[#004ac6]/20 dark:border-slate-800 bg-[#f5f9ff] dark:bg-slate-900 text-[#294c72] dark:text-slate-400 hover:text-[#004ac6] dark:hover:text-white hover:border-[#004ac6]/40 dark:hover:border-slate-600 font-black rounded-2xl flex items-center gap-2 transition-all uppercase text-sm tracking-widest shadow-sm"
         >
           <RotateCcw size={16} /> Limpar
         </button>

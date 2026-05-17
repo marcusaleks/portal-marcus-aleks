@@ -39,6 +39,30 @@ export default function CalculadoraPage() {
   const [erroCalculo, setErroCalculo] = useState<string | null>(null);
   const [carregando, setCarregando]   = useState(false);
   const [printTime, setPrintTime]     = useState("");
+  const [darkMode, setDarkMode]       = useState(false);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('mad-theme');
+    if (storedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setDarkMode(prev => {
+      const newVal = !prev;
+      localStorage.setItem('mad-theme', newVal ? 'dark' : 'light');
+      if (newVal) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return newVal;
+    });
+  };
 
   useEffect(() => {
     window.history.replaceState(null, '', '/');
@@ -141,6 +165,17 @@ export default function CalculadoraPage() {
               </div>
               
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="hidden md:inline text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 font-bold uppercase select-none">
+                    ESCOLHA:
+                  </span>
+                  <button 
+                    onClick={toggleTheme}
+                    className="bg-transparent border border-[#004ac6]/25 dark:border-slate-800 text-[#294c72] dark:text-slate-400 px-1.5 py-0.5 rounded text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase hover:bg-[#004ac6]/05 dark:hover:bg-slate-800 transition-all shrink-0 cursor-pointer flex items-center gap-1 mr-2 sm:mr-4"
+                  >
+                    {darkMode ? 'claro ☀️' : 'escuro 🌙'}
+                  </button>
+                </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-[#6a8db0] dark:text-slate-500 font-bold uppercase select-none">
                     <span className="hidden sm:inline">ATUALIZADO:</span>
