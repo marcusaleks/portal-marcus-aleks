@@ -301,6 +301,7 @@ export default function CalculadoraPage() {
             )}
           </div>
         </div>
+        </div>
       </div>
     </>
   );
