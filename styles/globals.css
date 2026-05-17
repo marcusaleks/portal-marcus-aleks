@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 .mad-signature {
   position: fixed;
@@ -8,20 +9,53 @@
   align-items: center;
   gap: 8px;
   font-family: monospace;
-  font-size: 13px;
   font-weight: 700;
-  color: #B0BAC8;
   text-decoration: none;
-  opacity: 0.75;
+  opacity: 0.85;
   z-index: 9999;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent !important;
+  border: 1px solid transparent !important;
   border-radius: 8px;
-  padding: 6px 10px;
-  backdrop-filter: blur(8px);
+  padding: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   letter-spacing: 0.05em;
+  box-shadow: none !important;
+  transition: all 0.3s ease;
 }
-.mad-signature:hover { opacity: 1; color: #fff; }
+
+/* Suppress all scrollbars for scrollbar-none containers */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+}
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+.mad-signature:hover {
+  opacity: 1;
+}
+.mad-signature-text {
+  color: #004ac6;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode adaptive style */
+.dark .mad-signature {
+  background: rgba(15, 23, 42, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  padding: 6px 10px !important;
+}
+.dark .mad-signature:hover {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.dark .mad-signature-text {
+  color: #5ea2ff; /* Lighter vibrant blue for perfect legibility in dark theme */
+}
 
 @theme {
   --animate-marquee: marquee 280s linear infinite;
