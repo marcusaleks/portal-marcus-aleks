@@ -6,6 +6,26 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.1.0] — 2026-05-17
+
+### Added
+- **Painel Integrado de Mercados** (`pages/index.tsx`): Nova interface premium, responsiva e fluida com 6 blocos visuais harmoniosos de alta fidelidade.
+- **Grades de Câmbio e Cripto** (`components/mercados/CambioCriptoCard.tsx`): Exibição simultânea de moedas (Dólar, Euro, Libra) com máximas/mínimas diárias e 5 criptomoedas principais (BTC, ETH, BNB, XRP, SOL) cotadas em USD e BRL.
+- **Selic Efetiva Dinâmica**: Integração direta via client-side fetch ao barramento de dados do SGS Banco Central do Brasil (Série 1178) com formatação em padrão pt-BR.
+- **Reunião COPOM Automatizada**: Parser client-side do cronograma oficial em `public/copom.md` calculando a data futura mais próxima de forma dinâmica.
+- **Curva DI Premium** (`components/mercados/CurvaDICard.tsx`): Tabela estilizada de juros futuros de 1 a 10 anos acompanhada de rodapé integrado exibindo a Selic Efetiva e o COPOM.
+- **Resiliência Server-side** (`pages/api/market.ts`): Fallbacks estruturados de cotações de contingência e busca sequencial de 18 ativos para mitigar rate limit da API BRAPI.
+- **Movimentação do Diretório MAD-Mercados**: Isolamento completo da pasta de roteiros, checagens e mockups dentro de `Administrativos/` para proteção contra vazamentos de commits.
+
+### Changed
+- **Arquitetura de Câmbio/Cripto**: Migração do fetch de moedas do lado do servidor para o lado do cliente (Client-side) no index principal. Isso elimina gargalos de timeout de Serverless Functions da Vercel e contorna bloqueios de IP/Scraping em servidores de nuvem.
+- **Banner Rotativo (Ticker)**: Integração do feed client-side de cotações em tempo real de Dólar, Euro, Bitcoin e Ethereum no marquee superior.
+
+### Fixed
+- **Cotações Congeladas**: Correção do bug onde o painel de desenvolvimento mostrava a cotação padrão de R$ 5,74 de fallback estático, passando a sincronizar com a cotação real (R$ 5,0518) via AwesomeAPI no navegador do usuário.
+
+---
+
 ## [1.0.0] — 2026-05-14
 
 ### Added
