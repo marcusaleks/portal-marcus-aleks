@@ -12,12 +12,14 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/session').then(r => r.json()).then(d => { if (d.valid) router.push('/dashboard-intel'); });
+    const from = (router.query.from as string) || '/dashboard-intel';
+    fetch('/api/session').then(r => r.json()).then(d => { if (d.valid) router.push(from); });
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const from = (router.query.from as string) || '/dashboard-intel';
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -25,7 +27,7 @@ export default function Login() {
         body: JSON.stringify({ key: key.trim() })
       });
       if (res.ok) {
-        router.push('/dashboard-intel');
+        router.push(from);
       } else { throw new Error(); }
     } catch (err) { setError(true); setLoading(false); setTimeout(() => setError(false), 3000); }
   };
