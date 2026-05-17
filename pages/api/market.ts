@@ -264,12 +264,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         SOL: { usd: '178', brl: '1021', pctChange: '3.45' },
         XMR: { usd: '392.82', brl: '1995.71', pctChange: '1.65' }
       },
-      diCurve: [
-        { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
-        { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
-        { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
-        { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' }
-      ]
+      // TODO: substituir por integração B3/ANBIMA para dados em tempo real (ACHADO-09)
+      diCurve: {
+        asOf: '2026-05-09',
+        items: [
+          { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
+          { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
+          { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
+          { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' }
+        ]
+      }
     };
 
     res.status(200).json(responseData);

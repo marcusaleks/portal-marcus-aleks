@@ -13,13 +13,21 @@ type CurvaDICardProps = {
   nextCopom?: string;
 };
 
+const FALLBACK_ITEMS: DIItem[] = [
+  { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
+  { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
+  { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
+  { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' },
+];
+
 export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06/2026' }: CurvaDICardProps) {
-  const diCurve: DIItem[] = data.diCurve ?? [
-    { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
-    { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
-    { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
-    { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' }
-  ];
+  const rawCurve = data.diCurve;
+  const diCurve: DIItem[] = rawCurve?.items ?? rawCurve ?? FALLBACK_ITEMS;
+  const asOf: string | null = rawCurve?.asOf ?? null;
+
+  const asOfLabel = asOf
+    ? new Date(asOf + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : null;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-[#004ac6]/16 dark:border-slate-800 rounded-lg p-3.5 flex flex-col font-mono shadow-sm">
@@ -28,6 +36,11 @@ export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06
           <span className="inline-block w-2.5 h-[2px] bg-[#004ac6] dark:bg-blue-500 rounded-sm"></span>
           Curva DI · Juros Futuros
         </span>
+        {asOfLabel && (
+          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dado estático — integração B3/ANBIMA pendente">
+            Ref. {asOfLabel}
+          </span>
+        )}
       </div>
 
       <table className="w-full border-collapse table-fixed">
