@@ -2,19 +2,28 @@ import React from 'react';
 
 type IbovespaCardProps = {
   ibovData: any;
+  ibovIntraday?: number[] | null;
 };
 
-export default function IbovespaCard({ ibovData }: IbovespaCardProps) {
+export default function IbovespaCard({ ibovData, ibovIntraday }: IbovespaCardProps) {
   const isOffline = ibovData?.status === 'offline';
   const isUp = ibovData ? ibovData.regularMarketChangePercent >= 0 : false;
   const price = ibovData ? ibovData.regularMarketPrice : 176453;
   const changePct = ibovData ? ibovData.regularMarketChangePercent : -1.07;
   const changePts = ibovData ? (ibovData.regularMarketChange ?? -1908) : -1908;
   
-  const high = ibovData ? (ibovData.regularMarketDayHigh ?? 178500) : 178500;
-  const low = ibovData ? (ibovData.regularMarketDayLow ?? 175812) : 175812;
-  const prevClose = ibovData ? (ibovData.regularMarketPreviousClose ?? 178361) : 178361;
-  const volume = ibovData ? (ibovData.regularMarketVolume ? `R$ ${(ibovData.regularMarketVolume / 1e9).toFixed(1)}B` : 'R$ 11,1B') : 'R$ 11,1B';
+  // Use array bounds if daily high/low are missing or 0 from the API
+  let high = ibovData?.regularMarketDayHigh || 0;
+  let low = ibovData?.regularMarketDayLow || 0;
+  if (!high && ibovIntraday?.length) high = Math.max(...ibovIntraday);
+  if (!low && ibovIntraday?.length) low = Math.min(...ibovIntraday);
+  high = high || 178500;
+  low = low || 175812;
+  
+  const prevClose = ibovData?.regularMarketPreviousClose || 178361;
+  const volume = ibovData?.regularMarketVolume 
+    ? `R$ ${(ibovData.regularMarketVolume / 1e9).toFixed(1)} B` 
+    : 'R$ 11,1 B';
 
   // Determine if stock market is open (standard hours 10h to 18h Brasília, business days)
   const isMarketOpen = () => {
@@ -24,12 +33,32 @@ export default function IbovespaCard({ ibovData }: IbovespaCardProps) {
     return day >= 1 && day <= 5 && hour >= 10 && hour < 18;
   };
 
-  // Sparkline coordinates for representation
-  const sparkPoints = isUp 
-    ? "0,34 26,30 52,27 78,22 104,18 130,23 156,15 182,12 208,8 234,6 260,2"
-    : "0,6 26,8 52,12 78,15 104,19 130,23 156,27 182,30 208,34 234,38 260,42";
+  // Generate dynamic sparkline coordinates from intraday data
+  let sparkPoints = "";
+  let fillPoints = "";
+
+  if (ibovIntraday && ibovIntraday.length > 1) {
+    const minVal = Math.min(...ibovIntraday);
+    const maxVal = Math.max(...ibovIntraday);
+    const range = maxVal - minVal || 1; // avoid division by zero
     
-  const fillPoints = `${sparkPoints} 260,44 0,44`;
+    // Map values to X (0 to 260) and Y (42 to 2)
+    // We use 42 to 2 so the stroke doesn't get clipped by the SVG borders
+    const pointsArray = ibovIntraday.map((val, index) => {
+      const x = (index / (ibovIntraday.length - 1)) * 260;
+      const y = 42 - ((val - minVal) / range) * 40;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    
+    sparkPoints = pointsArray.join(' ');
+    fillPoints = `${sparkPoints} 260,44 0,44`;
+  } else {
+    // Fallback static sparkline coordinates
+    sparkPoints = isUp 
+      ? "0,34 26,30 52,27 78,22 104,18 130,23 156,15 182,12 208,8 234,6 260,2"
+      : "0,6 26,8 52,12 78,15 104,19 130,23 156,27 182,30 208,34 234,38 260,42";
+    fillPoints = `${sparkPoints} 260,44 0,44`;
+  }
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-[#004ac6]/16 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between font-mono shadow-sm">

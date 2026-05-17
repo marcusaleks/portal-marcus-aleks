@@ -25,6 +25,33 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
   }
 }
 
+async function fetchYahooIntraday(symbol: string) {
+  try {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=15m`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+      },
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    if (!result || !result.indicators?.quote?.[0]?.close) return null;
+    
+    // Extrai apenas os preços de fechamento, removendo os nulls
+    const closeArray = result.indicators.quote[0].close.filter((v: number | null) => v !== null);
+    
+    // Insere o fechamento anterior no início para que o gráfico reflita a queda/alta desde o D-1
+    if (result.meta?.chartPreviousClose) {
+      closeArray.unshift(result.meta.chartPreviousClose);
+    }
+    
+    return closeArray;
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end();
 
@@ -133,6 +160,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .then(r => r.ok ? r.json() : null)
       .catch(() => null);
 
+    const coinGeckoPromise = fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd,brl&include_24hr_change=true', { signal: AbortSignal.timeout(5000) })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null);
+
+    const ibovIntradayPromise = fetchYahooIntraday('^BVSP');
+
     const yahooPromise = Promise.all([
       fetchYahooIndex('^DJI', 42512.44, 0.45).then(data => ({ key: 'DOW', ...data })),
       fetchYahooIndex('^GSPC', 5812.23, 0.67).then(data => ({ key: 'SP500', ...data })),
@@ -145,10 +178,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ]);
 
     // 4. Resolve all promises
-    const [stocks, currencies, globalIndices] = await Promise.all([
+    const [stocks, currencies, globalIndices, geckoData, ibovIntraday] = await Promise.all([
       brapiPromise,
       awesomePromise,
-      yahooPromise
+      yahooPromise,
+      coinGeckoPromise,
+      ibovIntradayPromise
     ]);
 
     // Build consolidated globalIndices map
@@ -160,6 +195,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Build consolidated payload
     const responseData = {
       timestamp: new Date().toISOString(),
+      ibovIntraday: ibovIntraday,
       stocks: stocks,
       globalIndices: globalMap,
       currencies: currencies ? {
@@ -211,13 +247,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           usd: currencies.SOLUSD?.bid ?? '178',
           brl: currencies.SOLBRL?.bid ?? '1021',
           pctChange: currencies.SOLUSD?.pctChange ?? '3.45'
+        },
+        XMR: {
+          usd: geckoData?.monero?.usd?.toString() ?? '392.82',
+          brl: geckoData?.monero?.brl?.toString() ?? '1995.71',
+          pctChange: geckoData?.monero?.usd_24h_change?.toString() ?? '1.65'
         }
       } : {
         BTC: { usd: '104234', brl: '598142', pctChange: '2.45' },
         ETH: { usd: '2923', brl: '16778', pctChange: '1.23' },
         BNB: { usd: '623', brl: '3576', pctChange: '0.89' },
         XRP: { usd: '2.45', brl: '14.06', pctChange: '-1.23' },
-        SOL: { usd: '178', brl: '1021', pctChange: '3.45' }
+        SOL: { usd: '178', brl: '1021', pctChange: '3.45' },
+        XMR: { usd: '392.82', brl: '1995.71', pctChange: '1.65' }
       },
       diCurve: [
         { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },

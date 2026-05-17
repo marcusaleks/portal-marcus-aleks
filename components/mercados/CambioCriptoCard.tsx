@@ -1,5 +1,32 @@
 import React from 'react';
 
+// Bandeiras em SVG para compatibilidade perfeita com Windows
+const USFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" className="w-[18px] h-[18px] shrink-0">
+    <path fill="#EEE" d="M32 5H4C1.791 5 0 6.791 0 9v18c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V9c0-2.209-1.791-4-4-4z"/>
+    <path fill="#DD2E44" d="M36 10v2H0v-2c0-1.104.896-2 2-2h32c1.104 0 2 .896 2 2zm0 6H0v4h36v-4zm0 8H0v4h36v-4z"/>
+    <path fill="#3B88C3" d="M19 5H4C1.791 5 0 6.791 0 9v11h19V5z"/>
+    <circle fill="#FFF" cx="3" cy="8" r="1"/><circle fill="#FFF" cx="7" cy="8" r="1"/><circle fill="#FFF" cx="11" cy="8" r="1"/><circle fill="#FFF" cx="15" cy="8" r="1"/><circle fill="#FFF" cx="5" cy="11" r="1"/><circle fill="#FFF" cx="9" cy="11" r="1"/><circle fill="#FFF" cx="13" cy="11" r="1"/><circle fill="#FFF" cx="3" cy="14" r="1"/><circle fill="#FFF" cx="7" cy="14" r="1"/><circle fill="#FFF" cx="11" cy="14" r="1"/><circle fill="#FFF" cx="15" cy="14" r="1"/><circle fill="#FFF" cx="5" cy="17" r="1"/><circle fill="#FFF" cx="9" cy="17" r="1"/><circle fill="#FFF" cx="13" cy="17" r="1"/>
+  </svg>
+);
+
+const EUFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" className="w-[18px] h-[18px] shrink-0">
+    <path fill="#003399" d="M32 5H4C1.791 5 0 6.791 0 9v18c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V9c0-2.209-1.791-4-4-4z"/>
+    <path fill="#FFCC00" d="M18 10.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm0 16c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm-5.5-2.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm11 0c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zM9 20c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm18 0c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zM7.5 14.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm21 0c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm-16-4c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm11 0c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5z"/>
+  </svg>
+);
+
+const UKFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" className="w-[18px] h-[18px] shrink-0">
+    <path fill="#00247D" d="M32 5H4C1.791 5 0 6.791 0 9v18c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V9c0-2.209-1.791-4-4-4z"/>
+    <path fill="#FFF" d="M32 5h-1.378l-6.84 5.361L18 5h-4l-5.782 5.361L1.378 5H0v1.082l6.983 5.474L0 17.525V21h1.378l6.84-5.361L18 21h4l5.782-5.361L34.622 21H36v-1.082l-6.983-5.474L36 8.475V5z"/>
+    <path fill="#CF142B" d="M21.5 29H32L21 20.375V18.5l15 11.75V31h-2.5L20 20.375V18.5L32 27.875V25l-15-11.75v1.875zm-7-24H4l11 8.625V15.5L0 3.75V2h2.5L16 12.625V14.5L4 5.125V8l15 11.75V17.875z"/>
+    <path fill="#FFF" d="M21 5v9h15v8H21v9h-6v-9H0v-8h15V5z"/>
+    <path fill="#CF142B" d="M19 5v11h17v4H19v11h-2V20H0v-4h17V5z"/>
+  </svg>
+);
+
 type CambioCriptoCardProps = {
   data: any;
 };
@@ -19,13 +46,13 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
     SOL: { usd: '178', brl: '1021', pctChange: '3.45' }
   };
 
-  const renderCurrency = (flag: string, name: string, rate: any) => {
+  const renderCurrency = (flag: React.ReactNode, name: string, rate: any) => {
     const isUp = parseFloat(rate.pctChange) >= 0;
     const bidValue = parseFloat(rate.bid).toFixed(2).replace('.', ',');
     return (
       <div className="flex items-center justify-between py-1.5 border-b border-[#004ac6]/10 dark:border-slate-800/40 last:border-none">
         <div className="flex items-center gap-2">
-          <span className="text-base leading-none">{flag}</span>
+          <span className="flex items-center justify-center">{flag}</span>
           <div>
             <div className="text-xs font-bold text-[#04101e] dark:text-slate-200">{name}</div>
             <div className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold">
@@ -36,7 +63,7 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
         <div className="text-right">
           <div className="text-xs font-bold text-[#04101e] dark:text-slate-200">R$ {bidValue}</div>
           <span className={`text-[10px] font-bold block ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
-            {isUp ? '+' : ''}{rate.pctChange}%
+            {isUp ? '+' : ''}{parseFloat(rate.pctChange).toFixed(2).replace('.', ',')}%
           </span>
         </div>
       </div>
@@ -78,9 +105,9 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
       </div>
 
       <div className="flex flex-col mb-3">
-        {renderCurrency('🇺🇸', 'USD / BRL', currencies.USD)}
-        {renderCurrency('🇪🇺', 'EUR / BRL', currencies.EUR)}
-        {renderCurrency('🇬🇧', 'GBP / BRL', currencies.GBP)}
+        {renderCurrency(<USFlag />, 'USD / BRL', currencies.USD)}
+        {renderCurrency(<EUFlag />, 'EUR / BRL', currencies.EUR)}
+        {renderCurrency(<UKFlag />, 'GBP / BRL', currencies.GBP)}
       </div>
 
       <div className="h-[1px] bg-[#004ac6]/12 dark:bg-slate-800 my-2"></div>
@@ -99,6 +126,7 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
         {renderCrypto('BNB', 'BNB', cryptos.BNB)}
         {renderCrypto('XRP', 'Ripple', cryptos.XRP)}
         {renderCrypto('SOL', 'Solana', cryptos.SOL)}
+        {cryptos.XMR && renderCrypto('XMR', 'Monero', cryptos.XMR)}
       </div>
     </div>
   );

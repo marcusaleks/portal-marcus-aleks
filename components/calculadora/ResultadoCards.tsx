@@ -78,7 +78,7 @@ export default function ResultadoCards({ resultado }: ResultadoCardsProps) {
 
             {/* Valor final */}
             <div>
-              <p className="text-2xl font-black text-white font-mono leading-none">
+              <p className="text-2xl font-black text-[#04101e] dark:text-white font-mono leading-none">
                 {formatBRL(r.valor_final)}
               </p>
               <p className="text-xs text-slate-600 font-mono mt-1">

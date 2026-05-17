@@ -32,52 +32,7 @@ export default function Ticker({ data }: TickerProps) {
     items.push({ name: 'IBOV', value: '176.453', change: '-1,07%', isUp: false });
   }
 
-  // Global Indices & Cryptos (Mock/AwesomeAPI Combo)
-  items.push(
-    { name: 'S&P 500', value: '5.812', change: '+0,67%', isUp: true },
-    { name: 'NASDAQ', value: '18.234', change: '+1,12%', isUp: true },
-    { name: 'DOW JONES', value: '42.512', change: '+0,45%', isUp: true }
-  );
-
-  if (data.currencies) {
-    items.push(
-      {
-        name: 'USD/BRL',
-        value: `R$ ${parseFloat(data.currencies.USD.bid).toFixed(2).replace('.', ',')}`,
-        change: `${parseFloat(data.currencies.USD.pctChange) >= 0 ? '+' : ''}${data.currencies.USD.pctChange}%`,
-        isUp: parseFloat(data.currencies.USD.pctChange) >= 0
-      },
-      {
-        name: 'EUR/BRL',
-        value: `R$ ${parseFloat(data.currencies.EUR.bid).toFixed(2).replace('.', ',')}`,
-        change: `${parseFloat(data.currencies.EUR.pctChange) >= 0 ? '+' : ''}${data.currencies.EUR.pctChange}%`,
-        isUp: parseFloat(data.currencies.EUR.pctChange) >= 0
-      }
-    );
-  }
-
-  if (data.cryptos) {
-    items.push(
-      {
-        name: 'BTC',
-        value: `$ ${parseFloat(data.cryptos.BTC.usd).toLocaleString('en-US')}`,
-        change: `${parseFloat(data.cryptos.BTC.pctChange) >= 0 ? '+' : ''}${data.cryptos.BTC.pctChange}%`,
-        isUp: parseFloat(data.cryptos.BTC.pctChange) >= 0
-      },
-      {
-        name: 'ETH',
-        value: `$ ${parseFloat(data.cryptos.ETH.usd).toLocaleString('en-US')}`,
-        change: `${parseFloat(data.cryptos.ETH.pctChange) >= 0 ? '+' : ''}${data.cryptos.ETH.pctChange}%`,
-        isUp: parseFloat(data.cryptos.ETH.pctChange) >= 0
-      },
-      {
-        name: 'SOL',
-        value: `$ ${parseFloat(data.cryptos.SOL.usd).toLocaleString('en-US')}`,
-        change: `${parseFloat(data.cryptos.SOL.pctChange) >= 0 ? '+' : ''}${data.cryptos.SOL.pctChange}%`,
-        isUp: parseFloat(data.cryptos.SOL.pctChange) >= 0
-      }
-    );
-  }
+  // Apenas as 18 ações e FIIs solicitados serão exibidos no Ticker
 
   // Append other stocks to make it long
   const otherStocks = data.stocks?.filter(s => s.symbol !== '^BVSP') || [];
