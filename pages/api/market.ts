@@ -89,8 +89,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log("[BRAPI FETCH LOG] Starting sequential fetch of", symbols.length, "symbols...");
     for (const symbol of symbols) {
       try {
-        const url = `https://brapi.dev/api/quote/${encodeURIComponent(symbol)}?token=${token}`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+        const url = `https://brapi.dev/api/quote/${encodeURIComponent(symbol)}`;
+        const res = await fetch(url, {
+          signal: AbortSignal.timeout(3000),
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         console.log(`[BRAPI FETCH LOG] ${symbol} Status:`, res.status, res.statusText);
         responseLogs.push({ symbol, status: res.status, statusText: res.statusText });
         if (res.ok) {
