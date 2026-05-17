@@ -92,7 +92,10 @@ export default function Home() {
 
         if (json) {
           json.currencies = mergedCurrencies;
-          json.cryptos = mergedCryptos;
+          json.cryptos = {
+            ...(json.cryptos || {}),
+            ...mergedCryptos
+          };
         } else {
           json = {
             stocks: [],
