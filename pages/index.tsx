@@ -20,12 +20,14 @@ export default function Home() {
   const [currentTimeOnlyStr, setCurrentTimeOnlyStr] = useState('...');
   const [countdown, setCountdown] = useState(180); // 3 minutes countdown
   const [darkMode, setDarkMode] = useState(false);
+  const [selic, setSelic] = useState('14,40%');
+  const [nextCopom, setNextCopom] = useState('17/06/2026');
 
   const fetchData = async () => {
     try {
       const res = await fetch('/api/market');
       if (!res.ok) throw new Error('API failed');
-      const json = await res.ok ? await res.json() : null;
+      const json = await res.json();
       if (json) {
         setData(json);
         const now = new Date();
@@ -36,6 +38,45 @@ export default function Home() {
       console.error('Error fetching market details:', e);
     } finally {
       setLoading(false);
+    }
+
+    // Fetch Selic directly from BCB SGS
+    try {
+      const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
+      if (resSelic.ok) {
+        const dataSelic = await resSelic.json();
+        if (dataSelic?.[0]?.valor) {
+          setSelic(dataSelic[0].valor.replace('.', ',') + '%');
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching Selic Efetiva:', err);
+    }
+
+    // Fetch COPOM next meeting date from public/copom.md
+    try {
+      const resCopom = await fetch('/copom.md');
+      if (resCopom.ok) {
+        const text = await resCopom.text();
+        const lines = text.split('\n');
+        let nextDate = 'A definir';
+        const now = Date.now();
+        for (const line of lines) {
+          const match = line.match(/\|\s*([^|]+)\s*\|\s*(\d{2}\/\d{2}\/\d{4})\s*\|/);
+          if (match && !match[1].includes('Reunião |')) {
+             const dateStr = match[2].trim();
+             const [day, month, year] = dateStr.split('/');
+             const timestamp = new Date(`${year}-${month}-${day}T23:59:59-03:00`).getTime();
+             if (timestamp >= now) {
+                nextDate = dateStr;
+                break;
+             }
+          }
+        }
+        setNextCopom(nextDate);
+      }
+    } catch (err) {
+      console.error('Error fetching COPOM schedule:', err);
     }
   };
 
@@ -196,7 +237,7 @@ export default function Home() {
             <CambioCriptoCard data={displayData} />
 
             {/* Column 1: Curva DI (Row 2) */}
-            <CurvaDICard data={displayData} />
+            <CurvaDICard data={displayData} selic={selic} nextCopom={nextCopom} />
 
             {/* Column 2 & 3: Maiores Movimentos (Row 2) */}
             <MaioresMovimentosCard data={displayData} />

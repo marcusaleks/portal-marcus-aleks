@@ -9,9 +9,11 @@ type DIItem = {
 
 type CurvaDICardProps = {
   data: any;
+  selic?: string;
+  nextCopom?: string;
 };
 
-export default function CurvaDICard({ data }: CurvaDICardProps) {
+export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06/2026' }: CurvaDICardProps) {
   const diCurve: DIItem[] = data.diCurve ?? [
     { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
     { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
@@ -64,6 +66,29 @@ export default function CurvaDICard({ data }: CurvaDICardProps) {
           ))}
         </tbody>
       </table>
+
+      {/* Divider */}
+      <div className="border-t border-[#004ac6]/12 dark:border-slate-800 my-2"></div>
+
+      {/* Selic & Copom Info */}
+      <div className="flex items-center justify-between mt-1 px-1.5">
+        <div>
+          <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase block tracking-wider font-bold mb-0.5 select-none">
+            Selic Efetiva
+          </span>
+          <span className="text-[13px] font-black text-[#004ac6] dark:text-blue-400">
+            {selic}
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase block tracking-wider font-bold mb-0.5 select-none">
+            Reunião Copom
+          </span>
+          <span className="text-[11px] font-bold text-[#294c72] dark:text-slate-300">
+            {nextCopom}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
