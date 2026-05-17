@@ -303,7 +303,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
             
             {/* Column 1: Ibov */}
-            <IbovespaCard ibovData={ibovStock} />
+            <IbovespaCard ibovData={ibovStock} ibovIntraday={displayData.ibovIntraday} />
 
             {/* Column 2: Bolsas Mundiais */}
             <BolsasMundiaisCard data={displayData} />

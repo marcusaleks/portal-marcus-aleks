@@ -25,6 +25,27 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
   }
 }
 
+async function fetchYahooIntraday(symbol: string) {
+  try {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=15m`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+      },
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    if (!result || !result.indicators?.quote?.[0]?.close) return null;
+    
+    // Extrai apenas os preços de fechamento, removendo os nulls
+    const closeArray = result.indicators.quote[0].close;
+    return closeArray.filter((v: number | null) => v !== null);
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end();
 
@@ -137,6 +158,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .then(r => r.ok ? r.json() : null)
       .catch(() => null);
 
+    const ibovIntradayPromise = fetchYahooIntraday('^BVSP');
+
     const yahooPromise = Promise.all([
       fetchYahooIndex('^DJI', 42512.44, 0.45).then(data => ({ key: 'DOW', ...data })),
       fetchYahooIndex('^GSPC', 5812.23, 0.67).then(data => ({ key: 'SP500', ...data })),
@@ -149,11 +172,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ]);
 
     // 4. Resolve all promises
-    const [stocks, currencies, globalIndices, geckoData] = await Promise.all([
+    const [stocks, currencies, globalIndices, geckoData, ibovIntraday] = await Promise.all([
       brapiPromise,
       awesomePromise,
       yahooPromise,
-      coinGeckoPromise
+      coinGeckoPromise,
+      ibovIntradayPromise
     ]);
 
     // Build consolidated globalIndices map
@@ -165,6 +189,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Build consolidated payload
     const responseData = {
       timestamp: new Date().toISOString(),
+      ibovIntraday: ibovIntraday,
       stocks: stocks,
       globalIndices: globalMap,
       currencies: currencies ? {
