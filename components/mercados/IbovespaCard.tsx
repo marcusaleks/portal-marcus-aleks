@@ -12,10 +12,18 @@ export default function IbovespaCard({ ibovData, ibovIntraday }: IbovespaCardPro
   const changePct = ibovData ? ibovData.regularMarketChangePercent : -1.07;
   const changePts = ibovData ? (ibovData.regularMarketChange ?? -1908) : -1908;
   
-  const high = ibovData ? (ibovData.regularMarketDayHigh ?? 178500) : 178500;
-  const low = ibovData ? (ibovData.regularMarketDayLow ?? 175812) : 175812;
-  const prevClose = ibovData ? (ibovData.regularMarketPreviousClose ?? 178361) : 178361;
-  const volume = ibovData ? (ibovData.regularMarketVolume ? `R$ ${(ibovData.regularMarketVolume / 1e9).toFixed(1)}B` : 'R$ 11,1B') : 'R$ 11,1B';
+  // Use array bounds if daily high/low are missing or 0 from the API
+  let high = ibovData?.regularMarketDayHigh || 0;
+  let low = ibovData?.regularMarketDayLow || 0;
+  if (!high && ibovIntraday?.length) high = Math.max(...ibovIntraday);
+  if (!low && ibovIntraday?.length) low = Math.min(...ibovIntraday);
+  high = high || 178500;
+  low = low || 175812;
+  
+  const prevClose = ibovData?.regularMarketPreviousClose || 178361;
+  const volume = ibovData?.regularMarketVolume 
+    ? `R$ ${(ibovData.regularMarketVolume / 1e9).toFixed(1)} B` 
+    : 'R$ 11,1 B';
 
   // Determine if stock market is open (standard hours 10h to 18h Brasília, business days)
   const isMarketOpen = () => {

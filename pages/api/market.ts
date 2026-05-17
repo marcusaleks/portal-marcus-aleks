@@ -39,8 +39,14 @@ async function fetchYahooIntraday(symbol: string) {
     if (!result || !result.indicators?.quote?.[0]?.close) return null;
     
     // Extrai apenas os preços de fechamento, removendo os nulls
-    const closeArray = result.indicators.quote[0].close;
-    return closeArray.filter((v: number | null) => v !== null);
+    const closeArray = result.indicators.quote[0].close.filter((v: number | null) => v !== null);
+    
+    // Insere o fechamento anterior no início para que o gráfico reflita a queda/alta desde o D-1
+    if (result.meta?.chartPreviousClose) {
+      closeArray.unshift(result.meta.chartPreviousClose);
+    }
+    
+    return closeArray;
   } catch {
     return null;
   }
