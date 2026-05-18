@@ -44,7 +44,7 @@ jobs:
           SERIES: ${{ github.event.inputs.series || 'all' }}
         run: |
           echo "🚀 Iniciando fetch de dados do Banco Central..."
-          npx ts-node scripts/fetch-market-data.ts
+          npx ts-node --project tsconfig.scripts.json scripts/fetch-market-data.ts
         continue-on-error: true
 
       - name: "Check if data changed"
