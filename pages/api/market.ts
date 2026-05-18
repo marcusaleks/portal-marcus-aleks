@@ -159,7 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const brapiPromise = Promise.resolve(results);
 
     const awesomeApiUrl = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,BTC-BRL,ETH-BRL,XRP-BRL,SOL-BRL,BTC-USD,ETH-USD,SOL-USD,XRP-USD,BNB-BRL,BNB-USD';
-    const awesomePromise = fetch(awesomeApiUrl, { signal: AbortSignal.timeout(5000) })
+    const awesomePromise = fetch(awesomeApiUrl, { signal: AbortSignal.timeout(12000) })
       .then(r => r.ok ? r.json() : null)
       .catch(() => null);
 
