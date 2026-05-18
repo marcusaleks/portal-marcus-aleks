@@ -6,6 +6,33 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Unreleased] — v1.2.3 (PR #15 aguardando merge)
+
+### Fixed
+
+- **Automação de dados BCB quebrada silenciosamente:** `tsconfig.json` principal declara `"types": ["jest"]`, excluindo `@types/node`. O `ts-node` falhava ao compilar `scripts/fetch-market-data.ts` (módulos `https`, `fs`, `path` e `process` não encontrados). Com `continue-on-error: true` no workflow, o pipeline reportava `success` mas os dados pararam de ser atualizados desde 10/05/2026.
+- Criado `tsconfig.scripts.json` com `"types": ["node"]` e `"moduleResolution": "node"` para uso exclusivo dos scripts Node.js, sem afetar o tsconfig do Next.js.
+- Workflow `update-market-data.yml` atualizado para usar `--project tsconfig.scripts.json` ao invocar `ts-node`.
+- Dados atualizados manualmente: SELIC até 2026-06-17 (proj. COPOM), PTAX até 2026-05-18, IPCA até 2026-06-30 (proj. Focus).
+
+---
+
+## [1.2.2] — 2026-05-18
+
+### Fixed
+
+- **Cotações de câmbio e cripto com valores incorretos (complemento):** timeout da AwesomeAPI no backend aumentado de 5s para 12s. O timeout insuficiente causava fallback silencioso para valores hardcoded após a remoção do fetch duplicado do frontend (v1.2.1).
+
+---
+
+## [1.2.1] — 2026-05-18
+
+### Fixed
+
+- **Cotações de câmbio e cripto com valores incorretos:** removido fetch duplicado da AwesomeAPI no frontend (`pages/index.tsx`). O fetch direto do browser sobrescrevia os dados corretos retornados pelo backend; quando falhava (rate limit, timeout silencioso), exibia fallbacks hardcoded desatualizados sem indicação visual ao usuário. Câmbio e cripto agora consumidos exclusivamente via `/api/market`.
+
+---
+
 ## [1.1.0] — 2026-05-17
 
 ### Added
