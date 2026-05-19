@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-05-18T21:01:27.442Z",
+  "last_updated": "2026-05-19T01:38:40.859Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -39740,140 +39740,140 @@
     },
     {
       "date": "2026-05-18",
-      "taxa_diaria": 0.053746,
-      "indice": 20.71182231,
-      "tipo": "projecao"
+      "taxa_diaria": 0.0534,
+      "indice": 20.7117506,
+      "tipo": "historico"
     },
     {
       "date": "2026-05-19",
       "taxa_diaria": 0.053746,
-      "indice": 20.72295418,
+      "indice": 20.72288242,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-20",
       "taxa_diaria": 0.053746,
-      "indice": 20.73409203,
+      "indice": 20.73402024,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-21",
       "taxa_diaria": 0.053746,
-      "indice": 20.74523586,
+      "indice": 20.74516403,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-22",
       "taxa_diaria": 0.053746,
-      "indice": 20.75638569,
+      "indice": 20.75631382,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-25",
       "taxa_diaria": 0.053746,
-      "indice": 20.76754151,
+      "indice": 20.7674696,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-26",
       "taxa_diaria": 0.053746,
-      "indice": 20.77870332,
+      "indice": 20.77863137,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-27",
       "taxa_diaria": 0.053746,
-      "indice": 20.78987113,
+      "indice": 20.78979915,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-28",
       "taxa_diaria": 0.053746,
-      "indice": 20.80104495,
+      "indice": 20.80097292,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-29",
       "taxa_diaria": 0.053746,
-      "indice": 20.81222477,
+      "indice": 20.81215271,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-01",
       "taxa_diaria": 0.053746,
-      "indice": 20.8234106,
+      "indice": 20.8233385,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-02",
       "taxa_diaria": 0.053746,
-      "indice": 20.83460244,
+      "indice": 20.8345303,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-03",
       "taxa_diaria": 0.053746,
-      "indice": 20.84580029,
+      "indice": 20.84572812,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-04",
       "taxa_diaria": 0.053746,
-      "indice": 20.85700417,
+      "indice": 20.85693195,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-05",
       "taxa_diaria": 0.053746,
-      "indice": 20.86821407,
+      "indice": 20.86814181,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-08",
       "taxa_diaria": 0.053746,
-      "indice": 20.87942999,
+      "indice": 20.87935769,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-09",
       "taxa_diaria": 0.053746,
-      "indice": 20.89065194,
+      "indice": 20.8905796,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-10",
       "taxa_diaria": 0.053746,
-      "indice": 20.90187992,
+      "indice": 20.90180755,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-11",
       "taxa_diaria": 0.053746,
-      "indice": 20.91311393,
+      "indice": 20.91304152,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-12",
       "taxa_diaria": 0.053746,
-      "indice": 20.92435399,
+      "indice": 20.92428154,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-15",
       "taxa_diaria": 0.053746,
-      "indice": 20.93560008,
+      "indice": 20.93552759,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-16",
       "taxa_diaria": 0.053746,
-      "indice": 20.94685222,
+      "indice": 20.94677969,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-17",
       "taxa_diaria": 0.053746,
-      "indice": 20.95811041,
+      "indice": 20.95803784,
       "tipo": "projecao"
     }
   ]
