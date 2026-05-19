@@ -6,7 +6,7 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [Unreleased] — v1.3.0 (PR #18 aguardando merge)
+## [1.3.0] — 2026-05-19
 
 ### Fixed
 
