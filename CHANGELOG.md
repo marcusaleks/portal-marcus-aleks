@@ -6,6 +6,14 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.3.2] — 2026-05-19
+
+### Fixed
+
+- **Informações de infraestrutura expostas no `CLAUDE.md` público:** detalhes de configurações internas foram removidos do arquivo e movidos para memória privada do agente (fora do repositório). O `CLAUDE.md` mantém apenas regras operacionais genéricas.
+
+---
+
 ## [1.3.1] — 2026-05-18
 
 ### Fixed
