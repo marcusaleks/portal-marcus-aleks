@@ -6,6 +6,14 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.3.1] — 2026-05-18
+
+### Fixed
+
+- **Data fixa no card Curva DI · Juros Futuros:** o campo `asOf` representa a data do pregão ANBIMA (estática por definição) e não refletia quando o dado foi de fato atualizado. Substituído por `last_updated` (timestamp ISO gerado pelo script `fetch-curva-di.ts` a cada execução), com `timeZone: 'America/Sao_Paulo'` para exibição correta no fuso brasileiro. A data exibida agora muda automaticamente a cada run do workflow diário.
+
+---
+
 ## [1.3.0] — 2026-05-19
 
 ### Fixed
