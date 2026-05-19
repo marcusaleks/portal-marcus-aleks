@@ -42,12 +42,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
         run: |
-          PR_URL=$(gh pr create \
-            --repo "$GITHUB_REPOSITORY" \
-            --base "${{ env.TARGET_BRANCH }}" \
-            --head "${{ env.TEST_BRANCH }}" \
-            --title "test(ci): validação auto-merge bot [$(date -u +%Y-%m-%d)]" \
-            --body "$(cat <<'BODY'
+          cat > /tmp/pr-body.md << 'EOF'
           ## Teste automatizado — bot push + auto-merge
 
           Este PR valida o mecanismo completo antes da implementação em produção:
@@ -57,8 +52,16 @@ jobs:
           - [ ] PR é mergeado sem intervenção humana
 
           **Este PR pode ser fechado após validação.**
-          BODY
-          )" 2>&1 || echo "PR_ALREADY_EXISTS")
+          EOF
+
+          PR_TITLE="test(ci): validação auto-merge bot [$(date -u +%Y-%m-%d)]"
+
+          PR_URL=$(gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "${{ env.TEST_BRANCH }}" \
+            --title "$PR_TITLE" \
+            --body-file /tmp/pr-body.md 2>&1) || true
 
           if echo "$PR_URL" | grep -q "already exists"; then
             echo "ℹ️ PR já existe para este head — OK para o teste"
