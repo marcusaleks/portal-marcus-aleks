@@ -38,10 +38,10 @@ function fmtAnterior(taxa_anterior: number | null): string {
 export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06/2026' }: CurvaDICardProps) {
   const rawCurve = data.diCurve;
   const diCurve: DIItem[] = rawCurve?.items ?? FALLBACK_ITEMS;
-  const asOf: string | null = rawCurve?.asOf ?? null;
+  const lastUpdated: string | null = rawCurve?.last_updated ?? null;
 
-  const asOfLabel = asOf
-    ? new Date(asOf + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const asOfLabel = lastUpdated
+    ? new Date(lastUpdated).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' })
     : null;
 
   return (
