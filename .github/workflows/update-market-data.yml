@@ -74,6 +74,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # Garantir que apenas public/data/*.json será commitado
+          # Qualquer arquivo fora deste escopo aborta o push (proteção contra comprometimento do workflow)
+          UNEXPECTED=$(git diff --name-only | grep -v '^public/data/' || true)
+          if [ -n "$UNEXPECTED" ]; then
+            echo "❌ ABORTADO: arquivos fora de public/data/ foram modificados:"
+            echo "$UNEXPECTED"
+            exit 1
+          fi
+
           # Determinar qual série foi atualizada
           SERIES_UPDATED=""
           if ! git diff --quiet public/data/selic.json; then
