@@ -32,7 +32,8 @@ type CambioCriptoCardProps = {
 };
 
 export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
-  const isOffline = !data.currencies && !data.cryptos;
+  const isOffline = data.currenciesOffline ?? (!data.currencies && !data.cryptos);
+  const isCryptoOffline = data.cryptosOffline ?? false;
 
   const currencies = data.currencies ?? {
     USD: { bid: '5.74', pctChange: '0.41', high: '5.75', low: '5.71' },
@@ -105,7 +106,7 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
           Câmbio
         </span>
         {isOffline && (
-          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com AwesomeAPI">
+          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com Yahoo Finance">
             Dados offline
           </span>
         )}
@@ -124,7 +125,14 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
           <span className="inline-block w-2.5 h-[2px] bg-[#004ac6] dark:bg-blue-500 rounded-sm"></span>
           Criptomoedas
         </span>
-        <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold uppercase">USD · BRL</span>
+        <div className="flex items-center gap-1.5">
+          {isCryptoOffline && (
+            <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com CoinGecko">
+              Dados offline
+            </span>
+          )}
+          <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold uppercase">USD · BRL</span>
+        </div>
       </div>
 
       <div className="flex flex-col">

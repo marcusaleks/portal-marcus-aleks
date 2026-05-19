@@ -1,10 +1,9 @@
-import React from 'react';
-
 type DIItem = {
   label: string;
-  yesterday: string;
-  today: string;
-  var: string;
+  taxa: number;
+  taxa_str: string;
+  taxa_anterior: number | null;
+  var_pb: number | null;
 };
 
 type CurvaDICardProps = {
@@ -14,15 +13,31 @@ type CurvaDICardProps = {
 };
 
 const FALLBACK_ITEMS: DIItem[] = [
-  { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
-  { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
-  { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
-  { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' },
+  { label: 'DI 1 ano',   taxa: 0, taxa_str: '--', taxa_anterior: null, var_pb: null },
+  { label: 'DI 2 anos',  taxa: 0, taxa_str: '--', taxa_anterior: null, var_pb: null },
+  { label: 'DI 5 anos',  taxa: 0, taxa_str: '--', taxa_anterior: null, var_pb: null },
+  { label: 'DI 10 anos', taxa: 0, taxa_str: '--', taxa_anterior: null, var_pb: null },
 ];
+
+function fmtVar(var_pb: number | null): string {
+  if (var_pb === null) return '—';
+  if (var_pb === 0) return '0 p.b.';
+  return `${var_pb > 0 ? '+' : ''}${var_pb} p.b.`;
+}
+
+function fmtTaxa(taxa_str: string): string {
+  return taxa_str === '--' ? '--' : taxa_str + '%';
+}
+
+function fmtAnterior(taxa_anterior: number | null): string {
+  if (taxa_anterior === null) return '--';
+  return taxa_anterior.toFixed(4).replace('.', ',') + '%';
+}
+
 
 export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06/2026' }: CurvaDICardProps) {
   const rawCurve = data.diCurve;
-  const diCurve: DIItem[] = rawCurve?.items ?? rawCurve ?? FALLBACK_ITEMS;
+  const diCurve: DIItem[] = rawCurve?.items ?? FALLBACK_ITEMS;
   const asOf: string | null = rawCurve?.asOf ?? null;
 
   const asOfLabel = asOf
@@ -37,7 +52,7 @@ export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06
           Curva DI · Juros Futuros
         </span>
         {asOfLabel && (
-          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dado estático — integração B3/ANBIMA pendente">
+          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Fonte: ANBIMA ETTJ — atualizado diariamente após fechamento">
             Ref. {asOfLabel}
           </span>
         )}
@@ -61,22 +76,30 @@ export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06
           </tr>
         </thead>
         <tbody>
-          {diCurve.map((item, idx) => (
-            <tr key={idx} className="border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
-              <td className="py-2.5 text-left text-[11px] text-[#294c72] dark:text-slate-400 font-bold">
-                {item.label}
-              </td>
-              <td className="py-2.5 text-right text-xs text-[#6a8db0] dark:text-slate-500 font-medium">
-                {item.yesterday}
-              </td>
-              <td className="py-2.5 text-right text-xs text-[#04101e] dark:text-slate-200 font-bold">
-                {item.today}
-              </td>
-              <td className="py-2.5 text-right text-xs text-emerald-600 dark:text-emerald-500 font-bold">
-                {item.var}
-              </td>
-            </tr>
-          ))}
+          {diCurve.map((item, idx) => {
+            const varPb = item.var_pb;
+            const varColor = varPb === null || varPb === 0
+              ? 'text-[#6a8db0] dark:text-slate-500'
+              : varPb > 0
+                ? 'text-red-600 dark:text-red-500'
+                : 'text-emerald-600 dark:text-emerald-500';
+            return (
+              <tr key={idx} className="border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
+                <td className="py-2.5 text-left text-[11px] text-[#294c72] dark:text-slate-400 font-bold">
+                  {item.label}
+                </td>
+                <td className="py-2.5 text-right text-xs text-[#6a8db0] dark:text-slate-500 font-medium">
+                  {fmtAnterior(item.taxa_anterior)}
+                </td>
+                <td className="py-2.5 text-right text-xs text-[#04101e] dark:text-slate-200 font-bold">
+                  {fmtTaxa(item.taxa_str)}
+                </td>
+                <td className={`py-2.5 text-right text-xs font-bold ${varColor}`}>
+                  {fmtVar(item.var_pb)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

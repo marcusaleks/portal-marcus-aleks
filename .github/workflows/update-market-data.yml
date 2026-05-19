@@ -3,8 +3,9 @@ name: "update-market-data"
 on:
   # Triggers agendados (horários em UTC, convertem para Brasília: -3h)
   schedule:
-    # SELIC + PTAX — Seg-Sex 18h30 BRT (21h30 UTC)
-    - cron: "30 21 * * 1-5"
+    # SELIC + PTAX + Curva DI — Seg-Sex 21h30 BRT (00h30 UTC dia seguinte)
+    # ANBIMA publica ETTJ após fechamento do mercado (~20h BRT)
+    - cron: "30 0 * * 2-6"
     # IPCA — Todos os dias 13h BRT (16h UTC)
     - cron: "0 16 * * *"
 
@@ -39,12 +40,18 @@ jobs:
       - name: "Install dependencies"
         run: npm ci --prefer-offline --no-audit
 
-      - name: "Fetch market data"
+      - name: "Fetch market data (BCB)"
         env:
           SERIES: ${{ github.event.inputs.series || 'all' }}
         run: |
           echo "🚀 Iniciando fetch de dados do Banco Central..."
           npx ts-node --project tsconfig.scripts.json scripts/fetch-market-data.ts
+        continue-on-error: true
+
+      - name: "Fetch Curva DI (ANBIMA)"
+        run: |
+          echo "📈 Buscando Curva DI da ANBIMA..."
+          npx ts-node --project tsconfig.scripts.json scripts/fetch-curva-di.ts
         continue-on-error: true
 
       - name: "Check if data changed"
@@ -77,6 +84,9 @@ jobs:
           fi
           if ! git diff --quiet public/data/ptax.json; then
             SERIES_UPDATED="${SERIES_UPDATED}PTAX "
+          fi
+          if ! git diff --quiet public/data/curva_di.json; then
+            SERIES_UPDATED="${SERIES_UPDATED}CurvaDI "
           fi
 
           git add public/data/*.json

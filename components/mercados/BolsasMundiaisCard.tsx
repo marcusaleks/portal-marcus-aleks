@@ -41,20 +41,7 @@ export default function BolsasMundiaisCard({ data }: BolsasMundiaisCardProps) {
     getIndexData('RUSSELL', 'Russell 2000', 'RUT', 2048, -0.23)
   ];
 
-  // Try to find real EWZ from BRAPI stocks if available
-  const ewzStock = data?.stocks?.find((s: any) => s.symbol === 'EWZ' || s.symbol === 'EWZ11');
-  const ewzIsOffline = ewzStock?.status === 'offline';
-  const ewzPoints = ewzIsOffline ? '--' : (ewzStock ? ewzStock.regularMarketPrice.toFixed(2).replace('.', ',') : '28,21');
-  const ewzChangePct = ewzStock ? ewzStock.regularMarketChangePercent : -3.02;
-  const ewzChange = ewzIsOffline ? 'Sem Conexão' : `${ewzChangePct >= 0 ? '+' : ''}${ewzChangePct.toFixed(2).replace('.', ',')}%`;
-
-  usIndices.push({
-    name: 'EWZ Brasil',
-    symbol: 'NYSE',
-    points: ewzPoints,
-    change: ewzChange,
-    isUp: ewzIsOffline ? true : ewzChangePct >= 0
-  });
+  usIndices.push(getIndexData('EWZ', 'EWZ Brasil', 'NYSE', 28.21, -3.02));
 
   const globalIndices: IndexItem[] = [
     getIndexData('FTSE', 'FTSE 100', 'Londres', 8234, 0.23),
