@@ -1,11 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+
+const YAHOO_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+};
 
 async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChange: number) {
   try {
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-      },
+      headers: YAHOO_HEADERS,
       signal: AbortSignal.timeout(3500)
     });
     if (!res.ok) throw new Error();
@@ -13,14 +17,43 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
     const result = data?.chart?.result?.[0]?.meta;
     if (!result) throw new Error();
     const price = result.regularMarketPrice ?? defaultPrice;
-    const previousClose = result.previousClose ?? (price / (1 + defaultChange / 100));
+    const previousClose = result.previousClose ?? result.chartPreviousClose ?? (price / (1 + defaultChange / 100));
     const pctChange = previousClose ? ((price - previousClose) / previousClose) * 100 : defaultChange;
     return { price, pctChange };
   } catch {
+    return { price: defaultPrice, pctChange: defaultChange, status: 'offline' };
+  }
+}
+
+async function fetchYahooCurrency(symbol: string, defaultBid: number, defaultChange: number) {
+  try {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`, {
+      headers: YAHOO_HEADERS,
+      signal: AbortSignal.timeout(3500)
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const result = data?.chart?.result?.[0]?.meta;
+    if (!result) throw new Error();
+    const bid = result.regularMarketPrice ?? defaultBid;
+    const previousClose = result.previousClose ?? result.chartPreviousClose ?? defaultBid;
+    const pctChange = previousClose ? ((bid - previousClose) / previousClose) * 100 : defaultChange;
+    const high = result.regularMarketDayHigh ?? bid;
+    const low = result.regularMarketDayLow ?? bid;
     return {
-      price: defaultPrice,
-      pctChange: defaultChange,
-      status: 'offline'
+      bid: bid.toFixed(4),
+      pctChange: pctChange.toFixed(2),
+      high: high.toFixed(4),
+      low: low.toFixed(4),
+      status: 'live' as const
+    };
+  } catch {
+    return {
+      bid: defaultBid.toFixed(2),
+      pctChange: defaultChange.toFixed(2),
+      high: defaultBid.toFixed(2),
+      low: defaultBid.toFixed(2),
+      status: 'offline' as const
     };
   }
 }
@@ -49,6 +82,24 @@ async function fetchYahooIntraday(symbol: string) {
     return closeArray;
   } catch {
     return null;
+  }
+}
+
+function loadCurvaDI() {
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'data', 'curva_di.json');
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return {
+      asOf: null,
+      items: [
+        { label: 'DI 1 ano', vertice_du: 252, taxa: 0, taxa_str: '--' },
+        { label: 'DI 2 anos', vertice_du: 504, taxa: 0, taxa_str: '--' },
+        { label: 'DI 5 anos', vertice_du: 1260, taxa: 0, taxa_str: '--' },
+        { label: 'DI 10 anos', vertice_du: 2520, taxa: 0, taxa_str: '--' },
+      ]
+    };
   }
 }
 
@@ -158,14 +209,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log("[BRAPI FETCH LOG] Finished fetching. Total successful stocks:", results.length);
     const brapiPromise = Promise.resolve(results);
 
-    const awesomeApiUrl = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,BTC-BRL,ETH-BRL,XRP-BRL,SOL-BRL,BTC-USD,ETH-USD,SOL-USD,XRP-USD,BNB-BRL,BNB-USD';
-    const awesomePromise = fetch(awesomeApiUrl, { signal: AbortSignal.timeout(12000) })
-      .then(r => r.ok ? r.json() : null)
-      .catch(() => null);
-
-    const coinGeckoPromise = fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd,brl&include_24hr_change=true', { signal: AbortSignal.timeout(5000) })
-      .then(r => r.ok ? r.json() : null)
-      .catch(() => null);
+    const coinGeckoPromise = fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,ripple,solana,monero&vs_currencies=usd,brl&include_24hr_change=true',
+      { signal: AbortSignal.timeout(8000) }
+    ).then(r => r.ok ? r.json() : null).catch(() => null);
 
     const ibovIntradayPromise = fetchYahooIntraday('^BVSP');
 
@@ -177,14 +224,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fetchYahooIndex('^FTSE', 8234.12, 0.23).then(data => ({ key: 'FTSE', ...data })),
       fetchYahooIndex('^GDAXI', 18923.45, 0.45).then(data => ({ key: 'DAX', ...data })),
       fetchYahooIndex('^N225', 38456.22, -1.23).then(data => ({ key: 'NIKKEI', ...data })),
-      fetchYahooIndex('^HSI', 22123.88, -0.89).then(data => ({ key: 'HANGSENG', ...data }))
+      fetchYahooIndex('^HSI', 22123.88, -0.89).then(data => ({ key: 'HANGSENG', ...data })),
+      fetchYahooIndex('EWZ', 28.21, -3.02).then(data => ({ key: 'EWZ', ...data }))
     ]);
 
-    // 4. Resolve all promises
-    const [stocks, currencies, globalIndices, geckoData, ibovIntraday] = await Promise.all([
+    const currencyPromise = Promise.all([
+      fetchYahooCurrency('BRL=X', 5.74, 0.41).then(data => ({ key: 'USD', ...data })),
+      fetchYahooCurrency('EURBRL=X', 6.52, 0.18).then(data => ({ key: 'EUR', ...data })),
+      fetchYahooCurrency('GBPBRL=X', 7.63, 0.23).then(data => ({ key: 'GBP', ...data }))
+    ]);
+
+    // Resolve all promises
+    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday] = await Promise.all([
       brapiPromise,
-      awesomePromise,
       yahooPromise,
+      currencyPromise,
       coinGeckoPromise,
       ibovIntradayPromise
     ]);
@@ -195,85 +249,71 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return acc;
     }, {});
 
-    // Build consolidated payload
+    // Build consolidated currency map
+    const currencyMap = currencyResults.reduce((acc: any, cur: any) => {
+      const { key, ...rest } = cur;
+      acc[key] = rest;
+      return acc;
+    }, {});
+
+    const currenciesOffline = currencyResults.every(c => c.status === 'offline');
+
+    // Build cripto payload from CoinGecko
+    const fmt = (n: number | undefined, fallback: string) => n != null ? Math.round(n).toString() : fallback;
+    const fmtSmall = (n: number | undefined, fallback: string) => n != null ? n.toFixed(4) : fallback;
+    const fmtPct = (n: number | undefined, fallback: string) => n != null ? n.toFixed(2) : fallback;
+
+    const cryptos = {
+      BTC: {
+        usd: fmt(geckoData?.bitcoin?.usd, '76000'),
+        brl: fmt(geckoData?.bitcoin?.brl, '379000'),
+        pctChange: fmtPct(geckoData?.bitcoin?.usd_24h_change, '0.00'),
+        status: geckoData?.bitcoin ? 'live' : 'offline'
+      },
+      ETH: {
+        usd: fmt(geckoData?.ethereum?.usd, '2100'),
+        brl: fmt(geckoData?.ethereum?.brl, '10500'),
+        pctChange: fmtPct(geckoData?.ethereum?.usd_24h_change, '0.00'),
+        status: geckoData?.ethereum ? 'live' : 'offline'
+      },
+      BNB: {
+        usd: fmt(geckoData?.binancecoin?.usd, '635'),
+        brl: fmt(geckoData?.binancecoin?.brl, '3175'),
+        pctChange: fmtPct(geckoData?.binancecoin?.usd_24h_change, '0.00'),
+        status: geckoData?.binancecoin ? 'live' : 'offline'
+      },
+      XRP: {
+        usd: fmtSmall(geckoData?.ripple?.usd, '1.35'),
+        brl: fmtSmall(geckoData?.ripple?.brl, '6.75'),
+        pctChange: fmtPct(geckoData?.ripple?.usd_24h_change, '0.00'),
+        status: geckoData?.ripple ? 'live' : 'offline'
+      },
+      SOL: {
+        usd: fmt(geckoData?.solana?.usd, '85'),
+        brl: fmt(geckoData?.solana?.brl, '425'),
+        pctChange: fmtPct(geckoData?.solana?.usd_24h_change, '0.00'),
+        status: geckoData?.solana ? 'live' : 'offline'
+      },
+      XMR: {
+        usd: fmtSmall(geckoData?.monero?.usd, '170.00'),
+        brl: fmt(geckoData?.monero?.brl, '850'),
+        pctChange: fmtPct(geckoData?.monero?.usd_24h_change, '0.00'),
+        status: geckoData?.monero ? 'live' : 'offline'
+      }
+    };
+
+    const cryptosOffline = Object.values(cryptos).every(c => c.status === 'offline');
+
     const responseData = {
       timestamp: new Date().toISOString(),
-      ibovIntraday: ibovIntraday,
-      stocks: stocks,
+      ibovIntraday,
+      stocks,
       globalIndices: globalMap,
-      currencies: currencies ? {
-        USD: {
-          bid: currencies.USDBRL?.bid ?? '5.74',
-          pctChange: currencies.USDBRL?.pctChange ?? '0.41',
-          high: currencies.USDBRL?.high ?? '5.75',
-          low: currencies.USDBRL?.low ?? '5.71'
-        },
-        EUR: {
-          bid: currencies.EURBRL?.bid ?? '6.52',
-          pctChange: currencies.EURBRL?.pctChange ?? '0.18',
-          high: currencies.EURBRL?.high ?? '6.54',
-          low: currencies.EURBRL?.low ?? '6.49'
-        },
-        GBP: {
-          bid: currencies.GBPBRL?.bid ?? '7.63',
-          pctChange: currencies.GBPBRL?.pctChange ?? '0.23',
-          high: currencies.GBPBRL?.high ?? '7.65',
-          low: currencies.GBPBRL?.low ?? '7.60'
-        }
-      } : {
-        USD: { bid: '5.74', pctChange: '0.41', high: '5.75', low: '5.71' },
-        EUR: { bid: '6.52', pctChange: '0.18', high: '6.54', low: '6.49' },
-        GBP: { bid: '7.63', pctChange: '0.23', high: '7.65', low: '7.60' }
-      },
-      cryptos: currencies ? {
-        BTC: {
-          usd: currencies.BTCUSD?.bid ?? '104234',
-          brl: currencies.BTCBRL?.bid ?? '598142',
-          pctChange: currencies.BTCUSD?.pctChange ?? '2.45'
-        },
-        ETH: {
-          usd: currencies.ETHUSD?.bid ?? '2923',
-          brl: currencies.ETHBRL?.bid ?? '16778',
-          pctChange: currencies.ETHUSD?.pctChange ?? '1.23'
-        },
-        BNB: {
-          usd: currencies.BNBUSD?.bid ?? '623',
-          brl: currencies.BNBBRL?.bid ?? '3576',
-          pctChange: currencies.BNBUSD?.pctChange ?? '0.89'
-        },
-        XRP: {
-          usd: currencies.XRPUSD?.bid ?? '2.45',
-          brl: currencies.XRPBRL?.bid ?? '14.06',
-          pctChange: currencies.XRPUSD?.pctChange ?? '-1.23'
-        },
-        SOL: {
-          usd: currencies.SOLUSD?.bid ?? '178',
-          brl: currencies.SOLBRL?.bid ?? '1021',
-          pctChange: currencies.SOLUSD?.pctChange ?? '3.45'
-        },
-        XMR: {
-          usd: geckoData?.monero?.usd?.toString() ?? '392.82',
-          brl: geckoData?.monero?.brl?.toString() ?? '1995.71',
-          pctChange: geckoData?.monero?.usd_24h_change?.toString() ?? '1.65'
-        }
-      } : {
-        BTC: { usd: '104234', brl: '598142', pctChange: '2.45' },
-        ETH: { usd: '2923', brl: '16778', pctChange: '1.23' },
-        BNB: { usd: '623', brl: '3576', pctChange: '0.89' },
-        XRP: { usd: '2.45', brl: '14.06', pctChange: '-1.23' },
-        SOL: { usd: '178', brl: '1021', pctChange: '3.45' },
-        XMR: { usd: '392.82', brl: '1995.71', pctChange: '1.65' }
-      },
-      // TODO: substituir por integração B3/ANBIMA para dados em tempo real (ACHADO-09)
-      diCurve: {
-        asOf: '2026-05-09',
-        items: [
-          { label: 'DI 1 ano', yesterday: '14,01%', today: '14,16%', var: '+15 p.b.' },
-          { label: 'DI 2 anos', yesterday: '14,22%', today: '14,40%', var: '+18 p.b.' },
-          { label: 'DI 5 anos', yesterday: '14,50%', today: '14,75%', var: '+25 p.b.' },
-          { label: 'DI 10 anos', yesterday: '14,88%', today: '15,16%', var: '+28 p.b.' }
-        ]
-      }
+      currenciesOffline,
+      cryptosOffline,
+      currencies: currencyMap,
+      cryptos,
+      diCurve: loadCurvaDI()
     };
 
     res.status(200).json(responseData);

@@ -6,6 +6,23 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Unreleased] — v1.3.0 (PR #18 aguardando merge)
+
+### Fixed
+
+- **Câmbio (USD, EUR, GBP) com valores desatualizados (~1 ano):** a AwesomeAPI falhava silenciosamente nas requisições originadas nos servidores Vercel, servindo fallbacks hardcoded sem aviso ao usuário. Migrado para **Yahoo Finance** (`BRL=X`, `EURBRL=X`, `GBPBRL=X`) via nova função `fetchYahooCurrency`. Corrigido cálculo de variação diária via `chartPreviousClose` (Yahoo não retorna `previousClose` para pares de câmbio). Payload enriquecido com `currenciesOffline` para detecção precisa de fallback no frontend.
+
+- **Criptomoedas (BTC, ETH, BNB, XRP, SOL, XMR) com valores desatualizados (~1 ano):** mesma causa raiz do câmbio (AwesomeAPI falhando na Vercel). Migrado para **CoinGecko**, expandindo a chamada já existente para XMR. Remove dependência da AwesomeAPI completamente do backend. Payload enriquecido com `cryptosOffline`.
+
+- **EWZ (iShares MSCI Brazil ETF) hardcoded em $28.21:** valor correspondia a ~1 ano atrás. Agora buscado via `fetchYahooIndex('EWZ')` e entregue em `globalIndices.EWZ`. `BolsasMundiaisCard` simplificado para consumir EWZ via `getIndexData`, removendo lógica avulsa de busca em `stocks`.
+
+### Added
+
+- **Curva DI — Juros Futuros via ANBIMA ETTJ:** novo script `scripts/fetch-curva-di.ts` faz scraping da página pública da ANBIMA (`https://www.anbima.com.br/informacoes/est-termo/CZ.asp`), extraindo a taxa prefixada para os vértices de 252, 504, 1260 e 2520 dias úteis (~1, 2, 5 e 10 anos). O script persiste a taxa do dia anterior para calcular a variação em pontos-base. Resultado salvo em `public/data/curva_di.json`; `market.ts` lê o arquivo via `loadCurvaDI()`. `CurvaDICard` atualizado com schema `taxa_str` / `taxa_anterior` / `var_pb` e colorização de variação (vermelho=alta, verde=queda).
+- **Workflow `update-market-data.yml`** estendido com step de Curva DI. Cron ajustado para 00h30 UTC (21h30 BRT), após a publicação diária da ETTJ pela ANBIMA (~20h BRT).
+
+---
+
 ## [1.2.3] — 2026-05-18
 
 ### Fixed
