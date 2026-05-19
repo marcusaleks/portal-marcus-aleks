@@ -19,6 +19,8 @@ on:
 
 env:
   NODE_VERSION: "20"
+  DATA_BRANCH: "data/automated"
+  TARGET_BRANCH: "main"
 
 jobs:
   update-market-data:
@@ -26,11 +28,20 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: "Checkout code"
+      - name: "Checkout data/automated"
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.DATA_BRANCH }}
           fetch-depth: 1
           token: ${{ secrets.DATA_BOT_TOKEN }}
+
+      - name: "Sincronizar public/data/ com main"
+        env:
+          GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
+        run: |
+          git fetch origin ${{ env.TARGET_BRANCH }}
+          git checkout origin/${{ env.TARGET_BRANCH }} -- public/data/
+          echo "✅ public/data/ sincronizado com main"
 
       - name: "Setup Node.js"
         uses: actions/setup-node@v4
@@ -67,16 +78,13 @@ jobs:
             git diff --name-only public/data/
           fi
 
-      - name: "Commit and push if changed"
+      - name: "Commit e push em data/automated"
         if: steps.check_changes.outputs.changed == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Marcus Aleks"
+          git config user.email "178334383+marcusaleks@users.noreply.github.com"
 
           # Garantir que apenas public/data/*.json será commitado
-          # Qualquer arquivo fora deste escopo aborta o push (proteção contra comprometimento do workflow)
           UNEXPECTED=$(git diff --name-only | grep -v '^public/data/' || true)
           if [ -n "$UNEXPECTED" ]; then
             echo "❌ ABORTADO: arquivos fora de public/data/ foram modificados:"
@@ -84,7 +92,6 @@ jobs:
             exit 1
           fi
 
-          # Determinar qual série foi atualizada
           SERIES_UPDATED=""
           if ! git diff --quiet public/data/selic.json; then
             SERIES_UPDATED="${SERIES_UPDATED}SELIC "
@@ -99,9 +106,64 @@ jobs:
             SERIES_UPDATED="${SERIES_UPDATED}CurvaDI "
           fi
 
+          echo "series_updated=${SERIES_UPDATED}" >> $GITHUB_ENV
           git add public/data/*.json
           git commit -m "chore(data): atualiza séries do BCB — ${SERIES_UPDATED}[automated]"
-          git push origin HEAD
+          git push origin ${{ env.DATA_BRANCH }}
+          echo "✅ Push em ${{ env.DATA_BRANCH }} concluído"
+
+      - name: "Abrir PR data/automated → main"
+        if: steps.check_changes.outputs.changed == 'true'
+        id: open_pr
+        env:
+          GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
+        run: |
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          cat > /tmp/pr-body.md << EOF
+          ## Atualização automática de dados — ${TODAY}
+
+          **Séries atualizadas:** ${series_updated}
+
+          | Série | Fonte |
+          |---|---|
+          | SELIC | BCB Série 11 |
+          | IPCA | BCB Série 433 |
+          | PTAX | BCB Série 10813 |
+          | Curva DI | ANBIMA |
+
+          > Gerado automaticamente pelo workflow \`update-market-data\`. Não requer revisão humana.
+          EOF
+
+          PR_URL=$(gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "${{ env.DATA_BRANCH }}" \
+            --title "chore(data): atualiza séries do BCB — ${series_updated}[${TODAY}]" \
+            --body-file /tmp/pr-body.md 2>&1) || true
+
+          if echo "$PR_URL" | grep -q "already exists"; then
+            echo "ℹ️ PR já existe — atualizando com novo commit"
+            PR_URL=$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --head "${{ env.DATA_BRANCH }}" \
+              --base "${{ env.TARGET_BRANCH }}" \
+              --json url --jq '.[0].url')
+          fi
+
+          echo "✅ PR: $PR_URL"
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: "Habilitar auto-merge no PR"
+        if: steps.check_changes.outputs.changed == 'true' && steps.open_pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.open_pr.outputs.pr_url }}" \
+            --auto \
+            --squash \
+            --delete-branch=false
+          echo "✅ Auto-merge habilitado — aguardando CI verde"
 
       - name: "Notify on failure"
         if: failure()
@@ -129,10 +191,9 @@ jobs:
                - IPCA: https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?format=json
                - PTAX: https://api.bcb.gov.br/dados/serie/bcdata.sgs.10813/dados?format=json
             3. Se BCB estiver down, fechar esta issue depois de restaurar
-            4. Se erro persistir, escalacionar para @marcus
+            4. Se erro persistir, escalacionar para @marcusaleks
             `;
 
-            // Procura por issue existente não fechada
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -141,7 +202,6 @@ jobs:
             });
 
             if (issues.length === 0) {
-              // Cria nova issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -170,28 +230,24 @@ jobs:
         run: |
           echo "🔍 Validando estrutura JSON..."
 
-          # Validar selic.json
           if ! node -e "const data = require('./public/data/selic.json'); if (data.series !== '11' || !Array.isArray(data.data)) throw new Error('SELIC schema inválido')"; then
             echo "❌ selic.json estrutura inválida"
             exit 1
           fi
           echo "✅ selic.json validado"
 
-          # Validar ipca.json
           if ! node -e "const data = require('./public/data/ipca.json'); if (data.series !== '433' || !Array.isArray(data.data)) throw new Error('IPCA schema inválido')"; then
             echo "❌ ipca.json estrutura inválida"
             exit 1
           fi
           echo "✅ ipca.json validado"
 
-          # Validar ptax.json
           if ! node -e "const data = require('./public/data/ptax.json'); if (data.series !== '10813' || !Array.isArray(data.data)) throw new Error('PTAX schema inválido')"; then
             echo "❌ ptax.json estrutura inválida"
             exit 1
           fi
           echo "✅ ptax.json validado"
 
-          # Validar feriados_nacionais.json
           if ! node -e "const data = require('./public/data/feriados_nacionais.json'); if (!Array.isArray(data.feriados)) throw new Error('feriados schema inválido')"; then
             echo "❌ feriados_nacionais.json estrutura inválida"
             exit 1
@@ -212,4 +268,3 @@ jobs:
           echo "  SELIC: $SELIC_UPDATE"
           echo "  IPCA: $IPCA_UPDATE"
           echo "  PTAX: $PTAX_UPDATE"
-
