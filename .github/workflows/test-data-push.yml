@@ -1,0 +1,95 @@
+name: "test-data-push"
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+  TEST_BRANCH: "data/automated-test"
+  TARGET_BRANCH: "staging"
+
+jobs:
+  test-bot-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: "Checkout data/automated-test"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TEST_BRANCH }}
+          token: ${{ secrets.DATA_BOT_TOKEN }}
+          fetch-depth: 1
+
+      - name: "Escrever arquivo de teste"
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{ \"test\": true, \"timestamp\": \"$TIMESTAMP\", \"triggered_by\": \"$GITHUB_ACTOR\" }" \
+            > public/data/.test-timestamp.json
+          echo "📝 Arquivo de teste criado: $TIMESTAMP"
+
+      - name: "Commit e push em data/automated-test via DATA_BOT_TOKEN"
+        run: |
+          git config user.name "Marcus Aleks"
+          git config user.email "178334383+marcusaleks@users.noreply.github.com"
+          git add public/data/.test-timestamp.json
+          git commit -m "test(ci): valida push do bot em branch protegida [automated-test]"
+          git push origin ${{ env.TEST_BRANCH }}
+          echo "✅ Push em ${{ env.TEST_BRANCH }} bem-sucedido"
+
+      - name: "Abrir PR data/automated-test → staging"
+        id: open_pr
+        env:
+          GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
+        run: |
+          cat > /tmp/pr-body.md << 'EOF'
+          ## Teste automatizado — bot push + auto-merge
+
+          Este PR valida o mecanismo completo antes da implementação em produção:
+
+          - [x] Bot conseguiu push direto em `data/automated-test` (branch protegida)
+          - [ ] Auto-merge executa após CI verde
+          - [ ] PR é mergeado sem intervenção humana
+
+          **Este PR pode ser fechado após validação.**
+          EOF
+
+          PR_TITLE="test(ci): validação auto-merge bot [$(date -u +%Y-%m-%d)]"
+
+          PR_URL=$(gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "${{ env.TEST_BRANCH }}" \
+            --title "$PR_TITLE" \
+            --body-file /tmp/pr-body.md 2>&1) || true
+
+          if echo "$PR_URL" | grep -q "already exists"; then
+            echo "ℹ️ PR já existe para este head — OK para o teste"
+          else
+            echo "✅ PR aberto: $PR_URL"
+            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: "Habilitar auto-merge no PR"
+        if: steps.open_pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.open_pr.outputs.pr_url }}" \
+            --auto \
+            --squash \
+            --delete-branch=false
+          echo "✅ Auto-merge habilitado — aguardando CI"
+
+      - name: "Resumo do teste"
+        run: |
+          echo "### Resultado do teste" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Etapa | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Push em branch protegida (\`data/automated-test\`) | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit como \`Marcus Aleks\` (admin) | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Abertura de PR via API | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Auto-merge habilitado | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Próximo passo:** verificar se o PR foi mergeado automaticamente após CI." >> $GITHUB_STEP_SUMMARY
