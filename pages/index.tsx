@@ -20,7 +20,9 @@ export default function Home() {
   const [currentTimeOnlyStr, setCurrentTimeOnlyStr] = useState('...');
   const [countdown, setCountdown] = useState(180); // 3 minutes countdown
   const [darkMode, setDarkMode] = useState(false);
-  const [selic, setSelic] = useState('14,40%');
+  const [selic, setSelic] = useState<string | null>(null);
+  const [selicStatus, setSelicStatus] = useState<'loading' | 'live' | 'offline'>('loading');
+  const [selicFetchedAt, setSelicFetchedAt] = useState<string | null>(null);
   const [nextCopom, setNextCopom] = useState('17/06/2026');
 
   const fetchData = async () => {
@@ -42,17 +44,23 @@ export default function Home() {
       setLastUpdatedStr(`${padding(now.getHours())}:${padding(now.getMinutes())}`);
     }
 
-    // Fetch Selic directly from BCB SGS
     try {
-      const resSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json');
+      const resSelic = await fetch('/api/selic-meta');
       if (resSelic.ok) {
         const dataSelic = await resSelic.json();
-        if (dataSelic?.[0]?.valor) {
-          setSelic(dataSelic[0].valor.replace('.', ',') + '%');
+        if (dataSelic?.status === 'live' && dataSelic?.valor_pct) {
+          setSelic(dataSelic.valor_pct);
+          setSelicStatus('live');
+          setSelicFetchedAt(dataSelic.fetched_at ?? null);
+        } else {
+          setSelicStatus('offline');
         }
+      } else {
+        setSelicStatus('offline');
       }
     } catch (err) {
-      console.error('Error fetching Selic Efetiva:', err);
+      console.error('Error fetching Selic Meta:', err);
+      setSelicStatus('offline');
     }
 
     // Fetch COPOM next meeting date from public/copom.md
@@ -239,7 +247,7 @@ export default function Home() {
             <CambioCriptoCard data={displayData} />
 
             {/* Column 1: Curva DI (Row 2) */}
-            <CurvaDICard data={displayData} selic={selic} nextCopom={nextCopom} />
+            <CurvaDICard data={displayData} selic={selic} selicStatus={selicStatus} selicFetchedAt={selicFetchedAt} nextCopom={nextCopom} />
 
             {/* Column 2 & 3: Maiores Movimentos (Row 2) */}
             <MaioresMovimentosCard data={displayData} />
