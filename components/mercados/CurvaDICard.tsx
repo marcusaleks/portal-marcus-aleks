@@ -8,7 +8,9 @@ type DIItem = {
 
 type CurvaDICardProps = {
   data: any;
-  selic?: string;
+  selic?: string | null;
+  selicStatus?: 'loading' | 'live' | 'offline';
+  selicFetchedAt?: string | null;
   nextCopom?: string;
 };
 
@@ -35,7 +37,16 @@ function fmtAnterior(taxa_anterior: number | null): string {
 }
 
 
-export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06/2026' }: CurvaDICardProps) {
+export default function CurvaDICard({
+  data,
+  selic = null,
+  selicStatus = 'loading',
+  selicFetchedAt = null,
+  nextCopom = '17/06/2026',
+}: CurvaDICardProps) {
+  const selicTimeLabel = selicFetchedAt
+    ? new Date(selicFetchedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })
+    : null;
   const rawCurve = data.diCurve;
   const diCurve: DIItem[] = rawCurve?.items ?? FALLBACK_ITEMS;
   const lastUpdated: string | null = rawCurve?.last_updated ?? null;
@@ -109,12 +120,36 @@ export default function CurvaDICard({ data, selic = '14,40%', nextCopom = '17/06
       {/* Selic & Copom Info */}
       <div className="flex items-center justify-between mt-1 px-1.5">
         <div>
-          <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase block tracking-wider font-bold mb-0.5 select-none">
-            Selic Efetiva
+          <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider font-bold mb-0.5 select-none flex items-center gap-1">
+            Selic Meta
+            {selicStatus === 'offline' && (
+              <span
+                title="Indisponível — última cotação não pôde ser obtida do BCB"
+                className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400"
+              />
+            )}
           </span>
-          <span className="text-[13px] font-black text-[#004ac6] dark:text-blue-400">
-            {selic}
-          </span>
+          {selicStatus === 'loading' ? (
+            <span className="text-[13px] font-black text-[#6a8db0] dark:text-slate-500 animate-pulse">
+              ...
+            </span>
+          ) : selicStatus === 'offline' || !selic ? (
+            <span
+              className="text-[13px] font-black text-amber-600 dark:text-amber-400"
+              title="Fonte BCB indisponível"
+            >
+              —
+            </span>
+          ) : (
+            <span className="text-[13px] font-black text-[#004ac6] dark:text-blue-400">
+              {selic}
+              {selicTimeLabel && (
+                <span className="ml-1.5 text-[9px] font-bold text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider">
+                  {selicTimeLabel}
+                </span>
+              )}
+            </span>
+          )}
         </div>
         <div className="text-right">
           <span className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase block tracking-wider font-bold mb-0.5 select-none">
