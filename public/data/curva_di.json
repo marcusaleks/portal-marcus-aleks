@@ -1,6 +1,6 @@
 {
   "source": "https://www.anbima.com.br/informacoes/est-termo/CZ.asp",
-  "last_updated": "2026-05-28T04:54:39.261Z",
+  "last_updated": "2026-05-28T18:31:08.952Z",
   "asOf": "2026-05-28",
   "items": [
     {
@@ -8,32 +8,32 @@
       "vertice_du": 252,
       "taxa": 13.8038,
       "taxa_str": "13,8038",
-      "taxa_anterior": 13.7838,
-      "var_pb": 2
+      "taxa_anterior": 13.8038,
+      "var_pb": 0
     },
     {
       "label": "DI 2 anos",
       "vertice_du": 504,
       "taxa": 13.7988,
       "taxa_str": "13,7988",
-      "taxa_anterior": 13.7767,
-      "var_pb": 2
+      "taxa_anterior": 13.7988,
+      "var_pb": 0
     },
     {
       "label": "DI 5 anos",
       "vertice_du": 1260,
       "taxa": 14.113,
       "taxa_str": "14,1130",
-      "taxa_anterior": 14.1072,
-      "var_pb": 1
+      "taxa_anterior": 14.113,
+      "var_pb": 0
     },
     {
       "label": "DI 10 anos",
       "vertice_du": 2520,
       "taxa": 14.2137,
       "taxa_str": "14,2137",
-      "taxa_anterior": 14.205,
-      "var_pb": 1
+      "taxa_anterior": 14.2137,
+      "var_pb": 0
     }
   ]
 }
