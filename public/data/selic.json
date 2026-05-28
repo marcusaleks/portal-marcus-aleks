@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-05-27T18:16:59.581Z",
+  "last_updated": "2026-05-28T04:52:47.142Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -39782,98 +39782,98 @@
     },
     {
       "date": "2026-05-27",
-      "taxa_diaria": 0.053746,
-      "indice": 20.78936724,
-      "tipo": "projecao"
+      "taxa_diaria": 0.0534,
+      "indice": 20.78929526,
+      "tipo": "historico"
     },
     {
       "date": "2026-05-28",
       "taxa_diaria": 0.053746,
-      "indice": 20.80054079,
+      "indice": 20.80046876,
       "tipo": "projecao"
     },
     {
       "date": "2026-05-29",
       "taxa_diaria": 0.053746,
-      "indice": 20.81172034,
+      "indice": 20.81164827,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-01",
       "taxa_diaria": 0.053746,
-      "indice": 20.82290589,
+      "indice": 20.82283379,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-02",
       "taxa_diaria": 0.053746,
-      "indice": 20.83409746,
+      "indice": 20.83402533,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-03",
       "taxa_diaria": 0.053746,
-      "indice": 20.84529505,
+      "indice": 20.84522287,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-04",
       "taxa_diaria": 0.053746,
-      "indice": 20.85649865,
+      "indice": 20.85642644,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-05",
       "taxa_diaria": 0.053746,
-      "indice": 20.86770828,
+      "indice": 20.86763602,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-08",
       "taxa_diaria": 0.053746,
-      "indice": 20.87892393,
+      "indice": 20.87885163,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-09",
       "taxa_diaria": 0.053746,
-      "indice": 20.8901456,
+      "indice": 20.89007327,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-10",
       "taxa_diaria": 0.053746,
-      "indice": 20.90137331,
+      "indice": 20.90130094,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-11",
       "taxa_diaria": 0.053746,
-      "indice": 20.91260706,
+      "indice": 20.91253465,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-12",
       "taxa_diaria": 0.053746,
-      "indice": 20.92384684,
+      "indice": 20.92377439,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-15",
       "taxa_diaria": 0.053746,
-      "indice": 20.93509266,
+      "indice": 20.93502017,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-16",
       "taxa_diaria": 0.053746,
-      "indice": 20.94634453,
+      "indice": 20.946272,
       "tipo": "projecao"
     },
     {
       "date": "2026-06-17",
       "taxa_diaria": 0.053746,
-      "indice": 20.95760244,
+      "indice": 20.95752987,
       "tipo": "projecao"
     }
   ]
