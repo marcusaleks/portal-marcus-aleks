@@ -8,7 +8,7 @@ const YAHOO_HEADERS = {
 
 async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChange: number) {
   try {
-    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`, {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d`, {
       headers: YAHOO_HEADERS,
       signal: AbortSignal.timeout(3500)
     });
@@ -27,7 +27,7 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
 
 async function fetchYahooCurrency(symbol: string, defaultBid: number, defaultChange: number) {
   try {
-    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`, {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d`, {
       headers: YAHOO_HEADERS,
       signal: AbortSignal.timeout(3500)
     });
