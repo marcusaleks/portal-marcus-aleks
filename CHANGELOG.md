@@ -6,6 +6,57 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.4.1] — 2026-07-21
+
+### Security
+
+- **Bump `fast-uri` via override (`3.1.3`) — corrige [GHSA-4c8g-83qw-93j6](https://github.com/advisories/GHSA-4c8g-83qw-93j6) (host confusion via IDN, high):** advisory publicada horas após a release 1.4.0, novamente bloqueando o check `npm audit --audit-level=high`. `fast-uri` é dep transitiva do Next.js. Fix via `overrides` pinando `fast-uri@3.1.3` para o range vulnerável `>=3.0.0 <=3.1.2`.
+
+### Compliance (auditoria 2026-07-21)
+
+- **[MEDIO-5] ISSUE-001 encerrado — `fetchYahooIndex` e `fetchYahooCurrency` migrados de `range=1d` para `range=5d`** ([pages/api/market.ts:11](pages/api/market.ts#L11) e [pages/api/market.ts:30](pages/api/market.ts#L30)). Yahoo omitia `previousClose` no payload de 1 dia após fechamento do mercado (observado no EWZ), fazendo o fallback em cascata cair no `previousClose` sintético calculado a partir do `defaultChange` hardcoded. Com janela de 5 dias, `chartPreviousClose` vem confiável do histórico. Preço já era correto; agora a variação % também é.
+- **[MEDIO-4 + BAIXO-7] `mad-compliance.yml` estendido** com dois jobs novos: `commitlint` (bloqueante, roda em pull_request e push, valida mensagens de commit contra o Adendo 01 §A) e `pr-template` (verifica presença de `.github/pull_request_template.md` conforme Lei §7). Workflow agora também dispara em `push` para `main` e `staging`, cobrindo o gap identificado pela auditoria.
+- **Governança:** fluxo de duas contas (`DATA_BOT_TOKEN` / `DATA_BOT_APPROVER_TOKEN`) documentado em [CLAUDE.md](CLAUDE.md). Metadata completa do novo secret registrada em `secrets.manifest.json` (arquivo interno, não commitado — regra permanente do repositório). Exceção formal da janela 08h-20h para o workflow `update-market-data` registrada em `Administrativos/ADENDO_02_LEI_OPERACAO_MAD_v1_0_LLM.md` (documento interno, não commitado).
+
+### Notas administrativas
+
+- Achado ALTO-1 da auditoria (branch protection de `main` sem `required_approving_review_count` nem `require_code_owner_reviews`) requer ação manual do Tech Lead pela UI do GitHub — passo-a-passo em `Administrativos/ACAO_MANUAL_ALTO_1_BRANCH_PROTECTION.md`. Este PR não altera branch protection.
+- Achados BAIXO-6 (CODEOWNERS granularidade) e BAIXO-8 (tracking dos achados 01/02 da auditoria 2026-05-17) reconhecidos e deixados como backlog de baixa prioridade.
+
+---
+
+## [1.4.0] — 2026-07-21
+
+### Security
+
+- **Bump `brace-expansion` / `js-yaml` / `@babel/core` via overrides:** advisories publicadas no GitHub Security Database entre 2026-07-20 e 2026-07-21 bloquearam o check `npm audit --audit-level=high` em todos os PRs automáticos de `data/automated` — [GHSA-3jxr-9vmj-r5cp](https://github.com/advisories/GHSA-3jxr-9vmj-r5cp) DoS em `brace-expansion <1.1.16 || >=2.0.0 <2.1.2`, [GHSA-h67p-54hq-rp68](https://github.com/advisories/GHSA-h67p-54hq-rp68) + [GHSA-52cp-r559-cp3m](https://github.com/advisories/GHSA-52cp-r559-cp3m) DoS quadrático em `js-yaml <=3.14.2 || 4.0.0-4.2.0`, [GHSA-4x5r-pxfx-6jf8](https://github.com/advisories/GHSA-4x5r-pxfx-6jf8) arbitrary file read em `@babel/core <=7.29.0`. Fix via `overrides` no `package.json` (mesmo padrão do fix do `tmp` em maio) pinando `brace-expansion@1.1.16` (canal 1.x) + `2.1.2` (canal 2.x), `js-yaml@3.15.0` (canal 3.x) + `4.3.0` (canal 4.x), `@babel/core@^7.29.1`. Auditoria de supply-chain (573 deps × IoCs jun-jul/2026: Red Hat Miasma, Injective Labs, jscrambler, AsyncAPI) executada antes do bump — zero matches. Permanecem 2 alertas moderate no `uuid<11.1.1` via `exceljs` (não bloqueiam threshold high). PR #88.
+
+### Added
+
+- **Rota `/api/selic-meta` server-side** consumindo a Série BCB 1178 (meta COPOM em % a.d.). Substitui o fetch client-side direto a `api.bcb.gov.br` no card "Selic Meta" da home — elimina dependência de CORS, esconde URL externa do bundle, e habilita cache HTTP edge (`s-maxage=300, stale-while-revalidate=600`). PR #44.
+
+### Changed
+
+- **Card "Selic Meta" resiliente ([`components/mercados/CurvaDICard.tsx`](components/mercados/CurvaDICard.tsx)):** estado inicial mudou de `'14,40%'` hardcoded para `null+loading`. Quando o BCB está indisponível, o card mostra `—` + dot âmbar + tooltip explicativo em vez de valor falso indistinguível de real. Timestamp "HH:MM" exibido ao lado do valor quando `live`. Label corrigido de "Selic Efetiva" para "Selic Meta" (Série 1178 é meta COPOM, não taxa efetiva diária — que é a Série 11). PR #44.
+
+---
+
+## [1.3.4] — 2026-05-27
+
+### Security
+
+- **Bump `tmp` via override (`^0.2.6`) — corrige [GHSA-ph9p-34f9-6g65](https://github.com/advisories/GHSA-ph9p-34f9-6g65) (Path Traversal, high):** advisory publicada em 2026-05-26 bloqueou o check `npm audit --audit-level=high` em todos os PRs automáticos de `data/automated` sem qualquer alteração no projeto (o step consulta o registry a cada execução). `tmp` é dep transitiva de `exceljs@4.4.0`; override força `0.2.7` (patch bump compatível com o range `^0.2.0` declarado por exceljs — sem breaking change). Auditoria de supply-chain (577 deps × IoCs de 7 campanhas: Nx s1ngularity, qix chalk/debug, duckdb, Shai-Hulud 1.0/2.0, Mini Shai-Hulud) executada antes do bump — zero matches. Permanecem 2 alertas moderate no `uuid<11.1.1` via exceljs (não bloqueiam threshold high). PR #43.
+
+---
+
+## [1.3.3] — 2026-05-19
+
+### Fixed
+
+- **Aprovação automática do bot no workflow `update-market-data`:** o ruleset `main` exige 1 aprovação mesmo com todos os checks verdes. O `DATA_BOT_TOKEN` (Repository admin) passa a aprovar o próprio PR antes de habilitar o auto-merge, preservando a proteção geral de `main` para PRs humanos. (Nota histórica: este fluxo foi substituído em 2026-07-21 pela conta secundária `marcus-aleks` no PR #89 — o GitHub bloqueia auto-aprovação da mesma identidade que abriu o PR, quebrando este mecanismo em algum momento após maio/2026.)
+
+---
+
 ## [1.3.2] — 2026-05-19
 
 ### Fixed
