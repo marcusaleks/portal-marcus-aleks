@@ -11,5 +11,10 @@ vercel.json @marcusaleks
 pages/api/ @marcusaleks
 pages/login.tsx @marcusaleks
 
+# Dados de mercado — aprovados pela conta bot marcus-aleks (via DATA_BOT_APPROVER_TOKEN
+# no workflow update-market-data). Escopo restrito a public/data/ — não estende
+# permissão a outras áreas sensíveis.
+public/data/ @marcus-aleks @marcusaleks
+
 # Documentação — qualquer membro do time
 *.md @marcusaleks
