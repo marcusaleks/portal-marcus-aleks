@@ -1,0 +1,120 @@
+name: "TEST — data-fetcher isolado (não afeta produção)"
+
+# Workflow de validação apenas — dispara manualmente, nunca por schedule.
+# Não commita, não abre PR, não toca em main nem em data/automated.
+# Roda o fetcher isolado (scripts/data-fetcher/) e compara a saída
+# estruturalmente com os arquivos atuais de public/data/, publicando o
+# diff como artifact e no log do run para inspeção humana.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test-isolated-fetcher:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: "Checkout main (somente leitura)"
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: "Snapshot dos arquivos atuais (antes do fetch)"
+        run: |
+          mkdir -p /tmp/before
+          cp public/data/selic.json /tmp/before/ 2>/dev/null || echo "selic.json ausente"
+          cp public/data/ptax.json /tmp/before/ 2>/dev/null || echo "ptax.json ausente"
+          cp public/data/ipca.json /tmp/before/ 2>/dev/null || echo "ipca.json ausente"
+          cp public/data/curva_di.json /tmp/before/ 2>/dev/null || echo "curva_di.json ausente"
+          echo "✅ Snapshot salvo em /tmp/before"
+
+      - name: "Install dependencies (isolado — scripts/data-fetcher/)"
+        working-directory: scripts/data-fetcher
+        run: |
+          npm ci
+          echo "--- npm audit (deve ser 0 vulnerabilidades) ---"
+          npm audit --audit-level=high
+
+      - name: "Contar dependências resolvidas (comparação com raiz)"
+        run: |
+          ISOLATED_COUNT=$(cd scripts/data-fetcher && npm ls --all 2>/dev/null | wc -l)
+          echo "Dependências no ambiente isolado: ${ISOLATED_COUNT} linhas de árvore"
+
+      - name: "Rodar fetch-market-data.ts (isolado)"
+        working-directory: scripts/data-fetcher
+        run: |
+          echo "🚀 Testando fetch-market-data.ts isolado..."
+          npx ts-node --project tsconfig.json fetch-market-data.ts
+
+      - name: "Rodar fetch-curva-di.ts (isolado)"
+        working-directory: scripts/data-fetcher
+        run: |
+          echo "📈 Testando fetch-curva-di.ts isolado..."
+          npx ts-node --project tsconfig.json fetch-curva-di.ts
+
+      - name: "Validar schema dos arquivos gerados"
+        run: |
+          echo "🔍 Validando estrutura JSON gerada pelo fetcher isolado..."
+
+          node -e "const d=require('./public/data/selic.json'); if(d.series!=='11'||!Array.isArray(d.data)) throw new Error('SELIC schema inválido')"
+          echo "✅ selic.json OK"
+
+          node -e "const d=require('./public/data/ipca.json'); if(d.series!=='433'||!Array.isArray(d.data)) throw new Error('IPCA schema inválido')"
+          echo "✅ ipca.json OK"
+
+          node -e "const d=require('./public/data/ptax.json'); if(d.series!=='10813'||!Array.isArray(d.data)) throw new Error('PTAX schema inválido')"
+          echo "✅ ptax.json OK"
+
+          node -e "const d=require('./public/data/curva_di.json'); if(!Array.isArray(d.items)||d.items.length===0) throw new Error('CurvaDI schema inválido')"
+          echo "✅ curva_di.json OK"
+
+      - name: "Comparar estruturalmente com o snapshot anterior"
+        run: |
+          echo "🔬 Comparando saída do fetcher isolado com dados atuais de main..."
+          echo ""
+          node -e "
+          const fs = require('fs');
+          const files = ['selic', 'ptax', 'ipca', 'curva_di'];
+          let allOk = true;
+
+          for (const name of files) {
+            const beforePath = '/tmp/before/' + name + '.json';
+            const afterPath = 'public/data/' + name + '.json';
+            if (!fs.existsSync(beforePath)) { console.log(name + ': sem snapshot anterior, pulando'); continue; }
+
+            const before = JSON.parse(fs.readFileSync(beforePath, 'utf8'));
+            const after = JSON.parse(fs.readFileSync(afterPath, 'utf8'));
+
+            console.log('=== ' + name + '.json ===');
+            console.log('  series/source igual:', (before.series ?? before.source) === (after.series ?? after.source));
+
+            if (name === 'curva_di') {
+              console.log('  items.length:', before.items.length, '->', after.items.length);
+              console.log('  asOf:', before.asOf, '->', after.asOf);
+            } else {
+              console.log('  total registros:', before.data.length, '->', after.data.length);
+              console.log('  primeiro registro data:', before.data[0].date, '->', after.data[0].date);
+              console.log('  primeiro registro IDÊNTICO:', JSON.stringify(before.data[0]) === JSON.stringify(after.data[0]));
+              const lenDiff = after.data.length - before.data.length;
+              console.log('  diferença de registros (esperado >= 0, novo dado do dia):', lenDiff);
+              if (lenDiff < 0) { console.log('  ⚠️ ALERTA: menos registros que antes!'); allOk = false; }
+            }
+            console.log('');
+          }
+
+          if (!allOk) { console.log('❌ FALHA NA COMPARAÇÃO'); process.exit(1); }
+          console.log('✅ Comparação estrutural concluída sem regressões');
+          "
+
+      - name: "Descartar mudanças (este workflow NUNCA commita)"
+        run: |
+          git checkout -- public/data/ || true
+          git status --short
+          echo "✅ Nenhuma mudança será commitada — este é um workflow de teste apenas"

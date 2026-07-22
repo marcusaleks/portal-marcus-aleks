@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const ANBIMA_URL = "https://www.anbima.com.br/informacoes/est-termo/CZ.asp";
-const OUTPUT_PATH = path.join(__dirname, "../public/data/curva_di.json");
+const OUTPUT_PATH = path.join(__dirname, "../../public/data/curva_di.json");
 
 // Vértices em dias úteis que queremos extrair
 const VERTICES = [
