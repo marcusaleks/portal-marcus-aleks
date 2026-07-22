@@ -3,8 +3,51 @@ name: MAD Compliance
 on:
   pull_request:
     branches: [main, staging]
+  push:
+    branches: [main, staging]
 
 jobs:
+  commitlint:
+    name: Commitlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+      - name: Valida mensagens de commit (Adendo 01 §A)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FROM="${{ github.event.pull_request.base.sha }}"
+            TO="${{ github.event.pull_request.head.sha }}"
+          else
+            FROM="${{ github.event.before }}"
+            TO="${{ github.event.after }}"
+            if [ "$FROM" = "0000000000000000000000000000000000000000" ]; then
+              FROM="HEAD~1"
+            fi
+          fi
+          echo "Validando commits em $FROM..$TO"
+          npx commitlint --from="$FROM" --to="$TO" --verbose
+
+  pr-template:
+    name: Verificação PR Template
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valida presença de .github/pull_request_template.md (Lei §7)
+        run: |
+          if [ ! -f ".github/pull_request_template.md" ]; then
+            echo "ERRO: .github/pull_request_template.md ausente (Lei §7)"
+            exit 1
+          fi
+          echo "✓ pull_request_template.md presente"
+
   build:
     name: Build
     runs-on: ubuntu-latest
