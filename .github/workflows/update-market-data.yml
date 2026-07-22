@@ -48,22 +48,26 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: scripts/data-fetcher/package-lock.json
 
-      - name: "Install dependencies"
+      - name: "Install dependencies (fetcher isolado)"
+        working-directory: scripts/data-fetcher
         run: npm ci --prefer-offline --no-audit
 
       - name: "Fetch market data (BCB)"
+        working-directory: scripts/data-fetcher
         env:
           SERIES: ${{ github.event.inputs.series || 'all' }}
         run: |
           echo "🚀 Iniciando fetch de dados do Banco Central..."
-          npx ts-node --project tsconfig.scripts.json scripts/fetch-market-data.ts
+          npx ts-node --project tsconfig.json fetch-market-data.ts
         continue-on-error: true
 
       - name: "Fetch Curva DI (ANBIMA)"
+        working-directory: scripts/data-fetcher
         run: |
           echo "📈 Buscando Curva DI da ANBIMA..."
-          npx ts-node --project tsconfig.scripts.json scripts/fetch-curva-di.ts
+          npx ts-node --project tsconfig.json fetch-curva-di.ts
         continue-on-error: true
 
       - name: "Check if data changed"

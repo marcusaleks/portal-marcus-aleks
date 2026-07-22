@@ -6,6 +6,34 @@ Versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.5.0] — 2026-07-22
+
+### Changed
+
+- **Scripts de fetch de dados BCB/ANBIMA isolados em `scripts/data-fetcher/` com `package.json` próprio.** Movidos `fetch-market-data.ts` e `fetch-curva-di.ts` de `scripts/` para `scripts/data-fetcher/`, com dependências mínimas (`ts-node`, `typescript`, `@types/node` — 20 pacotes) em vez de instalar as ~570 dependências do projeto Next.js inteiro (`jest`, `@commitlint`, `exceljs`, `next`, etc.) só para rodar dois scripts que usam exclusivamente `https`/`fs`/`path` nativos do Node.
+
+  **Motivação:** três incidentes em 8 semanas (27/05, 21/07, 22/07) em que o `npm audit` do workflow `update-market-data` foi bloqueado por vulnerabilidades `high` em dependências que os scripts de fetch **nunca usam** — `tmp` (via `exceljs`), `js-yaml`/`@babel/core` (via `jest`/`commitlint`), `brace-expansion` (via `exceljs`), `fast-uri` (via `commitlint`), `sharp` (via `next`). Cada incidente exigia intervenção manual para aplicar overrides, atrasando a publicação de dados que não tinham qualquer relação com a vulnerabilidade em questão. Com o fetcher isolado, nenhum desses 6 pacotes aparece na árvore de dependências — os incidentes já ocorridos não teriam bloqueado este pipeline se a arquitetura já estivesse isolada.
+
+  **Processo de validação (não apressado — testes exaustivos antes de qualquer coisa tocar produção):**
+  1. Ponto de recuperação criado antes de qualquer mudança: tag `pre-fetcher-isolation-2026-07-22` em `d884e5d7` (estado de `main` imediatamente anterior). Rollback documentado no próprio commit da tag.
+  2. Migração feita em branch de desenvolvimento isolada (`feat/data-fetcher-isolated`), nunca em `main` diretamente.
+  3. **Diff de paridade de lógica:** confirmado por `diff` que cada script tem **exatamente 1 linha de diferença** em relação ao original — só o ajuste do caminho de escrita (`path.join(__dirname, "..", "..", "public", "data")` em vez de `path.join(process.cwd(), "public", "data")`, necessário porque o script passou a residir uma pasta mais profunda). Nenhuma mudança na lógica de acumulação, truncamento na 8ª casa decimal, parsing HTML da ANBIMA, ou qualquer regra de negócio.
+  4. **Teste local nº 1:** `npm install` no ambiente isolado — 20 pacotes resolvidos (vs. ~570 na raiz). `npm audit --audit-level=high` — 0 vulnerabilidades.
+  5. **Teste local nº 2:** ambos os scripts executados de verdade contra as APIs reais do BCB (Séries 11, 432, 433, 10813) e da ANBIMA (scraping HTML). Resultado comparado byte-a-byte com o snapshot anterior: SELIC e PTAX avançaram 1 dia útil com índices matematicamente coerentes (crescimento correto do número-índice acumulado); IPCA idêntico byte-a-byte (nenhum mês novo divulgado desde a captura anterior); primeiro registro e um registro do meio da série (índice 3000) idênticos em todas as tabelas antes/depois.
+  6. **Teste no ambiente real do GitHub Actions:** workflow de diagnóstico `test-data-fetcher-isolated.yml` (mergeado separadamente em `main` no PR #95, pois o GitHub só permite disparar `workflow_dispatch` de workflows já presentes na branch default) disparado manualmente contra a branch de migração. Resultado: `npm audit` 0 vulnerabilidades; SELIC/PTAX/IPCA/Curva DI com contagem de registros idêntica à de `main` (a captura de teste coincidiu com o mesmo dia útil já publicado); comparação estrutural automatizada reportou **"Comparação estrutural concluída sem regressões"**. Nenhuma mudança foi commitada por este workflow — ele é só de diagnóstico.
+  7. **Validação da calculadora:** as mesmas 9 amostras (3 por indexador — SELIC, IPCA, PTAX) já testadas em 2026-07-21 contra a Calculadora do Cidadão do BCB foram recalculadas usando dados gerados pelo fetcher isolado. **9 de 9 resultados idênticos ao centavo** em relação aos calculados com o fetcher antigo. A divergência de IPCA com o BCB (~0,1–0,2%, ver ISSUE-002) permanece igual — é comportamento por design (pro-rata diário), não afetado por esta mudança.
+  8. Somente após todos os testes acima confirmarem paridade total, a migração foi consolidada neste PR contra `main`.
+
+  **`update-market-data.yml` atualizado** para instalar e executar a partir de `scripts/data-fetcher/` em vez da raiz do projeto. O restante do pipeline (checkout, sincronização com `main`, commit em `data/automated`, abertura de PR, aprovação pela conta secundária `marcus-aleks`, auto-merge) permanece inalterado.
+
+  **Versionamento:** tratado como MINOR (Lei §05 classifica "redesign arquitetural" como MAJOR, mas não há breaking change real — nenhum consumidor externo depende do layout interno de `scripts/`; o único "consumidor" é o próprio workflow de CI, atualizado no mesmo PR). Aproveitada a oportunidade para corrigir a divergência entre `package.json` (`0.1.0`) e a numeração já em uso no `CHANGELOG.md` (série `1.x` desde antes desta mudança) — `package.json` atualizado para `1.5.0`.
+
+### Removed
+
+- `scripts/fetch-market-data.ts` e `scripts/fetch-curva-di.ts` removidos do caminho antigo (movidos para `scripts/data-fetcher/`, ver acima). Workflow de diagnóstico `test-data-fetcher-isolated.yml`, usado apenas para validar esta migração, mantido no repositório como ferramenta reutilizável para validações futuras de mudanças no fetcher.
+
+---
+
 ## [1.4.1] — 2026-07-21
 
 ### Security
