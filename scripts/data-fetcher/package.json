@@ -1,0 +1,15 @@
+{
+  "name": "data-fetcher",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Fetcher isolado de dados BCB/ANBIMA — dependências mínimas, sem relação com o app Next.js principal.",
+  "scripts": {
+    "fetch:market": "ts-node --project tsconfig.json fetch-market-data.ts",
+    "fetch:curva-di": "ts-node --project tsconfig.json fetch-curva-di.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -178,7 +178,7 @@ async function fetchSerieCompleta(
 
 (async () => {
   const now = new Date();
-  const dataDir = path.join(process.cwd(), "public", "data");
+  const dataDir = path.join(__dirname, "..", "..", "public", "data");
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
   const DATA_INICIAL = "03/01/2000"; // primeiro DU de 2000
