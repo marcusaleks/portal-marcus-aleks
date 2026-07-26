@@ -32,16 +32,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ env.DATA_BRANCH }}
-          fetch-depth: 1
+          fetch-depth: 0
           token: ${{ secrets.DATA_BOT_TOKEN }}
 
-      - name: "Sincronizar public/data/ com main"
+      - name: "Sincronizar data/automated com main"
         env:
           GH_TOKEN: ${{ secrets.DATA_BOT_TOKEN }}
         run: |
+          git config user.name "Marcus Aleks"
+          git config user.email "178334383+marcusaleks@users.noreply.github.com"
           git fetch origin ${{ env.TARGET_BRANCH }}
-          git checkout origin/${{ env.TARGET_BRANCH }} -- public/data/
-          echo "✅ public/data/ sincronizado com main"
+          # Merge completo (não só public/data/) — evita que data/automated
+          # fique com código desatualizado quando main recebe mudanças
+          # estruturais (ex: incidente 2026-07-26, onde a migração do
+          # fetcher isolado não chegou a esta branch e quebrou o workflow
+          # por 4 dias). Sem -X theirs de propósito: se houver conflito
+          # real, o step deve falhar visivelmente em vez de resolver
+          # silenciosamente a favor de um lado.
+          git merge origin/${{ env.TARGET_BRANCH }} --no-edit
+          echo "✅ data/automated sincronizado com main (merge completo)"
 
       - name: "Setup Node.js"
         uses: actions/setup-node@v4
