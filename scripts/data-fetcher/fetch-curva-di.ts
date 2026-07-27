@@ -107,13 +107,23 @@ function parseEttj(html: string): CurvaItem[] {
   return results;
 }
 
-function loadPreviousTaxas(): Map<number, number> {
+function loadPreviousTaxas(today: string): Map<number, number> {
   try {
     const raw = fs.readFileSync(OUTPUT_PATH, "utf-8");
     const existing: CurvaDI = JSON.parse(raw);
     const map = new Map<number, number>();
+
+    // Reprocessamento do mesmo pregão (ex: workflow_dispatch manual repetido
+    // no mesmo dia): a taxa_anterior já salva é o fechamento real do dia útil
+    // anterior e deve ser preservada. Sem isso, uma segunda execução no mesmo
+    // dia usaria a taxa recém-gravada como "anterior", zerando var_pb.
+    const reprocessandoMesmoDia = existing.asOf === today;
+
     for (const item of existing.items) {
-      if (item.taxa > 0) map.set(item.vertice_du, item.taxa);
+      const valorReferencia = reprocessandoMesmoDia ? item.taxa_anterior : item.taxa;
+      if (valorReferencia !== null && valorReferencia > 0) {
+        map.set(item.vertice_du, valorReferencia);
+      }
     }
     return map;
   } catch {
@@ -132,7 +142,8 @@ function todayBRT(): string {
 async function main() {
   console.log("🔍 Buscando Curva DI da ANBIMA...");
 
-  const previousTaxas = loadPreviousTaxas();
+  const today = todayBRT();
+  const previousTaxas = loadPreviousTaxas(today);
 
   const html = await fetchHtml(ANBIMA_URL);
   console.log(`   HTML recebido: ${html.length} bytes`);
@@ -160,7 +171,6 @@ async function main() {
   // Ordenar por vértice
   items.sort((a, b) => a.vertice_du - b.vertice_du);
 
-  const today = todayBRT();
   const output: CurvaDI = {
     source: ANBIMA_URL,
     last_updated: new Date().toISOString(),
