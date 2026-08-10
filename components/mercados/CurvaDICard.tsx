@@ -92,8 +92,8 @@ export default function CurvaDICard({
             const varColor = varPb === null || varPb === 0
               ? 'text-[#6a8db0] dark:text-slate-500'
               : varPb > 0
-                ? 'text-red-600 dark:text-red-500'
-                : 'text-emerald-600 dark:text-emerald-500';
+                ? 'text-emerald-600 dark:text-emerald-500'
+                : 'text-red-600 dark:text-red-500';
             return (
               <tr key={idx} className="border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
                 <td className="py-2.5 text-left text-[11px] text-[#294c72] dark:text-slate-400 font-bold">
