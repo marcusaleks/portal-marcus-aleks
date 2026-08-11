@@ -3,7 +3,7 @@
   "series_name": "PTAX — Cotação USD/BRL (venda)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-08-10T16:40:31.804Z",
+  "last_updated": "2026-08-11T16:43:53.638Z",
   "source": "BCB — bcdata.sgs.10813",
   "data": [
     {
@@ -33415,6 +33415,11 @@
       "date": "2026-08-10",
       "cotacao": 5.0957,
       "indice": 2.84962532
+    },
+    {
+      "date": "2026-08-11",
+      "cotacao": 5.1279,
+      "indice": 2.86763225
     }
   ]
 }
