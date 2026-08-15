@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-08-14T16:38:24.506Z",
+  "last_updated": "2026-08-15T01:58:17.991Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -40118,140 +40118,140 @@
     },
     {
       "date": "2026-08-14",
-      "taxa_diaria": 0.052009,
-      "indice": 21.41115362,
-      "tipo": "projecao"
+      "taxa_diaria": 0.05166,
+      "indice": 21.41107896,
+      "tipo": "historico"
     },
     {
       "date": "2026-08-17",
       "taxa_diaria": 0.052009,
-      "indice": 21.42228932,
+      "indice": 21.42221462,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-18",
       "taxa_diaria": 0.052009,
-      "indice": 21.43343081,
+      "indice": 21.43335607,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-19",
       "taxa_diaria": 0.052009,
-      "indice": 21.44457809,
+      "indice": 21.44450332,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-20",
       "taxa_diaria": 0.052009,
-      "indice": 21.45573117,
+      "indice": 21.45565636,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-21",
       "taxa_diaria": 0.052009,
-      "indice": 21.46689005,
+      "indice": 21.4668152,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-24",
       "taxa_diaria": 0.052009,
-      "indice": 21.47805474,
+      "indice": 21.47797985,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-25",
       "taxa_diaria": 0.052009,
-      "indice": 21.48922523,
+      "indice": 21.4891503,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-26",
       "taxa_diaria": 0.052009,
-      "indice": 21.50040153,
+      "indice": 21.50032656,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-27",
       "taxa_diaria": 0.052009,
-      "indice": 21.51158364,
+      "indice": 21.51150864,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-28",
       "taxa_diaria": 0.052009,
-      "indice": 21.52277157,
+      "indice": 21.52269653,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-31",
       "taxa_diaria": 0.052009,
-      "indice": 21.53396532,
+      "indice": 21.53389024,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-01",
       "taxa_diaria": 0.052009,
-      "indice": 21.54516489,
+      "indice": 21.54508977,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-02",
       "taxa_diaria": 0.052009,
-      "indice": 21.55637029,
+      "indice": 21.55629513,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-03",
       "taxa_diaria": 0.052009,
-      "indice": 21.56758151,
+      "indice": 21.56750631,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-04",
       "taxa_diaria": 0.052009,
-      "indice": 21.57879857,
+      "indice": 21.57872332,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-08",
       "taxa_diaria": 0.052009,
-      "indice": 21.59002145,
+      "indice": 21.58994617,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-09",
       "taxa_diaria": 0.052009,
-      "indice": 21.60125018,
+      "indice": 21.60117486,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-10",
       "taxa_diaria": 0.052009,
-      "indice": 21.61248474,
+      "indice": 21.61240938,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-11",
       "taxa_diaria": 0.052009,
-      "indice": 21.62372515,
+      "indice": 21.62364975,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-14",
       "taxa_diaria": 0.052009,
-      "indice": 21.6349714,
+      "indice": 21.63489597,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-15",
       "taxa_diaria": 0.052009,
-      "indice": 21.64622351,
+      "indice": 21.64614803,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-16",
       "taxa_diaria": 0.052009,
-      "indice": 21.65748146,
+      "indice": 21.65740594,
       "tipo": "projecao"
     }
   ]
