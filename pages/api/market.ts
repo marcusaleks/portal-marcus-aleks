@@ -108,14 +108,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const token = process.env.BRAPI_TOKEN;
   const symbols = [
-    '^BVSP', 'AXIA6', 'BBAS3', 'BBDC3', 'BBSE3', 'CMIG4', 'CSMG3', 
+    '^BVSP', 'AXIA3', 'BBAS3', 'BBDC3', 'BBSE3', 'CMIG4', 'CSMG3',
     'ISAE4', 'ITSA4', 'ITUB4', 'MXRF11', 'PETR4', 'PMLL11', 'ROMI3', 
     'VALE3', 'VISC11', 'VIVT3', 'XPML11'
   ];
 
   const DEFAULT_STOCK_METADATA: Record<string, { name: string; price: number; changePercent: number; logo: string }> = {
     '^BVSP': { name: 'Ibovespa', price: 128452.12, changePercent: -1.07, logo: '' },
-    'AXIA6': { name: 'Axia Value FIP', price: 14.22, changePercent: 0.45, logo: 'https://icons.brapi.dev/icons/AXIA6.svg' },
+    'AXIA3': { name: 'Axia Value FIP', price: 14.22, changePercent: 0.45, logo: 'https://icons.brapi.dev/icons/AXIA3.svg' },
     'BBAS3': { name: 'Banco do Brasil SA', price: 27.65, changePercent: 1.88, logo: 'https://icons.brapi.dev/icons/BBAS3.svg' },
     'BBDC3': { name: 'Banco Bradesco SA ON', price: 12.45, changePercent: -0.56, logo: 'https://icons.brapi.dev/icons/BBDC3.svg' },
     'BBSE3': { name: 'BB Seguridade ON', price: 33.12, changePercent: 0.12, logo: 'https://icons.brapi.dev/icons/BBSE3.svg' },
