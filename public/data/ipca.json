@@ -3,7 +3,7 @@
   "series_name": "IPCA — Índice de Preços ao Consumidor Amplo (% mensal)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-08-29T18:57:52.458Z",
+  "last_updated": "2026-09-01T05:31:49.007Z",
   "source": "BCB — bcdata.sgs.433 + Expectativas Focus",
   "data": [
     {
@@ -40718,254 +40718,254 @@
     },
     {
       "date": "2026-08-03",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.82013467,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.82000308,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-04",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81967517,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81941202,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-05",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81921572,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81882104,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-06",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81875631,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81823012,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-07",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81829694,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81763928,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-10",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81783762,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81704851,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-11",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81737834,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81645781,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-12",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81691911,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81586719,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-13",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81645991,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81527663,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-14",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81600077,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81468615,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-17",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81554166,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81409574,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-18",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.8150826,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81350541,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-19",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81462358,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81291515,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-20",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81416461,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81232496,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-21",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81370568,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81173484,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-24",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.8132468,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81114479,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-25",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81278796,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.81055482,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-26",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81232916,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.80996492,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-27",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.8118704,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.80937509,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-28",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81141169,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.80878533,
       "tipo": "projecao"
     },
     {
       "date": "2026-08-31",
-      "taxa_diaria": -0.00953289,
-      "indice": 4.81095303,
+      "taxa_diaria": -0.01226264,
+      "indice": 4.80819565,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-01",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81220975,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.80937078,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-02",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.8134668,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.8105462,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-03",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81472418,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.8117219,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-04",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81598189,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.8128979,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-08",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81723993,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.81407418,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-09",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81849829,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.81525074,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-10",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.81975699,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.8164276,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-11",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82101601,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.81760474,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-14",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82227536,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.81878217,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-15",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82353504,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.81995989,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-16",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82479505,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.8211379,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-17",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82605539,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82231619,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-18",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82731606,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82349478,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-21",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82857706,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82467365,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-22",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.82983838,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82585281,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-23",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83110004,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82703225,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-24",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83236203,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82821199,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-25",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83362434,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.82939201,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-28",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83488699,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.83057232,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-29",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83614996,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.83175292,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-30",
-      "taxa_diaria": 0.02612213,
-      "indice": 4.83741327,
+      "taxa_diaria": 0.02444018,
+      "indice": 4.83293381,
       "tipo": "projecao"
     }
   ]
