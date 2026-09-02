@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-09-01T18:56:10.500Z",
+  "last_updated": "2026-09-02T04:57:32.349Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -40190,68 +40190,68 @@
     },
     {
       "date": "2026-09-01",
-      "taxa_diaria": 0.052009,
-      "indice": 21.54426342,
-      "tipo": "projecao"
+      "taxa_diaria": 0.05166,
+      "indice": 21.5441883,
+      "tipo": "historico"
     },
     {
       "date": "2026-09-02",
       "taxa_diaria": 0.052009,
-      "indice": 21.55546835,
+      "indice": 21.55539319,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-03",
       "taxa_diaria": 0.052009,
-      "indice": 21.5666791,
+      "indice": 21.56660391,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-04",
       "taxa_diaria": 0.052009,
-      "indice": 21.57789569,
+      "indice": 21.57782045,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-08",
       "taxa_diaria": 0.052009,
-      "indice": 21.58911811,
+      "indice": 21.58904283,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-09",
       "taxa_diaria": 0.052009,
-      "indice": 21.60034636,
+      "indice": 21.60027105,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-10",
       "taxa_diaria": 0.052009,
-      "indice": 21.61158046,
+      "indice": 21.6115051,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-11",
       "taxa_diaria": 0.052009,
-      "indice": 21.62282039,
+      "indice": 21.622745,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-14",
       "taxa_diaria": 0.052009,
-      "indice": 21.63406618,
+      "indice": 21.63399074,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-15",
       "taxa_diaria": 0.052009,
-      "indice": 21.64531781,
+      "indice": 21.64524233,
       "tipo": "projecao"
     },
     {
       "date": "2026-09-16",
       "taxa_diaria": 0.052009,
-      "indice": 21.65657529,
+      "indice": 21.65649978,
       "tipo": "projecao"
     }
   ]
