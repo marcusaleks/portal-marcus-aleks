@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   ];
 
   const DEFAULT_STOCK_METADATA: Record<string, { name: string; price: number; changePercent: number; logo: string }> = {
-    '^BVSP': { name: 'Ibovespa', price: 128452.12, changePercent: -1.07, logo: '' },
+    '^BVSP': { name: 'Ibovespa', price: 176453, changePercent: -1.07, logo: '' },
     'AXIA3': { name: 'Axia Value FIP', price: 14.22, changePercent: 0.45, logo: 'https://icons.brapi.dev/icons/AXIA3.svg' },
     'BBAS3': { name: 'Banco do Brasil SA', price: 27.65, changePercent: 1.88, logo: 'https://icons.brapi.dev/icons/BBAS3.svg' },
     'BBDC3': { name: 'Banco Bradesco SA ON', price: 12.45, changePercent: -0.56, logo: 'https://icons.brapi.dev/icons/BBDC3.svg' },
