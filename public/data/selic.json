@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-10-01T20:37:28.851Z",
+  "last_updated": "2026-10-02T06:04:26.374Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -40316,140 +40316,140 @@
     },
     {
       "date": "2026-10-01",
-      "taxa_diaria": 0.051137,
-      "indice": 21.77711209,
-      "tipo": "projecao"
+      "taxa_diaria": 0.050788,
+      "indice": 21.77703608,
+      "tipo": "historico"
     },
     {
       "date": "2026-10-02",
       "taxa_diaria": 0.051137,
-      "indice": 21.7882483,
+      "indice": 21.78817225,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-05",
       "taxa_diaria": 0.051137,
-      "indice": 21.79939021,
+      "indice": 21.79931412,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-06",
       "taxa_diaria": 0.051137,
-      "indice": 21.81053781,
+      "indice": 21.81046168,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-07",
       "taxa_diaria": 0.051137,
-      "indice": 21.82169112,
+      "indice": 21.82161495,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-08",
       "taxa_diaria": 0.051137,
-      "indice": 21.83285013,
+      "indice": 21.83277392,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-09",
       "taxa_diaria": 0.051137,
-      "indice": 21.84401484,
+      "indice": 21.84393859,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-13",
       "taxa_diaria": 0.051137,
-      "indice": 21.85518526,
+      "indice": 21.85510898,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-14",
       "taxa_diaria": 0.051137,
-      "indice": 21.8663614,
+      "indice": 21.86628507,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-15",
       "taxa_diaria": 0.051137,
-      "indice": 21.87754325,
+      "indice": 21.87746689,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-16",
       "taxa_diaria": 0.051137,
-      "indice": 21.88873082,
+      "indice": 21.88865442,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-19",
       "taxa_diaria": 0.051137,
-      "indice": 21.89992411,
+      "indice": 21.89984767,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-20",
       "taxa_diaria": 0.051137,
-      "indice": 21.91112312,
+      "indice": 21.91104664,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-21",
       "taxa_diaria": 0.051137,
-      "indice": 21.92232786,
+      "indice": 21.92225134,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-22",
       "taxa_diaria": 0.051137,
-      "indice": 21.93353833,
+      "indice": 21.93346177,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-23",
       "taxa_diaria": 0.051137,
-      "indice": 21.94475453,
+      "indice": 21.94467794,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-26",
       "taxa_diaria": 0.051137,
-      "indice": 21.95597647,
+      "indice": 21.95589984,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-27",
       "taxa_diaria": 0.051137,
-      "indice": 21.96720415,
+      "indice": 21.96712747,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-28",
       "taxa_diaria": 0.051137,
-      "indice": 21.97843757,
+      "indice": 21.97836085,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-29",
       "taxa_diaria": 0.051137,
-      "indice": 21.98967673,
+      "indice": 21.98959998,
       "tipo": "projecao"
     },
     {
       "date": "2026-10-30",
       "taxa_diaria": 0.051137,
-      "indice": 22.00092164,
+      "indice": 22.00084485,
       "tipo": "projecao"
     },
     {
       "date": "2026-11-03",
       "taxa_diaria": 0.051137,
-      "indice": 22.0121723,
+      "indice": 22.01209547,
       "tipo": "projecao"
     },
     {
       "date": "2026-11-04",
       "taxa_diaria": 0.051137,
-      "indice": 22.02342872,
+      "indice": 22.02335185,
       "tipo": "projecao"
     }
   ]
