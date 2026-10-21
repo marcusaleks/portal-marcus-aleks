@@ -3,7 +3,7 @@
   "series_name": "SELIC — Taxa diária (% a.d.)",
   "base_date": "1999-12-31",
   "base_value": 1,
-  "last_updated": "2026-10-20T19:41:06.313Z",
+  "last_updated": "2026-10-21T19:44:23.239Z",
   "source": "BCB — bcdata.sgs.11 + Série 432 (projeção COPOM)",
   "data": [
     {
@@ -40388,69 +40388,9 @@
     },
     {
       "date": "2026-10-20",
-      "taxa_diaria": 0.051137,
-      "indice": 21.91020538,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-21",
-      "taxa_diaria": 0.051137,
-      "indice": 21.92140965,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-22",
-      "taxa_diaria": 0.051137,
-      "indice": 21.93261965,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-23",
-      "taxa_diaria": 0.051137,
-      "indice": 21.94383538,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-26",
-      "taxa_diaria": 0.051137,
-      "indice": 21.95505685,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-27",
-      "taxa_diaria": 0.051137,
-      "indice": 21.96628406,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-28",
-      "taxa_diaria": 0.051137,
-      "indice": 21.977517,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-29",
-      "taxa_diaria": 0.051137,
-      "indice": 21.9887557,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-10-30",
-      "taxa_diaria": 0.051137,
-      "indice": 22.00000014,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-11-03",
-      "taxa_diaria": 0.051137,
-      "indice": 22.01125033,
-      "tipo": "projecao"
-    },
-    {
-      "date": "2026-11-04",
-      "taxa_diaria": 0.051137,
-      "indice": 22.02250627,
-      "tipo": "projecao"
+      "taxa_diaria": 0.050788,
+      "indice": 21.9101289,
+      "tipo": "historico"
     }
   ]
 }
