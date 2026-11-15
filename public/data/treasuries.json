@@ -1,0 +1,62 @@
+{
+  "source": "https://fred.stlouisfed.org/ (FRED API)",
+  "last_updated": "2026-11-15T22:07:55.871Z",
+  "asOf": "2026-11-15",
+  "items": [
+    {
+      "series_id": "DGS1MO",
+      "label": "T-Bill 1 mês",
+      "taxa": 4.12,
+      "taxa_str": "4.12",
+      "taxa_anterior": 4.05,
+      "var_pb": 7,
+      "data_obs": "2026-11-12"
+    },
+    {
+      "series_id": "DGS2",
+      "label": "T-Note 2 anos",
+      "taxa": 4.86,
+      "taxa_str": "4.86",
+      "taxa_anterior": 4.73,
+      "var_pb": 13,
+      "data_obs": "2026-11-12"
+    },
+    {
+      "series_id": "DGS10",
+      "label": "T-Note 10 anos",
+      "taxa": 5.1,
+      "taxa_str": "5.10",
+      "taxa_anterior": 4.98,
+      "var_pb": 12,
+      "data_obs": "2026-11-12"
+    },
+    {
+      "series_id": "DGS30",
+      "label": "T-Bond 30 anos",
+      "taxa": 5.43,
+      "taxa_str": "5.43",
+      "taxa_anterior": 5.35,
+      "var_pb": 8,
+      "data_obs": "2026-11-12"
+    },
+    {
+      "series_id": "T5YIE",
+      "label": "Breakeven 5 anos (TIPS)",
+      "taxa": 2.3,
+      "taxa_str": "2.30",
+      "taxa_anterior": 2.31,
+      "var_pb": -1,
+      "data_obs": "2026-11-13"
+    },
+    {
+      "series_id": "T10YIE",
+      "label": "Breakeven 10 anos (TIPS)",
+      "taxa": 2.24,
+      "taxa_str": "2.24",
+      "taxa_anterior": 2.24,
+      "var_pb": 0,
+      "data_obs": "2026-11-13"
+    }
+  ],
+  "spread_10a_2a_pb": 24
+}

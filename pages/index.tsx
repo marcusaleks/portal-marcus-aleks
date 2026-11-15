@@ -8,7 +8,10 @@ import Ticker from '../components/mercados/Ticker';
 import IbovespaCard from '../components/mercados/IbovespaCard';
 import BolsasMundiaisCard from '../components/mercados/BolsasMundiaisCard';
 import CambioCriptoCard from '../components/mercados/CambioCriptoCard';
+import MetaisCard from '../components/mercados/MetaisCard';
 import CurvaDICard from '../components/mercados/CurvaDICard';
+import TreasuriesCard from '../components/mercados/TreasuriesCard';
+import BancosCentraisCard from '../components/mercados/BancosCentraisCard';
 import MaioresMovimentosCard from '../components/mercados/MaioresMovimentosCard';
 import FerramentasCard from '../components/mercados/FerramentasCard';
 
@@ -24,6 +27,12 @@ export default function Home() {
   const [selicStatus, setSelicStatus] = useState<'loading' | 'live' | 'offline'>('loading');
   const [selicFetchedAt, setSelicFetchedAt] = useState<string | null>(null);
   const [nextCopom, setNextCopom] = useState('17/06/2026');
+  const [fedFunds, setFedFunds] = useState<string | null>(null);
+  const [fedFundsStatus, setFedFundsStatus] = useState<'loading' | 'live' | 'offline'>('loading');
+  const [fedFundsFetchedAt, setFedFundsFetchedAt] = useState<string | null>(null);
+  const [nextFomc, setNextFomc] = useState('17/06/2026');
+  const [bancosCentrais, setBancosCentrais] = useState<any[] | null>(null);
+  const [bancosCentraisLoading, setBancosCentraisLoading] = useState(true);
 
   const fetchData = async () => {
     let json: any = null;
@@ -87,6 +96,63 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Error fetching COPOM schedule:', err);
+    }
+
+    try {
+      const resFedFunds = await fetch('/api/fed-funds-rate');
+      if (resFedFunds.ok) {
+        const dataFedFunds = await resFedFunds.json();
+        if (dataFedFunds?.status === 'live' && dataFedFunds?.banda) {
+          setFedFunds(dataFedFunds.banda);
+          setFedFundsStatus('live');
+          setFedFundsFetchedAt(dataFedFunds.fetched_at ?? null);
+        } else {
+          setFedFundsStatus('offline');
+        }
+      } else {
+        setFedFundsStatus('offline');
+      }
+    } catch (err) {
+      console.error('Error fetching Fed Funds Rate:', err);
+      setFedFundsStatus('offline');
+    }
+
+    // Fetch FOMC next meeting date from public/fomc.md
+    try {
+      const resFomc = await fetch('/fomc.md');
+      if (resFomc.ok) {
+        const text = await resFomc.text();
+        const lines = text.split('\n');
+        let nextDate = 'A definir';
+        const now = Date.now();
+        for (const line of lines) {
+          const match = line.match(/\|\s*([^|]+)\s*\|\s*(\d{2}\/\d{2}\/\d{4})\s*\|/);
+          if (match && !match[1].includes('Reunião |')) {
+             const dateStr = match[2].trim();
+             const [day, month, year] = dateStr.split('/');
+             const timestamp = new Date(`${year}-${month}-${day}T23:59:59-04:00`).getTime();
+             if (timestamp >= now) {
+                nextDate = dateStr;
+                break;
+             }
+          }
+        }
+        setNextFomc(nextDate);
+      }
+    } catch (err) {
+      console.error('Error fetching FOMC schedule:', err);
+    }
+
+    try {
+      const resBancos = await fetch('/api/bancos-centrais');
+      if (resBancos.ok) {
+        const dataBancos = await resBancos.json();
+        setBancosCentrais(dataBancos?.bancos ?? null);
+      }
+    } catch (err) {
+      console.error('Error fetching Bancos Centrais:', err);
+    } finally {
+      setBancosCentraisLoading(false);
     }
   };
 
@@ -246,11 +312,20 @@ export default function Home() {
             {/* Column 3: Cambio & Cripto */}
             <CambioCriptoCard data={displayData} />
 
-            {/* Column 1: Curva DI (Row 2) */}
+            {/* Column 1: Metais & Commodities (Row 2) */}
+            <MetaisCard data={displayData} />
+
+            {/* Column 2: Curva DI (Row 2) */}
             <CurvaDICard data={displayData} selic={selic} selicStatus={selicStatus} selicFetchedAt={selicFetchedAt} nextCopom={nextCopom} />
 
-            {/* Column 2 & 3: Maiores Movimentos (Row 2) */}
+            {/* Column 3: Treasuries & Fed (Row 2) */}
+            <TreasuriesCard data={displayData} fedFunds={fedFunds} fedFundsStatus={fedFundsStatus} fedFundsFetchedAt={fedFundsFetchedAt} nextFomc={nextFomc} />
+
+            {/* Column 1: Maiores Movimentos (Row 3) */}
             <MaioresMovimentosCard data={displayData} />
+
+            {/* Column 2: Bancos Centrais (Row 3) */}
+            <BancosCentraisCard bancos={bancosCentrais} loading={bancosCentraisLoading} />
 
           </div>
 

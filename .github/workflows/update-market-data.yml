@@ -79,6 +79,15 @@ jobs:
           npx ts-node --project tsconfig.json fetch-curva-di.ts
         continue-on-error: true
 
+      - name: "Fetch Treasuries (FRED)"
+        working-directory: scripts/data-fetcher
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          echo "🏛️ Buscando Treasuries (FRED)..."
+          npx ts-node --project tsconfig.json fetch-treasuries.ts
+        continue-on-error: true
+
       - name: "Check if data changed"
         id: check_changes
         run: |
@@ -118,6 +127,9 @@ jobs:
           if ! git diff --quiet public/data/curva_di.json; then
             SERIES_UPDATED="${SERIES_UPDATED}CurvaDI "
           fi
+          if ! git diff --quiet public/data/treasuries.json; then
+            SERIES_UPDATED="${SERIES_UPDATED}Treasuries "
+          fi
 
           echo "series_updated=${SERIES_UPDATED}" >> $GITHUB_ENV
           git add public/data/*.json
@@ -144,6 +156,7 @@ jobs:
           | IPCA | BCB Série 433 |
           | PTAX | BCB Série 10813 |
           | Curva DI | ANBIMA |
+          | Treasuries (EUA) | FRED |
 
           > Gerado automaticamente pelo workflow \`update-market-data\`. Não requer revisão humana.
           EOF
@@ -276,6 +289,12 @@ jobs:
             exit 1
           fi
           echo "✅ feriados_nacionais.json validado"
+
+          if ! node -e "const data = require('./public/data/treasuries.json'); if (!Array.isArray(data.items)) throw new Error('treasuries schema inválido')"; then
+            echo "❌ treasuries.json estrutura inválida"
+            exit 1
+          fi
+          echo "✅ treasuries.json validado"
 
           echo "✅ Todos os arquivos de dados validados com sucesso"
 
