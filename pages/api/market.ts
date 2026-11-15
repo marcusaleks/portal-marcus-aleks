@@ -103,6 +103,27 @@ function loadCurvaDI() {
   }
 }
 
+function loadTreasuries() {
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'data', 'treasuries.json');
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return {
+      asOf: null,
+      items: [
+        { series_id: 'DGS1MO', label: 'T-Bill 1 mês', taxa: null, taxa_str: '--' },
+        { series_id: 'DGS2', label: 'T-Note 2 anos', taxa: null, taxa_str: '--' },
+        { series_id: 'DGS10', label: 'T-Note 10 anos', taxa: null, taxa_str: '--' },
+        { series_id: 'DGS30', label: 'T-Bond 30 anos', taxa: null, taxa_str: '--' },
+        { series_id: 'T5YIE', label: 'Breakeven 5a (TIPS)', taxa: null, taxa_str: '--' },
+        { series_id: 'T10YIE', label: 'Breakeven 10a (TIPS)', taxa: null, taxa_str: '--' },
+      ],
+      spread_10a_2a_pb: null
+    };
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end();
 
@@ -234,13 +255,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fetchYahooCurrency('GBPBRL=X', 7.63, 0.23).then(data => ({ key: 'GBP', ...data }))
     ]);
 
+    const metalsPromise = Promise.all([
+      fetchYahooIndex('GC=F', 2650.0, 0.35).then(data => ({ key: 'OURO', ...data })),
+      fetchYahooIndex('SI=F', 31.2, 0.52).then(data => ({ key: 'PRATA', ...data })),
+      fetchYahooIndex('HG=F', 4.25, 0.18).then(data => ({ key: 'COBRE', ...data })),
+      fetchYahooIndex('CL=F', 71.5, -0.67).then(data => ({ key: 'PETROLEO_WTI', ...data }))
+    ]);
+
     // Resolve all promises
-    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday] = await Promise.all([
+    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday, metalsResults] = await Promise.all([
       brapiPromise,
       yahooPromise,
       currencyPromise,
       coinGeckoPromise,
-      ibovIntradayPromise
+      ibovIntradayPromise,
+      metalsPromise
     ]);
 
     // Build consolidated globalIndices map
@@ -257,6 +286,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }, {});
 
     const currenciesOffline = currencyResults.every(c => c.status === 'offline');
+
+    // Build consolidated metals map
+    const metalsMap = metalsResults.reduce((acc: any, cur: any) => {
+      acc[cur.key] = { price: cur.price, pctChange: cur.pctChange, status: cur.status };
+      return acc;
+    }, {});
+    const metalsOffline = metalsResults.every((m: any) => m.status === 'offline');
 
     // Build cripto payload from CoinGecko
     const fmt = (n: number | undefined, fallback: string) => n != null ? Math.round(n).toString() : fallback;
@@ -313,7 +349,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cryptosOffline,
       currencies: currencyMap,
       cryptos,
-      diCurve: loadCurvaDI()
+      metals: metalsMap,
+      metalsOffline,
+      diCurve: loadCurvaDI(),
+      treasuries: loadTreasuries()
     };
 
     res.status(200).json(responseData);
