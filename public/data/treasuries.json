@@ -1,6 +1,6 @@
 {
   "source": "https://fred.stlouisfed.org/ (FRED API)",
-  "last_updated": "2026-11-17T08:22:49.364Z",
+  "last_updated": "2026-11-17T23:13:35.469Z",
   "asOf": "2026-11-17",
   "items": [
     {
@@ -8,55 +8,55 @@
       "label": "T-Bill 1 mês",
       "taxa": 4.1,
       "taxa_str": "4.10",
-      "taxa_anterior": 4.12,
-      "var_pb": -2,
-      "data_obs": "2026-11-13"
+      "taxa_anterior": 4.1,
+      "var_pb": 0,
+      "data_obs": "2026-11-16"
     },
     {
       "series_id": "DGS2",
       "label": "T-Note 2 anos",
-      "taxa": 4.88,
-      "taxa_str": "4.88",
-      "taxa_anterior": 4.86,
-      "var_pb": 2,
-      "data_obs": "2026-11-13"
-    },
-    {
-      "series_id": "DGS10",
-      "label": "T-Note 10 anos",
-      "taxa": 5.15,
-      "taxa_str": "5.15",
-      "taxa_anterior": 5.1,
-      "var_pb": 5,
-      "data_obs": "2026-11-13"
-    },
-    {
-      "series_id": "DGS30",
-      "label": "T-Bond 30 anos",
-      "taxa": 5.47,
-      "taxa_str": "5.47",
-      "taxa_anterior": 5.43,
-      "var_pb": 4,
-      "data_obs": "2026-11-13"
-    },
-    {
-      "series_id": "T5YIE",
-      "label": "Breakeven 5 anos (TIPS)",
-      "taxa": 2.25,
-      "taxa_str": "2.25",
-      "taxa_anterior": 2.3,
+      "taxa": 4.83,
+      "taxa_str": "4.83",
+      "taxa_anterior": 4.88,
       "var_pb": -5,
       "data_obs": "2026-11-16"
     },
     {
+      "series_id": "DGS10",
+      "label": "T-Note 10 anos",
+      "taxa": 5.12,
+      "taxa_str": "5.12",
+      "taxa_anterior": 5.15,
+      "var_pb": -3,
+      "data_obs": "2026-11-16"
+    },
+    {
+      "series_id": "DGS30",
+      "label": "T-Bond 30 anos",
+      "taxa": 5.46,
+      "taxa_str": "5.46",
+      "taxa_anterior": 5.47,
+      "var_pb": -1,
+      "data_obs": "2026-11-16"
+    },
+    {
+      "series_id": "T5YIE",
+      "label": "Breakeven 5 anos (TIPS)",
+      "taxa": 2.26,
+      "taxa_str": "2.26",
+      "taxa_anterior": 2.25,
+      "var_pb": 1,
+      "data_obs": "2026-11-17"
+    },
+    {
       "series_id": "T10YIE",
       "label": "Breakeven 10 anos (TIPS)",
-      "taxa": 2.2,
-      "taxa_str": "2.20",
-      "taxa_anterior": 2.24,
-      "var_pb": -4,
-      "data_obs": "2026-11-16"
+      "taxa": 2.21,
+      "taxa_str": "2.21",
+      "taxa_anterior": 2.2,
+      "var_pb": 1,
+      "data_obs": "2026-11-17"
     }
   ],
-  "spread_10a_2a_pb": 27
+  "spread_10a_2a_pb": 29
 }
