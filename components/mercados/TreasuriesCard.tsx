@@ -1,3 +1,5 @@
+import { classifyFreshness } from '../../lib/freshness';
+
 type TreasuryItem = {
   series_id: string;
   label: string;
@@ -59,6 +61,8 @@ export default function TreasuriesCard({
   const items: TreasuryItem[] = rawTreasuries?.items ?? FALLBACK_ITEMS;
   const lastUpdated: string | null = rawTreasuries?.last_updated ?? null;
   const spread10a2a: number | null = rawTreasuries?.spread_10a_2a_pb ?? null;
+  const asOf: string | null = rawTreasuries?.asOf ?? null;
+  const freshness = classifyFreshness(asOf);
 
   const asOfLabel = lastUpdated
     ? new Date(lastUpdated).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' })
@@ -72,7 +76,18 @@ export default function TreasuriesCard({
           Treasuries · EUA
         </span>
         {asOfLabel && (
-          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Fonte: FRED (Federal Reserve Economic Data) — atualizado diariamente após fechamento">
+          <span
+            className={`text-[9px] font-bold uppercase tracking-wider ${
+              freshness === 'stale'
+                ? 'text-red-500/90 dark:text-red-400/80'
+                : 'text-emerald-600/90 dark:text-emerald-400/80'
+            }`}
+            title={
+              freshness === 'stale'
+                ? 'Dados defasados há mais de 1 dia útil — verificar pipeline de atualização'
+                : 'Fonte: FRED (Federal Reserve Economic Data) — atualizado diariamente após fechamento'
+            }
+          >
             Ref. {asOfLabel}
           </span>
         )}

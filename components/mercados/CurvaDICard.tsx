@@ -1,3 +1,5 @@
+import { classifyFreshness } from '../../lib/freshness';
+
 type DIItem = {
   label: string;
   taxa: number;
@@ -50,6 +52,8 @@ export default function CurvaDICard({
   const rawCurve = data.diCurve;
   const diCurve: DIItem[] = rawCurve?.items ?? FALLBACK_ITEMS;
   const lastUpdated: string | null = rawCurve?.last_updated ?? null;
+  const asOf: string | null = rawCurve?.asOf ?? null;
+  const freshness = classifyFreshness(asOf);
 
   const asOfLabel = lastUpdated
     ? new Date(lastUpdated).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' })
@@ -63,7 +67,18 @@ export default function CurvaDICard({
           Curva DI · Juros Futuros
         </span>
         {asOfLabel && (
-          <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Fonte: ANBIMA ETTJ — atualizado diariamente após fechamento">
+          <span
+            className={`text-[9px] font-bold uppercase tracking-wider ${
+              freshness === 'stale'
+                ? 'text-red-500/90 dark:text-red-400/80'
+                : 'text-emerald-600/90 dark:text-emerald-400/80'
+            }`}
+            title={
+              freshness === 'stale'
+                ? 'Dados defasados há mais de 1 dia útil — verificar pipeline de atualização'
+                : 'Fonte: ANBIMA ETTJ — atualizado diariamente após fechamento'
+            }
+          >
             Ref. {asOfLabel}
           </span>
         )}
