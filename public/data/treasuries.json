@@ -1,7 +1,7 @@
 {
   "source": "https://fred.stlouisfed.org/ (FRED API)",
-  "last_updated": "2026-11-19T00:40:07.960Z",
-  "asOf": "2026-11-18",
+  "last_updated": "2026-11-19T07:49:08.002Z",
+  "asOf": "2026-11-19",
   "items": [
     {
       "series_id": "DGS1MO",
