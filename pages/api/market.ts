@@ -6,6 +6,18 @@ const YAHOO_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 };
 
+// result.meta.previousClose vem null no endpoint v8/chart; chartPreviousClose
+// não é "fechamento de ontem" quando range=5d — é o fechamento anterior ao
+// INÍCIO da janela de 5 dias (ou seja, de ~6 dias atrás), o que infla a
+// variação calculada em várias vezes. O fechamento de ontem confiável é a
+// penúltima barra de close[] da própria série retornada.
+function previousCloseFromSeries(result: any): number | undefined {
+  const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close ?? [];
+  const valid = closes.filter((c): c is number => c !== null && c !== undefined);
+  if (valid.length < 2) return undefined;
+  return valid[valid.length - 2];
+}
+
 async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChange: number) {
   try {
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d`, {
@@ -14,10 +26,11 @@ async function fetchYahooIndex(symbol: string, defaultPrice: number, defaultChan
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
-    const result = data?.chart?.result?.[0]?.meta;
-    if (!result) throw new Error();
-    const price = result.regularMarketPrice ?? defaultPrice;
-    const previousClose = result.previousClose ?? result.chartPreviousClose ?? (price / (1 + defaultChange / 100));
+    const result = data?.chart?.result?.[0];
+    const meta = result?.meta;
+    if (!meta) throw new Error();
+    const price = meta.regularMarketPrice ?? defaultPrice;
+    const previousClose = previousCloseFromSeries(result) ?? meta.previousClose ?? (price / (1 + defaultChange / 100));
     const pctChange = previousClose ? ((price - previousClose) / previousClose) * 100 : defaultChange;
     return { price, pctChange };
   } catch {
@@ -33,13 +46,14 @@ async function fetchYahooCurrency(symbol: string, defaultBid: number, defaultCha
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
-    const result = data?.chart?.result?.[0]?.meta;
-    if (!result) throw new Error();
-    const bid = result.regularMarketPrice ?? defaultBid;
-    const previousClose = result.previousClose ?? result.chartPreviousClose ?? defaultBid;
+    const result = data?.chart?.result?.[0];
+    const meta = result?.meta;
+    if (!meta) throw new Error();
+    const bid = meta.regularMarketPrice ?? defaultBid;
+    const previousClose = previousCloseFromSeries(result) ?? meta.previousClose ?? defaultBid;
     const pctChange = previousClose ? ((bid - previousClose) / previousClose) * 100 : defaultChange;
-    const high = result.regularMarketDayHigh ?? bid;
-    const low = result.regularMarketDayLow ?? bid;
+    const high = meta.regularMarketDayHigh ?? bid;
+    const low = meta.regularMarketDayLow ?? bid;
     return {
       bid: bid.toFixed(4),
       pctChange: pctChange.toFixed(2),
