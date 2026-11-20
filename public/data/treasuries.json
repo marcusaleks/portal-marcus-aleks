@@ -1,62 +1,62 @@
 {
   "source": "https://fred.stlouisfed.org/ (FRED API)",
-  "last_updated": "2026-11-20T07:40:45.739Z",
+  "last_updated": "2026-11-20T22:25:33.141Z",
   "asOf": "2026-11-20",
   "items": [
     {
       "series_id": "DGS1MO",
       "label": "T-Bill 1 mês",
-      "taxa": 4.1,
-      "taxa_str": "4.10",
-      "taxa_anterior": 4.09,
-      "var_pb": 1,
-      "data_obs": "2026-11-18"
+      "taxa": 4.2,
+      "taxa_str": "4.20",
+      "taxa_anterior": 4.1,
+      "var_pb": 10,
+      "data_obs": "2026-11-19"
     },
     {
       "series_id": "DGS2",
       "label": "T-Note 2 anos",
-      "taxa": 4.8,
-      "taxa_str": "4.80",
+      "taxa": 4.76,
+      "taxa_str": "4.76",
       "taxa_anterior": 4.8,
-      "var_pb": 0,
-      "data_obs": "2026-11-18"
+      "var_pb": -4,
+      "data_obs": "2026-11-19"
     },
     {
       "series_id": "DGS10",
       "label": "T-Note 10 anos",
-      "taxa": 5.07,
-      "taxa_str": "5.07",
-      "taxa_anterior": 5.1,
+      "taxa": 5.04,
+      "taxa_str": "5.04",
+      "taxa_anterior": 5.07,
       "var_pb": -3,
-      "data_obs": "2026-11-18"
+      "data_obs": "2026-11-19"
     },
     {
       "series_id": "DGS30",
       "label": "T-Bond 30 anos",
-      "taxa": 5.41,
-      "taxa_str": "5.41",
-      "taxa_anterior": 5.46,
-      "var_pb": -5,
-      "data_obs": "2026-11-18"
-    },
-    {
-      "series_id": "T5YIE",
-      "label": "Breakeven 5 anos (TIPS)",
-      "taxa": 2.22,
-      "taxa_str": "2.22",
-      "taxa_anterior": 2.23,
+      "taxa": 5.4,
+      "taxa_str": "5.40",
+      "taxa_anterior": 5.41,
       "var_pb": -1,
       "data_obs": "2026-11-19"
     },
     {
+      "series_id": "T5YIE",
+      "label": "Breakeven 5 anos (TIPS)",
+      "taxa": 2.18,
+      "taxa_str": "2.18",
+      "taxa_anterior": 2.22,
+      "var_pb": -4,
+      "data_obs": "2026-11-20"
+    },
+    {
       "series_id": "T10YIE",
       "label": "Breakeven 10 anos (TIPS)",
-      "taxa": 2.16,
-      "taxa_str": "2.16",
-      "taxa_anterior": 2.19,
-      "var_pb": -3,
-      "data_obs": "2026-11-19"
+      "taxa": 2.15,
+      "taxa_str": "2.15",
+      "taxa_anterior": 2.16,
+      "var_pb": -1,
+      "data_obs": "2026-11-20"
     }
   ],
-  "spread_10a_2a_pb": 27
+  "spread_10a_2a_pb": 28
 }
