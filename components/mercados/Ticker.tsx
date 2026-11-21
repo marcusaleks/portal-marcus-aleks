@@ -1,9 +1,11 @@
 import React from 'react';
+import { pctAlertClass } from '../../lib/pctAlert';
 
 type TickerItem = {
   name: string;
   value: string;
   change: string;
+  changeVal: number;
   isUp: boolean;
 };
 
@@ -26,10 +28,11 @@ export default function Ticker({ data }: TickerProps) {
       name: 'IBOV',
       value: isOffline ? '--' : ibovStock.regularMarketPrice.toLocaleString('pt-BR'),
       change: isOffline ? 'Sem Conexão' : `${ibovStock.regularMarketChangePercent >= 0 ? '+' : ''}${ibovStock.regularMarketChangePercent.toFixed(2)}%`,
+      changeVal: isOffline ? 0 : ibovStock.regularMarketChangePercent,
       isUp: isOffline ? true : ibovStock.regularMarketChangePercent >= 0
     });
   } else {
-    items.push({ name: 'IBOV', value: '176.453', change: '-1,07%', isUp: false });
+    items.push({ name: 'IBOV', value: '176.453', change: '-1,07%', changeVal: -1.07, isUp: false });
   }
 
   // Apenas as 18 ações e FIIs solicitados serão exibidos no Ticker
@@ -42,6 +45,7 @@ export default function Ticker({ data }: TickerProps) {
       name: s.symbol,
       value: isOffline ? '--' : `R$ ${s.regularMarketPrice.toFixed(2)}`,
       change: isOffline ? 'Sem Conexão' : `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2)}%`,
+      changeVal: isOffline ? 0 : s.regularMarketChangePercent,
       isUp: isOffline ? true : s.regularMarketChangePercent >= 0
     });
   });
@@ -63,7 +67,7 @@ export default function Ticker({ data }: TickerProps) {
             <span className="text-[#04101e] dark:text-slate-200 font-bold">
               {item.value}
             </span>
-            <span className={`font-semibold ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+            <span className={`font-semibold ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'} ${pctAlertClass(item.changeVal)}`}>
               {item.change}
             </span>
           </div>

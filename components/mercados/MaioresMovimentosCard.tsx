@@ -1,10 +1,12 @@
 import React from 'react';
+import { pctAlertClass } from '../../lib/pctAlert';
 
 type MovementItem = {
   ticker: string;
   name: string;
   price?: string;
   change: string;
+  changeVal: number;
   isUp: boolean;
 };
 
@@ -13,19 +15,19 @@ type MaioresMovimentosCardProps = {
 };
 
 const defaultAltas: MovementItem[] = [
-  { ticker: 'BRAV3', name: 'Brava Energia', price: 'R$ 18,50', change: '+2,36%', isUp: true },
-  { ticker: 'PETR3', name: 'Petrobras ON', price: 'R$ 38,10', change: '+1,58%', isUp: true },
-  { ticker: 'RECV3', name: 'PetroReconcavo', price: 'R$ 21,30', change: '+0,83%', isUp: true },
-  { ticker: 'PETR4', name: 'Petrobras PN', price: 'R$ 35,45', change: '+0,91%', isUp: true },
-  { ticker: 'PRIO3', name: 'PRIO', price: 'R$ 48,90', change: '+0,22%', isUp: true }
+  { ticker: 'BRAV3', name: 'Brava Energia', price: 'R$ 18,50', change: '+2,36%', changeVal: 2.36, isUp: true },
+  { ticker: 'PETR3', name: 'Petrobras ON', price: 'R$ 38,10', change: '+1,58%', changeVal: 1.58, isUp: true },
+  { ticker: 'RECV3', name: 'PetroReconcavo', price: 'R$ 21,30', change: '+0,83%', changeVal: 0.83, isUp: true },
+  { ticker: 'PETR4', name: 'Petrobras PN', price: 'R$ 35,45', change: '+0,91%', changeVal: 0.91, isUp: true },
+  { ticker: 'PRIO3', name: 'PRIO', price: 'R$ 48,90', change: '+0,22%', changeVal: 0.22, isUp: true }
 ];
 
 const defaultQuedas: MovementItem[] = [
-  { ticker: 'CSAN3', name: 'Cosan', price: 'R$ 12,30', change: '-7,10%', isUp: false },
-  { ticker: 'CSNA3', name: 'CSN', price: 'R$ 11,20', change: '-6,00%', isUp: false },
-  { ticker: 'USIM5', name: 'Usiminas', price: 'R$ 6,80', change: '-5,56%', isUp: false },
-  { ticker: 'VALE3', name: 'Vale', price: 'R$ 61,40', change: '-2,09%', isUp: false },
-  { ticker: 'BRAP4', name: 'Bradespar PN', price: 'R$ 19,80', change: '-2,54%', isUp: false }
+  { ticker: 'CSAN3', name: 'Cosan', price: 'R$ 12,30', change: '-7,10%', changeVal: -7.10, isUp: false },
+  { ticker: 'CSNA3', name: 'CSN', price: 'R$ 11,20', change: '-6,00%', changeVal: -6.00, isUp: false },
+  { ticker: 'USIM5', name: 'Usiminas', price: 'R$ 6,80', change: '-5,56%', changeVal: -5.56, isUp: false },
+  { ticker: 'VALE3', name: 'Vale', price: 'R$ 61,40', change: '-2,09%', changeVal: -2.09, isUp: false },
+  { ticker: 'BRAP4', name: 'Bradespar PN', price: 'R$ 19,80', change: '-2,54%', changeVal: -2.54, isUp: false }
 ];
 
 export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardProps) {
@@ -38,17 +40,18 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
   if (otherStocks.length > 0) {
     const isOffline = otherStocks.some(s => s.status === 'offline');
     if (isOffline) {
-      maioresAltas = defaultAltas.map(s => ({ ...s, change: 'Sem Conexão', isUp: true }));
-      maioresQuedas = defaultQuedas.map(s => ({ ...s, change: 'Sem Conexão', isUp: true }));
+      maioresAltas = defaultAltas.map(s => ({ ...s, change: 'Sem Conexão', changeVal: 0, isUp: true }));
+      maioresQuedas = defaultQuedas.map(s => ({ ...s, change: 'Sem Conexão', changeVal: 0, isUp: true }));
     } else {
       const sortedStocks = [...otherStocks].sort((a, b) => b.regularMarketChangePercent - a.regularMarketChangePercent);
-      
+
       // Map Top 5 Gainers
       maioresAltas = sortedStocks.slice(0, 5).map(s => ({
         ticker: s.symbol,
         name: s.longName ?? s.shortName ?? 'Ativo',
         price: `R$ ${s.regularMarketPrice?.toFixed(2).replace('.', ',')}`,
         change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
+        changeVal: s.regularMarketChangePercent,
         isUp: s.regularMarketChangePercent >= 0
       }));
 
@@ -59,6 +62,7 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
         name: s.longName ?? s.shortName ?? 'Ativo',
         price: `R$ ${s.regularMarketPrice?.toFixed(2).replace('.', ',')}`,
         change: `${s.regularMarketChangePercent >= 0 ? '+' : ''}${s.regularMarketChangePercent.toFixed(2).replace('.', ',')}%`,
+        changeVal: s.regularMarketChangePercent,
         isUp: s.regularMarketChangePercent >= 0
       }));
     }
@@ -73,7 +77,7 @@ export default function MaioresMovimentosCard({ data }: MaioresMovimentosCardPro
       <div className="text-right text-xs font-bold text-[#04101e] dark:text-slate-200 px-1 w-[30%] flex-shrink-0">
         {item.price || '--'}
       </div>
-      <div className={`text-right text-xs font-bold pl-1 w-[25%] flex-shrink-0 ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+      <div className={`text-right text-xs font-bold pl-1 w-[25%] flex-shrink-0 ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'} ${pctAlertClass(item.changeVal)}`}>
         {item.change}
       </div>
     </div>

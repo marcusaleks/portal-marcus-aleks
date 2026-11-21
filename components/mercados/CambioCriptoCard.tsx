@@ -1,4 +1,5 @@
 import React from 'react';
+import { pctAlertClass } from '../../lib/pctAlert';
 
 // Bandeiras em SVG para compatibilidade perfeita com Windows
 const USFlag = () => (
@@ -50,7 +51,8 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
   };
 
   const renderCurrency = (flag: React.ReactNode, name: string, rate: any) => {
-    const isUp = parseFloat(rate.pctChange) >= 0;
+    const pct = parseFloat(rate.pctChange);
+    const isUp = pct >= 0;
     const bidValue = parseFloat(rate.bid).toFixed(2).replace('.', ',');
     return (
       <div className="flex items-center justify-between py-1.5 border-b border-[#004ac6]/10 dark:border-slate-800/40 last:border-none">
@@ -65,8 +67,8 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
         </div>
         <div className="text-right">
           <div className="text-xs font-bold text-[#04101e] dark:text-slate-200">R$ {bidValue}</div>
-          <span className={`text-[10px] font-bold block ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
-            {isUp ? '+' : ''}{parseFloat(rate.pctChange).toFixed(2).replace('.', ',')}%
+          <span className={`text-[10px] font-bold block ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'} ${pctAlertClass(pct)}`}>
+            {isUp ? '+' : ''}{pct.toFixed(2).replace('.', ',')}%
           </span>
         </div>
       </div>
@@ -74,10 +76,11 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
   };
 
   const renderCrypto = (symbol: string, name: string, cryptoData: any) => {
-    const isUp = parseFloat(cryptoData.pctChange) >= 0;
+    const pct = parseFloat(cryptoData.pctChange);
+    const isUp = pct >= 0;
     const usdVal = parseFloat(cryptoData.usd).toLocaleString('en-US');
     const brlVal = parseFloat(cryptoData.brl).toLocaleString('pt-BR');
-    
+
     return (
       <div className="grid grid-cols-[22px_minmax(0,1fr)_auto_auto] items-center gap-1.5 py-1.5 border-b border-[#004ac6]/10 dark:border-slate-800/40 last:border-none">
         <div className="w-5 h-5 rounded-full bg-[#e4eefb] dark:bg-slate-800 flex items-center justify-center text-[8px] font-bold text-[#004ac6] dark:text-blue-400 shrink-0 select-none">
@@ -91,8 +94,8 @@ export default function CambioCriptoCard({ data }: CambioCriptoCardProps) {
           <div className="text-[11px] font-bold text-[#04101e] dark:text-slate-200">$ {usdVal}</div>
           <div className="text-[9px] text-[#294c72] dark:text-slate-500 font-semibold">R$ {brlVal}</div>
         </div>
-        <div className={`text-right min-w-[44px] text-xs font-bold ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
-          {isUp ? '+' : ''}{parseFloat(cryptoData.pctChange).toFixed(2).replace('.', ',')}%
+        <div className={`text-right min-w-[44px] text-xs font-bold ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'} ${pctAlertClass(pct)}`}>
+          {isUp ? '+' : ''}{pct.toFixed(2).replace('.', ',')}%
         </div>
       </div>
     );
