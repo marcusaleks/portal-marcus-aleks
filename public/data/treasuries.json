@@ -1,6 +1,6 @@
 {
   "source": "https://fred.stlouisfed.org/ (FRED API)",
-  "last_updated": "2026-11-21T07:38:14.674Z",
+  "last_updated": "2026-11-21T11:25:24.919Z",
   "asOf": "2026-11-21",
   "items": [
     {
@@ -58,5 +58,21 @@
       "data_obs": "2026-11-20"
     }
   ],
-  "spread_10a_2a_pb": 28
+  "spread_10a_2a_pb": 28,
+  "inflation": [
+    {
+      "series_id": "CPIAUCSL",
+      "label": "CPI 12m (realizado)",
+      "valor": 3.71725,
+      "valor_str": "3.72",
+      "data_obs": "2026-09-01"
+    },
+    {
+      "series_id": "MICH",
+      "label": "Expectativa CPI 12m (Michigan)",
+      "valor": 4.7,
+      "valor_str": "4.70",
+      "data_obs": "2026-10-01"
+    }
+  ]
 }
