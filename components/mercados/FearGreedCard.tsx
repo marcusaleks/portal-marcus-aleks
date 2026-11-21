@@ -115,7 +115,7 @@ export default function FearGreedCard({ data }: FearGreedCardProps) {
       <div className="text-[9px] text-[#6a8db0] dark:text-slate-500 font-semibold">
         VIX {entry.vix !== null ? entry.vix.toFixed(2) : '--'}
       </div>
-      <div className="text-[9px] text-[#04101e] dark:text-slate-200 font-bold">{label}</div>
+      <div className="text-[11px] text-[#04101e] dark:text-slate-200 font-black uppercase tracking-wide mt-0.5">{label}</div>
       <div className="text-[8px] text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider">{sub}</div>
     </div>
   );
