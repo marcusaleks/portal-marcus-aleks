@@ -16,7 +16,14 @@ type ErrorPayload = {
 
 type Payload = SuccessPayload | ErrorPayload;
 
-const BCB_URL = 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/1?formato=json';
+// Nota: o endpoint /dados/ultimos/1 desta série específica (1178) ficou
+// preso retornando 304 Not Modified de forma consistente (confirmado
+// 21/11/2026), mesmo sem nenhum header condicional enviado — bug do lado
+// da CDN do BCB, não resolvido sozinho após espera. /dados/ultimos/5
+// contorna o problema (mesma origem, path ligeiramente diferente) e
+// continua respondendo 200 normalmente; usamos só o primeiro item (mais
+// recente) do array retornado.
+const BCB_URL = 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados/ultimos/5?formato=json';
 
 function dateToISO(brDate: string): string {
   const [day, month, year] = brDate.split('/');
