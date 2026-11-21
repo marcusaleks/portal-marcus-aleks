@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-alert {
+    animation: none !important;
+  }
+}
+
 .mad-signature {
   position: fixed;
   bottom: 16px;

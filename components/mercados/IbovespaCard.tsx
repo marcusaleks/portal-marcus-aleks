@@ -1,4 +1,5 @@
 import React from 'react';
+import { pctAlertClass } from '../../lib/pctAlert';
 
 type IbovespaCardProps = {
   ibovData: any;
@@ -86,7 +87,7 @@ export default function IbovespaCard({ ibovData, ibovIntraday }: IbovespaCardPro
            </span>
         ) : (
           <>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isUp ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'bg-red-500/10 text-red-600 dark:text-red-500'}`}>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isUp ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'bg-red-500/10 text-red-600 dark:text-red-500'} ${pctAlertClass(changePct)}`}>
               {isUp ? '+' : ''}{changePct.toFixed(2)}%
             </span>
             <span className={`text-xs font-semibold ${isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
