@@ -288,15 +288,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fetchYahooIndex('IT29.L', 109.46, 0.0).then(data => ({ key: 'IT29', name: 'iShares iBonds Dec 2029 Term $ Treasury UCITS ETF', ...data }))
     ]);
 
+    // VIX (EUA, CBOE) e CBOE Brazil ETF Volatility Index (VXEWZ — volatilidade
+    // implícita do ETF EWZ, proxy de risco-Brasil; não é o VIX Brasil oficial
+    // da B3/S&P, calculado sobre opções do Ibovespa, sem fonte gratuita via API).
+    const fearGreedPromise = Promise.all([
+      fetchYahooIndex('^VIX', 18.5, 0.0).then(data => ({ key: 'VIX_US', ...data })),
+      fetchYahooIndex('^VXEWZ', 28.0, 0.0).then(data => ({ key: 'VXEWZ_BR', ...data }))
+    ]);
+
     // Resolve all promises
-    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday, metalsResults, lseUsdResults] = await Promise.all([
+    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday, metalsResults, lseUsdResults, fearGreedResults] = await Promise.all([
       brapiPromise,
       yahooPromise,
       currencyPromise,
       coinGeckoPromise,
       ibovIntradayPromise,
       metalsPromise,
-      lseUsdPromise
+      lseUsdPromise,
+      fearGreedPromise
     ]);
 
     // Build consolidated globalIndices map
@@ -327,6 +336,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return acc;
     }, {});
     const lseUsdOffline = lseUsdResults.every((m: any) => m.status === 'offline');
+
+    // Classifica o VIX em estágios inspirados no CNN Fear & Greed Index.
+    // Escala invertida em relação à CNN (VIX alto = medo, não ganância),
+    // calibrada pela média histórica do VIX (~19-21) como centro "Neutral",
+    // com faixas assimétricas: pânico tende a disparar mais rápido/forte
+    // que euforia (comportamento histórico real do indicador).
+    function classifyVix(vix: number | null): string | null {
+      if (vix === null) return null;
+      if (vix < 13) return 'Extreme Greed';
+      if (vix < 16) return 'Greed';
+      if (vix < 20) return 'Neutral';
+      if (vix < 26) return 'Fear';
+      return 'Extreme Fear';
+    }
+
+    const fearGreedMap = fearGreedResults.reduce((acc: any, cur: any) => {
+      acc[cur.key] = {
+        vix: cur.status === 'offline' ? null : cur.price,
+        stage: cur.status === 'offline' ? null : classifyVix(cur.price),
+        status: cur.status,
+      };
+      return acc;
+    }, {});
+    const fearGreedOffline = fearGreedResults.every((m: any) => m.status === 'offline');
 
     // Build cripto payload from CoinGecko
     const fmt = (n: number | undefined, fallback: string) => n != null ? Math.round(n).toString() : fallback;
@@ -387,6 +420,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       metalsOffline,
       lseUsd: lseUsdMap,
       lseUsdOffline,
+      fearGreed: fearGreedMap,
+      fearGreedOffline,
       diCurve: loadCurvaDI(),
       treasuries: loadTreasuries()
     };
