@@ -338,23 +338,59 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const lseUsdOffline = lseUsdResults.every((m: any) => m.status === 'offline');
 
     // Classifica o VIX em estágios inspirados no CNN Fear & Greed Index.
-    // Escala invertida em relação à CNN (VIX alto = medo, não ganância),
-    // calibrada pela média histórica do VIX (~19-21) como centro "Neutral",
-    // com faixas assimétricas: pânico tende a disparar mais rápido/forte
-    // que euforia (comportamento histórico real do indicador).
+    // Escala invertida em relação à CNN (VIX alto = medo, não ganância).
+    // Calibrada contra pares reais VIX↔CNN verificados (não apenas teoria):
+    //   - 20/11/2026: VIX 35,89 → CNN 10 (Extreme Fear) — bate.
+    //   - 24/04/2026: VIX 18,84 → CNN 67 (Greed) — a calibração anterior
+    //     classificava isso como "Neutral", escala estava deslocada para
+    //     cima; recalibrado para baixo nesta versão.
+    //   - padrão geral: VIX 10-15 costuma coincidir com "Extreme Greed".
+    // Faixas assimétricas: pânico dispara mais rápido/forte que euforia.
     function classifyVix(vix: number | null): string | null {
       if (vix === null) return null;
       if (vix < 13) return 'Extreme Greed';
-      if (vix < 16) return 'Greed';
-      if (vix < 20) return 'Neutral';
-      if (vix < 26) return 'Fear';
+      if (vix < 17) return 'Greed';
+      if (vix < 21) return 'Neutral';
+      if (vix < 28) return 'Fear';
       return 'Extreme Fear';
     }
 
+    // Converte VIX num score contínuo 0-100 (estilo CNN) para alimentar o
+    // ponteiro do gauge — não só a zona categórica. Mapeamento linear por
+    // trecho, com âncoras ajustadas para bater com os 2 pares reais
+    // VIX↔CNN verificados por pesquisa (não apenas estimativa teórica):
+    //   - VIX 18,84 → CNN 67 em 24/04/2026 (ponto central, mais confiável)
+    //   - VIX 35,89 → CNN 10 em 20/11/2026 (score aproximado: 13)
+    // Extremos (VIX 5 e 45) são teóricos/não verificados com data exata,
+    // mantidos como limites plausíveis de faixa histórica do indicador.
+    function vixToScore(vix: number | null): number | null {
+      if (vix === null) return null;
+      const anchors: [number, number][] = [
+        [5, 100],
+        [13, 80],
+        [18.84, 67],
+        [21, 50],
+        [28, 24],
+        [45, 0],
+      ];
+      const clamped = Math.max(anchors[0][0], Math.min(anchors[anchors.length - 1][0], vix));
+      for (let i = 0; i < anchors.length - 1; i++) {
+        const [v0, s0] = anchors[i];
+        const [v1, s1] = anchors[i + 1];
+        if (clamped >= v0 && clamped <= v1) {
+          const t = (clamped - v0) / (v1 - v0);
+          return Math.round(s0 + t * (s1 - s0));
+        }
+      }
+      return null;
+    }
+
     const fearGreedMap = fearGreedResults.reduce((acc: any, cur: any) => {
+      const vix = cur.status === 'offline' ? null : cur.price;
       acc[cur.key] = {
-        vix: cur.status === 'offline' ? null : cur.price,
-        stage: cur.status === 'offline' ? null : classifyVix(cur.price),
+        vix,
+        stage: classifyVix(vix),
+        score: vixToScore(vix),
         status: cur.status,
       };
       return acc;
