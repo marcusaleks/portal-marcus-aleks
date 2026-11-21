@@ -12,6 +12,7 @@ import MetaisCard from '../components/mercados/MetaisCard';
 import CurvaDICard from '../components/mercados/CurvaDICard';
 import TreasuriesCard from '../components/mercados/TreasuriesCard';
 import BancosCentraisCard from '../components/mercados/BancosCentraisCard';
+import WatchlistLSECard from '../components/mercados/WatchlistLSECard';
 import MaioresMovimentosCard from '../components/mercados/MaioresMovimentosCard';
 import FerramentasCard from '../components/mercados/FerramentasCard';
 
@@ -326,6 +327,9 @@ export default function Home() {
 
             {/* Column 2: Bancos Centrais (Row 3) */}
             <BancosCentraisCard bancos={bancosCentrais} loading={bancosCentraisLoading} />
+
+            {/* Column 3: Watchlist LSE/USD (Row 3) */}
+            <WatchlistLSECard data={displayData} />
 
           </div>
 

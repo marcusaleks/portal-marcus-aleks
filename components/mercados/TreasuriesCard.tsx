@@ -9,6 +9,14 @@ type TreasuryItem = {
   var_pb: number | null;
 };
 
+type InflationItem = {
+  series_id: string;
+  label: string;
+  valor: number | null;
+  valor_str: string;
+  data_obs: string | null;
+};
+
 type TreasuriesCardProps = {
   data: any;
   fedFunds?: string | null;
@@ -47,6 +55,10 @@ function fmtAnterior(taxa_anterior: number | null): string {
   return taxa_anterior.toFixed(2).replace('.', ',') + '%';
 }
 
+function fmtInflation(valor_str: string): string {
+  return valor_str === '--' ? '--' : valor_str.replace('.', ',') + '%';
+}
+
 export default function TreasuriesCard({
   data,
   fedFunds = null,
@@ -61,6 +73,9 @@ export default function TreasuriesCard({
   const items: TreasuryItem[] = rawTreasuries?.items ?? FALLBACK_ITEMS;
   const lastUpdated: string | null = rawTreasuries?.last_updated ?? null;
   const spread10a2a: number | null = rawTreasuries?.spread_10a_2a_pb ?? null;
+  const inflation: InflationItem[] = rawTreasuries?.inflation ?? [];
+  const cpiRealizado = inflation.find((i) => i.series_id === 'CPIAUCSL') ?? null;
+  const cpiEsperado = inflation.find((i) => i.series_id === 'MICH') ?? null;
   const asOf: string | null = rawTreasuries?.asOf ?? null;
   const freshness = classifyFreshness(asOf);
 
@@ -155,6 +170,32 @@ export default function TreasuriesCard({
         }`}>
           {fmtSpread(spread10a2a)}
         </span>
+      </div>
+
+      {/* CPI realizado & expectativa */}
+      <div className="flex items-center justify-between mt-2 px-1.5">
+        <div>
+          <span
+            className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider font-bold select-none"
+            title="CPI-U, variação acumulada 12 meses (BLS via FRED)"
+          >
+            CPI 12m
+          </span>
+          <span className="block text-[11px] font-bold text-[#294c72] dark:text-slate-300">
+            {fmtInflation(cpiRealizado?.valor_str ?? '--')}
+          </span>
+        </div>
+        <div className="text-right">
+          <span
+            className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider font-bold select-none"
+            title="Expectativa de inflação para os próximos 12 meses — pesquisa de consumidores da University of Michigan"
+          >
+            Expectativa 12m
+          </span>
+          <span className="block text-[11px] font-bold text-[#294c72] dark:text-slate-300">
+            {fmtInflation(cpiEsperado?.valor_str ?? '--')}
+          </span>
+        </div>
       </div>
 
       {/* Divider */}

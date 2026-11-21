@@ -133,7 +133,11 @@ function loadTreasuries() {
         { series_id: 'T5YIE', label: 'Breakeven 5a (TIPS)', taxa: null, taxa_str: '--' },
         { series_id: 'T10YIE', label: 'Breakeven 10a (TIPS)', taxa: null, taxa_str: '--' },
       ],
-      spread_10a_2a_pb: null
+      spread_10a_2a_pb: null,
+      inflation: [
+        { series_id: 'CPIAUCSL', label: 'CPI 12m (realizado)', valor: null, valor_str: '--' },
+        { series_id: 'MICH', label: 'Expectativa CPI 12m (Michigan)', valor: null, valor_str: '--' },
+      ]
     };
   }
 }
@@ -276,14 +280,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fetchYahooIndex('CL=F', 71.5, -0.67).then(data => ({ key: 'PETROLEO_WTI', ...data }))
     ]);
 
+    const lseUsdPromise = Promise.all([
+      fetchYahooIndex('IB01.L', 122.68, 0.0).then(data => ({ key: 'IB01', name: 'iShares $ Treasury Bond 0-1yr UCITS ETF', ...data })),
+      fetchYahooIndex('VDTA.L', 27.06, 0.0).then(data => ({ key: 'VDTA', name: 'Vanguard USD Treasury Bond UCITS ETF', ...data })),
+      fetchYahooIndex('VDPA.L', 60.37, 0.0).then(data => ({ key: 'VDPA', name: 'Vanguard USD Corporate Bond UCITS ETF', ...data })),
+      fetchYahooIndex('TIP5.L', 4.75, 0.0).then(data => ({ key: 'TIP5', name: 'iShares $ TIPS 0-5 UCITS ETF', ...data })),
+      fetchYahooIndex('IT29.L', 109.46, 0.0).then(data => ({ key: 'IT29', name: 'iShares iBonds Dec 2029 Term $ Treasury UCITS ETF', ...data }))
+    ]);
+
     // Resolve all promises
-    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday, metalsResults] = await Promise.all([
+    const [stocks, globalIndices, currencyResults, geckoData, ibovIntraday, metalsResults, lseUsdResults] = await Promise.all([
       brapiPromise,
       yahooPromise,
       currencyPromise,
       coinGeckoPromise,
       ibovIntradayPromise,
-      metalsPromise
+      metalsPromise,
+      lseUsdPromise
     ]);
 
     // Build consolidated globalIndices map
@@ -307,6 +320,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return acc;
     }, {});
     const metalsOffline = metalsResults.every((m: any) => m.status === 'offline');
+
+    // Build consolidated LSE/USD watchlist map
+    const lseUsdMap = lseUsdResults.reduce((acc: any, cur: any) => {
+      acc[cur.key] = { name: cur.name, price: cur.price, pctChange: cur.pctChange, status: cur.status };
+      return acc;
+    }, {});
+    const lseUsdOffline = lseUsdResults.every((m: any) => m.status === 'offline');
 
     // Build cripto payload from CoinGecko
     const fmt = (n: number | undefined, fallback: string) => n != null ? Math.round(n).toString() : fallback;
@@ -365,6 +385,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cryptos,
       metals: metalsMap,
       metalsOffline,
+      lseUsd: lseUsdMap,
+      lseUsdOffline,
       diCurve: loadCurvaDI(),
       treasuries: loadTreasuries()
     };

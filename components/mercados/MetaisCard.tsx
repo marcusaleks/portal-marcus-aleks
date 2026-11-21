@@ -1,8 +1,11 @@
+import { pctAlertClass } from '../../lib/pctAlert';
+
 type MetalItem = {
   name: string;
   unidade: string;
   preco: string;
   change: string;
+  changeVal: number;
   isUp: boolean;
   isOffline: boolean;
 };
@@ -35,6 +38,7 @@ export default function MetaisCard({ data }: MetaisCardProps) {
       unidade,
       preco: formattedPrice,
       change: formattedChange,
+      changeVal: isOffline ? 0 : changeVal,
       isUp: isOffline ? true : changeVal >= 0,
       isOffline,
     };
@@ -97,7 +101,7 @@ export default function MetaisCard({ data }: MetaisCardProps) {
                   : item.isUp
                     ? 'text-emerald-600 dark:text-emerald-500'
                     : 'text-red-600 dark:text-red-500'
-              }`}>
+              } ${item.isOffline ? '' : pctAlertClass(item.changeVal)}`}>
                 {item.change}
               </td>
             </tr>

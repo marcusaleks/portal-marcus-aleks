@@ -23,6 +23,13 @@ const SERIES = [
   { id: "T10YIE", label: "Breakeven 10 anos (TIPS)" },
 ];
 
+// CPI realizado (YoY) e expectativa de inflação 12m (survey University of
+// Michigan) — não são yields, tratados à parte sem var_pb em pontos-base.
+const INFLATION_SERIES = [
+  { id: "CPIAUCSL", label: "CPI 12m (realizado)", units: "pc1" as const },
+  { id: "MICH", label: "Expectativa CPI 12m (Michigan)", units: "lin" as const },
+];
+
 interface TreasuryItem {
   series_id: string;
   label: string;
@@ -33,12 +40,21 @@ interface TreasuryItem {
   data_obs: string | null;     // ISO data da observação mais recente
 }
 
+interface InflationItem {
+  series_id: string;
+  label: string;
+  valor: number | null;       // % a.a.
+  valor_str: string;          // formatada "3.70"
+  data_obs: string | null;    // ISO data/mês de referência da observação
+}
+
 interface TreasuriesData {
   source: string;
   last_updated: string;
   asOf: string;
   items: TreasuryItem[];
   spread_10a_2a_pb: number | null; // DGS10 - DGS2, em pontos-base
+  inflation: InflationItem[];
 }
 
 function fetchJson(url: string): Promise<any> {
@@ -82,6 +98,24 @@ async function fetchSeries(seriesId: string): Promise<{ data_obs: string; taxa: 
   return obs
     .map((o: any) => ({ data_obs: o.date, taxa: parseValue(o.value) }))
     .filter((o: any) => o.taxa !== null) as { data_obs: string; taxa: number }[];
+}
+
+async function fetchLatestInflation(
+  seriesId: string,
+  units: "pc1" | "lin"
+): Promise<{ data_obs: string; valor: number } | null> {
+  // Séries mensais (CPI, Michigan) — últimas 3 observações, suficiente mesmo
+  // com defasagem de publicação do mês corrente.
+  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&units=${units}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=3`;
+  const json = await fetchJson(url);
+  const obs = json?.observations;
+  if (!Array.isArray(obs)) throw new Error(`payload inesperado para ${seriesId}`);
+
+  const valid = obs
+    .map((o: any) => ({ data_obs: o.date, valor: parseValue(o.value) }))
+    .filter((o: any) => o.valor !== null) as { data_obs: string; valor: number }[];
+
+  return valid.length > 0 ? valid[0] : null;
 }
 
 function todayISO(): string {
@@ -162,12 +196,36 @@ async function main() {
     ? Math.round((dgs10 - dgs2) * 100)
     : null;
 
+  const inflation: InflationItem[] = [];
+  for (const serie of INFLATION_SERIES) {
+    try {
+      const latest = await fetchLatestInflation(serie.id, serie.units);
+      inflation.push({
+        series_id: serie.id,
+        label: serie.label,
+        valor: latest?.valor ?? null,
+        valor_str: latest ? latest.valor.toFixed(2) : "--",
+        data_obs: latest?.data_obs ?? null,
+      });
+    } catch (err: any) {
+      console.warn(`⚠️  Falha ao buscar ${serie.id}: ${err.message}`);
+      inflation.push({
+        series_id: serie.id,
+        label: serie.label,
+        valor: null,
+        valor_str: "--",
+        data_obs: null,
+      });
+    }
+  }
+
   const output: TreasuriesData = {
     source: "https://fred.stlouisfed.org/ (FRED API)",
     last_updated: new Date().toISOString(),
     asOf,
     items,
     spread_10a_2a_pb: spread10a2aPb,
+    inflation,
   };
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf-8");
@@ -177,6 +235,9 @@ async function main() {
     console.log(`   ${i.label}: ${i.taxa_str}%`);
   });
   console.log(`   Spread 10a-2a: ${spread10a2aPb !== null ? `${spread10a2aPb > 0 ? '+' : ''}${spread10a2aPb} p.b.` : '--'}`);
+  inflation.forEach((i) => {
+    console.log(`   ${i.label}: ${i.valor_str}%`);
+  });
 }
 
 main().catch((err) => {

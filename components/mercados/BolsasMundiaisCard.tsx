@@ -1,10 +1,12 @@
 import React from 'react';
+import { pctAlertClass } from '../../lib/pctAlert';
 
 type IndexItem = {
   name: string;
   symbol: string;
   points: string;
   change: string;
+  changeVal: number;
   isUp: boolean;
 };
 
@@ -30,6 +32,7 @@ export default function BolsasMundiaisCard({ data }: BolsasMundiaisCardProps) {
       symbol: defaultSymbol,
       points: formattedPrice,
       change: formattedChange,
+      changeVal: isOffline ? 0 : changeVal,
       isUp: isOffline ? true : changeVal >= 0
     };
   };
@@ -63,7 +66,7 @@ export default function BolsasMundiaisCard({ data }: BolsasMundiaisCardProps) {
       <td className="py-1.5 px-1 text-right text-xs font-bold text-[#04101e] dark:text-slate-200 align-middle">
         {item.points}
       </td>
-      <td className={`py-1.5 pl-1 pr-0.5 text-right text-xs font-bold align-middle ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+      <td className={`py-1.5 pl-1 pr-0.5 text-right text-xs font-bold align-middle ${item.isUp ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'} ${pctAlertClass(item.changeVal)}`}>
         {item.change}
       </td>
     </tr>
