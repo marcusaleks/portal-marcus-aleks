@@ -57,7 +57,7 @@ export default function WatchlistLSECard({ data }: WatchlistLSECardProps) {
       <div className="flex items-center justify-between mb-3.5">
         <span className="text-[10px] letter-spacing-[0.1em] uppercase text-[#6a8db0] dark:text-slate-400 flex items-center gap-1.5 font-bold">
           <span className="inline-block w-2.5 h-[2px] bg-[#004ac6] dark:bg-blue-500 rounded-sm"></span>
-          Watchlist LSE/USD
+          UCITS LSE/USD
         </span>
         {isLSEOffline && (
           <span className="text-[9px] font-bold text-amber-500/80 dark:text-amber-400/70 uppercase tracking-wider" title="Dados de fallback — sem conexão com Yahoo Finance">
