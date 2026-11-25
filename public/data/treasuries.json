@@ -1,16 +1,16 @@
 {
   "source": "https://fred.stlouisfed.org/ (FRED API)",
-  "last_updated": "2026-11-25T09:01:30.587Z",
+  "last_updated": "2026-11-25T23:51:21.791Z",
   "asOf": "2026-11-25",
   "items": [
     {
       "series_id": "DGS1MO",
       "label": "T-Bill 1 mês",
-      "taxa": 4.2,
-      "taxa_str": "4.20",
-      "taxa_anterior": 4.19,
+      "taxa": 4.21,
+      "taxa_str": "4.21",
+      "taxa_anterior": 4.2,
       "var_pb": 1,
-      "data_obs": "2026-11-23"
+      "data_obs": "2026-11-24"
     },
     {
       "series_id": "DGS2",
@@ -19,46 +19,46 @@
       "taxa_str": "4.63",
       "taxa_anterior": 4.63,
       "var_pb": 0,
-      "data_obs": "2026-11-23"
+      "data_obs": "2026-11-24"
     },
     {
       "series_id": "DGS10",
       "label": "T-Note 10 anos",
-      "taxa": 4.92,
-      "taxa_str": "4.92",
+      "taxa": 4.91,
+      "taxa_str": "4.91",
       "taxa_anterior": 4.92,
-      "var_pb": 0,
-      "data_obs": "2026-11-23"
+      "var_pb": -1,
+      "data_obs": "2026-11-24"
     },
     {
       "series_id": "DGS30",
       "label": "T-Bond 30 anos",
-      "taxa": 5.29,
-      "taxa_str": "5.29",
-      "taxa_anterior": 5.31,
-      "var_pb": -2,
-      "data_obs": "2026-11-23"
+      "taxa": 5.3,
+      "taxa_str": "5.30",
+      "taxa_anterior": 5.29,
+      "var_pb": 1,
+      "data_obs": "2026-11-24"
     },
     {
       "series_id": "T5YIE",
       "label": "Breakeven 5 anos (TIPS)",
-      "taxa": 2.11,
-      "taxa_str": "2.11",
-      "taxa_anterior": 2.15,
-      "var_pb": -4,
-      "data_obs": "2026-11-24"
+      "taxa": 2.13,
+      "taxa_str": "2.13",
+      "taxa_anterior": 2.11,
+      "var_pb": 2,
+      "data_obs": "2026-11-25"
     },
     {
       "series_id": "T10YIE",
       "label": "Breakeven 10 anos (TIPS)",
       "taxa": 2.12,
       "taxa_str": "2.12",
-      "taxa_anterior": 2.13,
-      "var_pb": -1,
-      "data_obs": "2026-11-24"
+      "taxa_anterior": 2.12,
+      "var_pb": 0,
+      "data_obs": "2026-11-25"
     }
   ],
-  "spread_10a_2a_pb": 29,
+  "spread_10a_2a_pb": 28,
   "inflation": [
     {
       "series_id": "CPIAUCSL",
