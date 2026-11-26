@@ -136,11 +136,11 @@ export default function FearGreedCard({ data }: FearGreedCardProps) {
 
       <div className="flex items-start gap-2 mt-1">
         {renderGaugeBlock('Estados Unidos', 'CBOE VIX', us)}
-        {renderGaugeBlock('Brasil', 'VXEWZ · via ETF EWZ', br)}
+        {renderGaugeBlock('Brasil', 'S&P/B3 Ibovespa VIX', br)}
       </div>
 
       <div className="text-[8px] text-[#6a8db0] dark:text-slate-500 mt-2.5 px-0.5 leading-snug">
-        Estágios inspirados na escala do CNN Fear &amp; Greed Index, derivados da volatilidade implícita (VIX) e calibrados contra leituras reais do índice. Brasil medido via volatilidade do ETF EWZ (CBOE), não o VIX Brasil oficial da B3.
+        Estágios inspirados na escala do CNN Fear &amp; Greed Index, derivados da volatilidade implícita (VIX) e calibrados contra leituras reais do índice. Brasil medido pelo S&amp;P/B3 Ibovespa VIX oficial, calculado sobre opções do Ibovespa.
       </div>
     </div>
   );
