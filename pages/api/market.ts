@@ -288,12 +288,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fetchYahooIndex('IT29.L', 109.46, 0.0).then(data => ({ key: 'IT29', name: 'iShares iBonds Dec 2029 Term $ Treasury UCITS ETF', ...data }))
     ]);
 
-    // VIX (EUA, CBOE) e CBOE Brazil ETF Volatility Index (VXEWZ — volatilidade
-    // implícita do ETF EWZ, proxy de risco-Brasil; não é o VIX Brasil oficial
-    // da B3/S&P, calculado sobre opções do Ibovespa, sem fonte gratuita via API).
+    // VIX (EUA, CBOE) e S&P/B3 Ibovespa VIX oficial (^BVSPVIX — calculado
+    // sobre opções do próprio Ibovespa, metodologia CBOE, lançado em 2024).
+    // Substituiu ^VXEWZ (CBOE Brazil ETF Volatility Index, proxy via EWZ) em
+    // 26/11/2026: ^VXEWZ ficou travado no Yahoo Finance (parou de publicar
+    // novas cotações, mesmo pedindo 1 mês de histórico só retornava 1 ponto
+    // antigo) e ^BVSPVIX é, além de mais atual, o índice oficial em vez de
+    // um proxy — estritamente melhor nos dois critérios.
     const fearGreedPromise = Promise.all([
       fetchYahooIndex('^VIX', 18.5, 0.0).then(data => ({ key: 'VIX_US', ...data })),
-      fetchYahooIndex('^VXEWZ', 28.0, 0.0).then(data => ({ key: 'VXEWZ_BR', ...data }))
+      fetchYahooIndex('^BVSPVIX', 20.0, 0.0).then(data => ({ key: 'VXEWZ_BR', ...data }))
     ]);
 
     // Resolve all promises
