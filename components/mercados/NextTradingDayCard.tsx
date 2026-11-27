@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { parseHolidaysMarkdown, nextHolidays, MarketHoliday } from '../../lib/marketHolidays';
+import { parseHolidaysMarkdown, mergeAndSortHolidays, MarketHoliday, MarketHolidayEntry } from '../../lib/marketHolidays';
+
+function tipoColor(tipo: string): string {
+  if (tipo === 'Fechado') return 'text-red-600 dark:text-red-500';
+  return 'text-amber-600 dark:text-amber-400';
+}
 
 export default function NextTradingDayCard() {
   const [b3Holidays, setB3Holidays] = useState<MarketHoliday[]>([]);
@@ -17,35 +22,7 @@ export default function NextTradingDayCard() {
       .catch(() => setNyseHolidays([]));
   }, []);
 
-  // B3: feriados avaliados em horário de Brasília. NYSE: em horário de
-  // Nova York. Evita que um feriado "de hoje" já encerrado numa timezone
-  // mas ainda em curso na outra seja tratado de forma inconsistente.
-  const nextB3 = nextHolidays(b3Holidays, 3, '-03:00');
-  const nextNyse = nextHolidays(nyseHolidays, 3, '-05:00');
-
-  const renderList = (label: string, holidays: MarketHoliday[]) => (
-    <div className="flex-1">
-      <div className="text-[9px] text-[#6a8db0] dark:text-slate-500 uppercase tracking-wider font-bold mb-1.5">
-        {label}
-      </div>
-      {holidays.length === 0 ? (
-        <div className="text-xs text-[#6a8db0] dark:text-slate-500">--</div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          {holidays.map((h, idx) => (
-            <div key={idx} className="flex items-baseline justify-between gap-2">
-              <span className="text-xs font-bold text-[#04101e] dark:text-slate-200 shrink-0">
-                {h.date}
-              </span>
-              <span className="text-[10px] text-[#294c72] dark:text-slate-400 text-right truncate">
-                {h.motivo}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const events: MarketHolidayEntry[] = mergeAndSortHolidays(b3Holidays, nyseHolidays, 6);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-[#004ac6]/16 dark:border-slate-800 rounded-lg p-3.5 flex flex-col font-mono shadow-sm">
@@ -56,14 +33,56 @@ export default function NextTradingDayCard() {
         </span>
       </div>
 
-      <div className="flex gap-3">
-        {renderList('B3 · Brasil', nextB3)}
-        <div className="w-px bg-[#004ac6]/12 dark:bg-slate-800 self-stretch"></div>
-        {renderList('NYSE/NASDAQ · EUA', nextNyse)}
-      </div>
+      <table className="w-full border-collapse table-fixed">
+        <thead>
+          <tr className="border-b border-[#004ac6]/12 dark:border-slate-800">
+            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 pr-1 pl-0.5 w-[16%]">
+              Data
+            </th>
+            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 px-1 w-[12%]">
+              Bolsa
+            </th>
+            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 px-1 w-[30%]">
+              Evento
+            </th>
+            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 pl-1 pr-0.5 w-[42%]">
+              Observações
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {events.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="py-3 text-center text-xs text-[#6a8db0] dark:text-slate-500">--</td>
+            </tr>
+          ) : (
+            events.map((ev, idx) => (
+              <tr key={idx} className="border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none align-top">
+                <td className="py-2 pr-1 pl-0.5 text-left text-xs font-bold text-[#04101e] dark:text-slate-200">
+                  {ev.date}
+                </td>
+                <td className="py-2 px-1 text-left text-[10px] font-bold text-[#294c72] dark:text-slate-400">
+                  {ev.mercado}
+                </td>
+                <td className="py-2 px-1 text-left">
+                  <span className="text-[11px] font-bold text-[#04101e] dark:text-slate-200 block leading-tight">
+                    {ev.evento}
+                  </span>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider ${tipoColor(ev.tipo)}`}>
+                    {ev.tipo}
+                  </span>
+                </td>
+                <td className="py-2 pl-1 pr-0.5 text-left text-[9px] text-[#6a8db0] dark:text-slate-500 leading-snug">
+                  {ev.observacoes === '—' ? '' : ev.observacoes}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
 
       <div className="text-[8px] text-[#6a8db0] dark:text-slate-500 mt-2.5 px-0.5 leading-snug">
-        Datas sem pregão nos respectivos mercados. B3 inclui vésperas de Natal/Ano Novo (sem sessão de negociação, não feriado nacional). Calendário 2026 — atualizar manualmente ao virar o ano.
+        Calendário 2026 — atualizar manualmente ao virar o ano.
       </div>
     </div>
   );
