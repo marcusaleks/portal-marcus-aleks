@@ -5,14 +5,22 @@ export type MarketHoliday = {
   observacoes: string;
 };
 
+export type MercadoId = 'B3' | 'NYSE' | 'LSE';
+
 export type MarketHolidayEntry = MarketHoliday & {
-  mercado: 'B3' | 'NYSE';
+  mercado: MercadoId;
+};
+
+const TZ_BY_MERCADO: Record<MercadoId, string> = {
+  B3: '-03:00',
+  NYSE: '-05:00',
+  LSE: '+00:00',
 };
 
 // Parseia tabelas markdown no formato
 // "| DD/MM/YYYY | Evento | Tipo | Observações |" usado em
-// public/feriados-b3.md e public/feriados-nyse.md — mesmo estilo de
-// public/copom.md e public/fomc.md.
+// public/feriados-b3.md, public/feriados-nyse.md e public/feriados-lse.md
+// — mesmo estilo de public/copom.md e public/fomc.md.
 export function parseHolidaysMarkdown(text: string): MarketHoliday[] {
   const lines = text.split('\n');
   const holidays: MarketHoliday[] = [];
@@ -32,37 +40,34 @@ function parseBrDate(dateStr: string, tzOffset: string): number {
   return new Date(`${year}-${month}-${day}T23:59:59${tzOffset}`).getTime();
 }
 
-// Retorna os próximos N eventos futuros (>= agora) de uma única lista,
-// ordenados por data.
-export function nextHolidays(
-  holidays: MarketHoliday[],
-  count: number,
-  tzOffset: string,
-  now: number = Date.now()
-): MarketHoliday[] {
-  return holidays
-    .filter((h) => parseBrDate(h.date, tzOffset) >= now)
-    .sort((a, b) => parseBrDate(a.date, tzOffset) - parseBrDate(b.date, tzOffset))
-    .slice(0, count);
-}
-
-// Combina B3 e NYSE numa única lista cronológica, cada item marcado com
-// o mercado de origem — para a tabela única do card.
+// Combina as listas de feriados de todos os mercados numa única sequência
+// cronológica, cada item marcado com o mercado de origem — para a tabela
+// única do card.
 export function mergeAndSortHolidays(
-  b3: MarketHoliday[],
-  nyse: MarketHoliday[],
+  sources: Partial<Record<MercadoId, MarketHoliday[]>>,
   count: number,
   now: number = Date.now()
 ): MarketHolidayEntry[] {
-  const combined: MarketHolidayEntry[] = [
-    ...b3.map((h) => ({ ...h, mercado: 'B3' as const })),
-    ...nyse.map((h) => ({ ...h, mercado: 'NYSE' as const })),
-  ];
-
-  const tzFor = (m: 'B3' | 'NYSE') => (m === 'B3' ? '-03:00' : '-05:00');
+  const combined: MarketHolidayEntry[] = [];
+  for (const mercado of Object.keys(sources) as MercadoId[]) {
+    const holidays = sources[mercado] ?? [];
+    combined.push(...holidays.map((h) => ({ ...h, mercado })));
+  }
 
   return combined
-    .filter((h) => parseBrDate(h.date, tzFor(h.mercado)) >= now)
-    .sort((a, b) => parseBrDate(a.date, tzFor(a.mercado)) - parseBrDate(b.date, tzFor(b.mercado)))
+    .filter((h) => parseBrDate(h.date, TZ_BY_MERCADO[h.mercado]) >= now)
+    .sort((a, b) => parseBrDate(a.date, TZ_BY_MERCADO[a.mercado]) - parseBrDate(b.date, TZ_BY_MERCADO[b.mercado]))
     .slice(0, count);
+}
+
+// Um calendário é considerado desatualizado se não tiver nenhuma data no
+// ano corrente ou no próximo — sinal objetivo de que a tabela não foi
+// revisada na virada do ano (manutenção manual, sem automação).
+export function isHolidayListStale(holidays: MarketHoliday[], now: Date = new Date()): boolean {
+  if (holidays.length === 0) return true;
+  const currentYear = now.getFullYear();
+  return !holidays.some((h) => {
+    const year = parseInt(h.date.split('/')[2], 10);
+    return year === currentYear || year === currentYear + 1;
+  });
 }
