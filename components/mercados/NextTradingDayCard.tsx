@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import {
   parseHolidaysMarkdown,
   mergeAndSortHolidays,
+  groupHolidaysByDateAndType,
   isHolidayListStale,
   MarketHoliday,
-  MarketHolidayEntry,
   MercadoId,
 } from '../../lib/marketHolidays';
 
 const MERCADO_LABELS: Record<MercadoId, string> = {
-  B3: 'Brasil',
-  NYSE: 'EUA',
-  LSE: 'Reino Unido',
+  B3: 'BR',
+  NYSE: 'USA',
+  LSE: 'UK',
 };
 
 function tipoColor(tipo: string): string {
@@ -42,7 +42,8 @@ export default function NextTradingDayCard() {
     });
   }, []);
 
-  const events: MarketHolidayEntry[] = mergeAndSortHolidays(holidaysByMercado, 8);
+  const entries = mergeAndSortHolidays(holidaysByMercado, 12);
+  const groups = groupHolidaysByDateAndType(entries).slice(0, 8);
 
   const staleMercados = (Object.keys(holidaysByMercado) as MercadoId[]).filter((m) =>
     isHolidayListStale(holidaysByMercado[m] ?? [])
@@ -65,53 +66,44 @@ export default function NextTradingDayCard() {
         </div>
       )}
 
-      <table className="w-full border-collapse table-fixed">
-        <thead>
-          <tr className="border-b border-[#004ac6]/12 dark:border-slate-800">
-            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 pr-1 pl-0.5 w-[15%]">
-              Data
-            </th>
-            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 px-1 w-[18%]">
-              Bolsa
-            </th>
-            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 px-1 w-[28%]">
-              Evento
-            </th>
-            <th className="text-[9px] text-[#6a8db0] dark:text-slate-400 font-bold uppercase tracking-wider text-left pb-1.5 pl-1 pr-0.5 w-[39%]">
-              Observações
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {events.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="py-3 text-center text-xs text-[#6a8db0] dark:text-slate-500">--</td>
-            </tr>
-          ) : (
-            events.map((ev, idx) => (
-              <tr key={idx} className="border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none align-top">
-                <td className="py-2 pr-1 pl-0.5 text-left text-xs font-bold text-[#04101e] dark:text-slate-200">
-                  {ev.date}
-                </td>
-                <td className="py-2 px-1 text-left text-[11px] font-bold text-[#294c72] dark:text-slate-400 leading-tight">
-                  {MERCADO_LABELS[ev.mercado]}
-                </td>
-                <td className="py-2 px-1 text-left">
-                  <span className="text-[11px] font-bold text-[#04101e] dark:text-slate-200 block leading-tight">
-                    {ev.evento}
+      {/* Layout em lista, um bloco por grupo (data + tipo) — mercados que
+          fecham juntos na mesma data e com o mesmo tipo (Fechado /
+          Horário reduzido) aparecem na mesma linha, evitando repetir a
+          data 2-3 vezes seguidas quando os mercados coincidem. */}
+      <div className="flex flex-col">
+        {groups.length === 0 ? (
+          <div className="py-3 text-center text-xs text-[#6a8db0] dark:text-slate-500">--</div>
+        ) : (
+          groups.map((g, idx) => {
+            const obsComTexto = g.observacoesPorMercado.filter((o) => o.observacoes !== '—');
+            return (
+              <div key={idx} className="py-2 border-b border-[#004ac6]/08 dark:border-slate-800/40 last:border-none">
+                <div className="flex items-baseline gap-2 mb-0.5">
+                  <span className="text-xs font-bold text-[#04101e] dark:text-slate-200">
+                    {g.date}
                   </span>
-                  <span className={`text-[9px] font-bold uppercase tracking-wider ${tipoColor(ev.tipo)}`}>
-                    {ev.tipo}
+                  <span className="text-[10px] font-bold text-[#294c72] dark:text-slate-400 uppercase tracking-wider">
+                    {g.mercados.map((m) => MERCADO_LABELS[m]).join(', ')}
                   </span>
-                </td>
-                <td className="py-2 pl-1 pr-0.5 text-left text-[9px] text-[#6a8db0] dark:text-slate-500 leading-snug">
-                  {ev.observacoes === '—' ? '' : ev.observacoes}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider ml-auto ${tipoColor(g.tipo)}`}>
+                    {g.tipo}
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-[#04101e] dark:text-slate-200 leading-tight">
+                  {g.evento}
+                </div>
+                {obsComTexto.length > 0 && (
+                  <div className="text-[9px] text-[#6a8db0] dark:text-slate-500 leading-snug mt-0.5">
+                    {obsComTexto.length === 1 && g.mercados.length === 1
+                      ? obsComTexto[0].observacoes
+                      : obsComTexto.map((o) => `${MERCADO_LABELS[o.mercado]}: ${o.observacoes}`).join(' · ')}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
 
       <div className="text-[8px] text-[#6a8db0] dark:text-slate-500 mt-2.5 px-0.5 leading-snug">
         Calendário 2026 — atualizar manualmente ao virar o ano.

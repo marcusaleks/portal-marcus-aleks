@@ -11,6 +11,18 @@ export type MarketHolidayEntry = MarketHoliday & {
   mercado: MercadoId;
 };
 
+// Um grupo de eventos que caem na mesma data com o mesmo tipo (Fechado ou
+// Horário reduzido) — ex: 25/12 fecha Brasil, EUA e UK juntos. Mercados
+// com tipo diferente na mesma data (ex: B3 fechado x NYSE horário
+// reduzido) NÃO são agrupados entre si, só dentro do mesmo tipo.
+export type GroupedHolidayEntry = {
+  date: string;
+  tipo: string;
+  evento: string; // nome genérico: o mais curto entre os eventos do grupo
+  mercados: MercadoId[];
+  observacoesPorMercado: { mercado: MercadoId; observacoes: string }[];
+};
+
 const TZ_BY_MERCADO: Record<MercadoId, string> = {
   B3: '-03:00',
   NYSE: '-05:00',
@@ -58,6 +70,35 @@ export function mergeAndSortHolidays(
     .filter((h) => parseBrDate(h.date, TZ_BY_MERCADO[h.mercado]) >= now)
     .sort((a, b) => parseBrDate(a.date, TZ_BY_MERCADO[a.mercado]) - parseBrDate(b.date, TZ_BY_MERCADO[b.mercado]))
     .slice(0, count);
+}
+
+// Agrupa entradas já ordenadas cronologicamente que caem na mesma data E
+// no mesmo tipo (Fechado / Horário reduzido) — ex: Natal fecha os 3
+// mercados juntos, mas a véspera de Natal pode ter B3 fechada enquanto
+// NYSE/LSE só reduzem o horário, então ficam em grupos separados mesmo
+// na mesma data. O nome do evento exibido é o mais curto entre os do
+// grupo (heurística simples: evita mapear tradução evento-a-evento).
+export function groupHolidaysByDateAndType(entries: MarketHolidayEntry[]): GroupedHolidayEntry[] {
+  const groups: GroupedHolidayEntry[] = [];
+
+  for (const entry of entries) {
+    const existing = groups.find((g) => g.date === entry.date && g.tipo === entry.tipo);
+    if (existing) {
+      existing.mercados.push(entry.mercado);
+      existing.observacoesPorMercado.push({ mercado: entry.mercado, observacoes: entry.observacoes });
+      if (entry.evento.length < existing.evento.length) existing.evento = entry.evento;
+    } else {
+      groups.push({
+        date: entry.date,
+        tipo: entry.tipo,
+        evento: entry.evento,
+        mercados: [entry.mercado],
+        observacoesPorMercado: [{ mercado: entry.mercado, observacoes: entry.observacoes }],
+      });
+    }
+  }
+
+  return groups;
 }
 
 // Um calendário é considerado desatualizado se não tiver nenhuma data no
