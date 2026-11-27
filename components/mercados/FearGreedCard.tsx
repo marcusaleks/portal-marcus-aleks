@@ -9,12 +9,16 @@ type FearGreedCardProps = {
   data: any;
 };
 
+// Nomenclatura ajustada a pedido do usuário (validada visualmente via
+// protótipo antes de aplicar ao componente real):
+//   Extreme Fear -> Pânico | Fear -> Medo | Neutral -> Neutro
+//   Greed -> Euforia | Extreme Greed -> Ganância
 const STAGE_LABELS: Record<string, string> = {
-  'Extreme Greed': 'Ganância Extrema',
-  'Greed': 'Ganância',
+  'Extreme Greed': 'Ganância',
+  'Greed': 'Euforia',
   'Neutral': 'Neutro',
   'Fear': 'Medo',
-  'Extreme Fear': 'Medo Extremo',
+  'Extreme Fear': 'Pânico',
 };
 
 const STAGE_COLORS: Record<string, string> = {
@@ -25,14 +29,16 @@ const STAGE_COLORS: Record<string, string> = {
   'Extreme Fear': 'text-red-600 dark:text-red-500',
 };
 
-// Zonas do gauge em score 0-100 (escala estilo CNN: 0=medo extremo,
-// 100=ganância extrema), cores alinhadas ao STAGE_COLORS acima.
+// Zonas do gauge em score 0-100 (escala estilo CNN: 0=pânico, 100=ganância),
+// cores alinhadas ao STAGE_COLORS acima. textColor define a cor do rótulo
+// escrito dentro do próprio arco (branco sobre tons escuros/saturados,
+// escuro sobre o verde-claro de "Euforia", que é claro demais para texto branco).
 const GAUGE_ZONES = [
-  { from: 0, to: 24, color: '#dc2626' },   // Extreme Fear
-  { from: 24, to: 44, color: '#f59e0b' },  // Fear
-  { from: 44, to: 56, color: '#94a3b8' },  // Neutral
-  { from: 56, to: 76, color: '#34d399' },  // Greed
-  { from: 76, to: 100, color: '#059669' }, // Extreme Greed
+  { from: 0, to: 24, color: '#dc2626', label: 'PÂNICO', textColor: '#ffffff' },
+  { from: 24, to: 44, color: '#f59e0b', label: 'MEDO', textColor: '#ffffff' },
+  { from: 44, to: 56, color: '#94a3b8', label: 'NEUTRO', textColor: '#1a1a1a' },
+  { from: 56, to: 76, color: '#34d399', label: 'EUFORIA', textColor: '#1a1a1a' },
+  { from: 76, to: 100, color: '#059669', label: 'GANÂNCIA', textColor: '#ffffff' },
 ];
 
 function fmtStage(stage: string | null): string {
@@ -46,12 +52,14 @@ function stageColor(stage: string | null): string {
 }
 
 // Gauge semicircular estilo CNN Fear & Greed: arco de 180°, zonas coloridas
-// fixas, ponteiro na posição do score (0=esquerda/medo, 100=direita/ganância).
-function Gauge({ score }: { score: number | null }) {
+// fixas com o nome do estágio escrito em texto curvo acompanhando o arco,
+// ponteiro na posição do score (0=esquerda/pânico, 100=direita/ganância).
+function Gauge({ score, uid }: { score: number | null; uid: string }) {
   const cx = 60;
   const cy = 58;
   const r = 48;
   const strokeWidth = 10;
+  const arcFontSize = 4.6;
 
   const scoreToAngleDeg = (s: number) => 180 - (s / 100) * 180; // 0->180°(esquerda), 100->0°(direita)
   const polar = (angleDeg: number, radius: number) => {
@@ -74,16 +82,21 @@ function Gauge({ score }: { score: number | null }) {
 
   return (
     <svg viewBox="0 0 120 68" className="w-full h-auto">
-      {GAUGE_ZONES.map((zone, idx) => (
-        <path
-          key={idx}
-          d={arcPath(zone.from, zone.to)}
-          fill="none"
-          stroke={zone.color}
-          strokeWidth={strokeWidth}
-          strokeLinecap="butt"
-        />
-      ))}
+      {GAUGE_ZONES.map((zone, idx) => {
+        const d = arcPath(zone.from, zone.to);
+        const pathId = `${uid}-arc-${idx}`;
+        return (
+          <g key={idx}>
+            <path d={d} fill="none" stroke={zone.color} strokeWidth={strokeWidth} strokeLinecap="butt" />
+            <path id={pathId} d={d} fill="none" stroke="none" />
+            <text fontSize={arcFontSize} fontWeight="800" fill={zone.textColor} letterSpacing="0.02em">
+              <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+                {zone.label}
+              </textPath>
+            </text>
+          </g>
+        );
+      })}
       {score !== null && (
         <line
           x1={cx}
@@ -106,9 +119,9 @@ export default function FearGreedCard({ data }: FearGreedCardProps) {
   const br: FearGreedEntry = data?.fearGreed?.VXEWZ_BR ?? { vix: null, stage: null, score: null, status: 'offline' };
   const isOffline = data?.fearGreedOffline ?? false;
 
-  const renderGaugeBlock = (label: string, sub: string, entry: FearGreedEntry) => (
+  const renderGaugeBlock = (uid: string, label: string, sub: string, entry: FearGreedEntry) => (
     <div className="flex flex-col items-center flex-1">
-      <Gauge score={entry.score} />
+      <Gauge score={entry.score} uid={uid} />
       <div className={`text-sm font-black -mt-1 ${stageColor(entry.stage)}`}>
         {fmtStage(entry.stage)}
       </div>
@@ -135,12 +148,12 @@ export default function FearGreedCard({ data }: FearGreedCardProps) {
       </div>
 
       <div className="flex items-start gap-2 mt-1">
-        {renderGaugeBlock('Estados Unidos', 'CBOE VIX', us)}
-        {renderGaugeBlock('Brasil', 'VXEWZ · via ETF EWZ', br)}
+        {renderGaugeBlock('fg-us', 'Estados Unidos', 'CBOE VIX', us)}
+        {renderGaugeBlock('fg-br', 'Brasil', 'S&P/B3 Ibovespa VIX', br)}
       </div>
 
       <div className="text-[8px] text-[#6a8db0] dark:text-slate-500 mt-2.5 px-0.5 leading-snug">
-        Estágios inspirados na escala do CNN Fear &amp; Greed Index, derivados da volatilidade implícita (VIX) e calibrados contra leituras reais do índice. Brasil medido via volatilidade do ETF EWZ (CBOE), não o VIX Brasil oficial da B3.
+        Estágios inspirados na escala do CNN Fear &amp; Greed Index, derivados da volatilidade implícita (VIX) e calibrados contra leituras reais do índice. Brasil medido pelo S&amp;P/B3 Ibovespa VIX oficial, calculado sobre opções do Ibovespa.
       </div>
     </div>
   );

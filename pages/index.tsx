@@ -14,6 +14,7 @@ import TreasuriesCard from '../components/mercados/TreasuriesCard';
 import BancosCentraisCard from '../components/mercados/BancosCentraisCard';
 import WatchlistLSECard from '../components/mercados/WatchlistLSECard';
 import FearGreedCard from '../components/mercados/FearGreedCard';
+import NextTradingDayCard from '../components/mercados/NextTradingDayCard';
 import MaioresMovimentosCard from '../components/mercados/MaioresMovimentosCard';
 import FerramentasCard from '../components/mercados/FerramentasCard';
 
@@ -334,6 +335,9 @@ export default function Home() {
 
             {/* Column 1: Medo & Ganância (Row 4) */}
             <FearGreedCard data={displayData} />
+
+            {/* Column 2: Próximos Feriados · Bolsas (Row 4) */}
+            <NextTradingDayCard />
 
           </div>
 
