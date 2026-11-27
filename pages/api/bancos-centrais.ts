@@ -37,6 +37,51 @@ function fmtPct(v: number): string {
   return v.toFixed(2).replace('.', ',') + '%';
 }
 
+// FRED BOERUKM (usada anteriormente) é uma série histórica congelada do
+// projeto "Three Centuries of Macroeconomic Data" do BoE — não é
+// atualizada desde janeiro/2017 (confirmado 26/11/2026: mostrava 0,25%,
+// taxa real na data era 4,00%). IUDBEDR, mantida pelo próprio Bank of
+// England via IADB (Interactive Statistical Database), é a série diária
+// correta do Bank Rate. Não tem API JSON — retorna CSV, sem necessidade
+// de chave.
+function todayDDMonYYYY(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - offsetDays);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = d.toLocaleDateString('en-GB', { month: 'short' });
+  return `${day}/${month}/${d.getFullYear()}`;
+}
+
+async function fetchBoeBankRate(): Promise<{ data: string; valor: number } | null> {
+  try {
+    const dateFrom = todayDDMonYYYY(15);
+    const dateTo = todayDDMonYYYY(0);
+    const url = `https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=${dateFrom}&Dateto=${dateTo}&SeriesCodes=IUDBEDR&CSVF=TT&UsingCodes=Y&VPD=Y`;
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) throw new Error(`BoE HTTP ${r.status}`);
+    const text = await r.text();
+
+    // Formato: bloco de cabeçalho, linha em branco, "DATE,IUDBEDR", depois
+    // linhas "DD Mon YYYY,valor" em ordem crescente — pegamos a última.
+    const lines = text.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+    const dataLines = lines.filter((l) => /^\d{2} \w{3} \d{4},/.test(l));
+    if (dataLines.length === 0) throw new Error('nenhuma observação no CSV');
+
+    const lastLine = dataLines[dataLines.length - 1];
+    const [dateStr, valueStr] = lastLine.split(',');
+    const valor = parseFloat(valueStr);
+    if (isNaN(valor)) throw new Error('valor inválido no CSV');
+
+    const [day, monStr, year] = dateStr.split(' ');
+    const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(monStr) + 1;
+    const isoDate = `${year}-${String(monthIndex).padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+    return { data: isoDate, valor };
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(_req: NextApiRequest, res: NextApiResponse<Payload>) {
   res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
@@ -59,7 +104,7 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
     fetchLatest('DFEDTARL'),
     fetchLatest('DFEDTARU'),
     fetchLatest('ECBDFR'),
-    fetchLatest('BOERUKM'),
+    fetchBoeBankRate(),
     fetchLatest('IRSTCB01JPM156N'),
     fetchLatest('IRSTCB01CNM156N'),
   ]);
